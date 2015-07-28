@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>主机购买</title>
+<script src="../../../resources/config/config.js" type="text/javascript"></script>
+<script>document.write("<link rel='stylesheet' type='text/css' href='../../../skin/"+customerPath+"/js/common/jquery/ui-lightness/jquery-ui-1.10.3.custom.min.css' media='all'/>");</script>
+<script>document.write("<script src='../../../skin/"+customerPath+"/js/common/jquery/jquery-1.10.2.min.js'><\/script>");</script>
+<!-- <script>document.write("<script src='../../../skin/"+customerPath+"/js/common/jquery/jquery.slider.js'><\/script>");</script> -->
+<script>document.write("<script src='../../../skin/"+customerPath+"/js/common/jquery/jquery-ui-1.10.3.custom.min.js'><\/script>");</script>
+<script>document.write("<script src='../../../skin/"+customerPath+"/js/common/jquery/jquery.cookie.js'><\/script>");</script>
+<!-- <script>document.write("<script src='../../../skin/"+customerPath+"/js/common/jquery/layer/layer.min.js'><\/script>");</script> -->
+<script>document.write("<script src='../../../skin/"+customerPath+"/js/common/jquery/jquery.md5.js'><\/script>");</script>
+<script>document.write("<script src='../../../skin/"+customerPath+"/js/common/common.js'><\/script>");</script>
+<script>document.write("<script src='../../../skin/"+customerPath+"/js/common/i18n.js'><\/script>");</script>
+<script>document.write("<script src='../../../skin/"+customerPath+"/js/common/map.js'><\/script>");</script>
+<script>document.write("<script src='../../../skin/"+customerPath+"/js/common/Math.uuid.js'><\/script>");</script>
+<script>document.write("<script src='../../../skin/"+customerPath+"/js/shop/package.js'><\/script>");</script>
+</head>
+<body>
+	<div id="wapper" class="wapper">
+		<!-- header -->
+		<div id="header" class="header">
+			<div id="logoLoginDIV"></div>
+			<div id="menuDIV"></div>
+		</div>
+		
+		<!-- content -->
+		<div id="content" class="content">
+			<div id ="tab"></div>
+			<div id ="main">
+				<div class="scSelect-div">
+						<p id="zoneGroup-label" class="package-label"><!-- 数据中心： --></p>
+						<select id="zone-select"  class="select">
+							<!-- <option>请选择机房</option>
+							<option>北京机房</option>
+							<option>上海机房</option>
+							<option>香港机房</option> -->
+						</select>
+						<p id="vmtype-label" class="package-label"><!-- 主机型号： --></p>
+						<select id="vmtype-select"  class="select">
+							<!-- <option>请选择云主机</option>
+							<option>经济型低配置</option>
+							<option>豪华型高配置</option> -->
+						</select>
+						<p id="bandwidth-label" class="package-label"><!-- 带&nbsp;&nbsp;&nbsp;&nbsp;宽： --></p>
+						<!-- <div id="slider" style='width:408px;'></div> -->
+						<div style='width:408px;margin-left:7px;'>
+							<div id="slider-range-min" style='width:70%; height:15px;float:left; margin-top:5px;'>
+								<span class="ui-slider-handle ui-state-default ui-corner-all" href="#" style=" width:18px; height:21px; "></span>
+							</div>
+							<span>
+								<input disabled="disabled" id="amount" style="border: 1; color: #72b205; height:25px; width:30px; font-family:微软雅黑; font-size:13px; margin-left:20px; padding-left:10px;"/>
+								<span class="cn-2" style="margin-top:10px;">Mbps</span>
+							</span>
+						</div>
+						<p id="os-label" class="package-label"><!-- 操作系统： --></p>
+						<select id="os-select" size="1"  class="select">
+							<!-- <option selected="selected">请选择操作系统</option>
+							<option>Windows 2008</option>
+							<option>Ubuntu 2.0</option> -->
+						</select>
+						<p id="timer-label" class="package-label"><!-- 购买时长： --></p>
+						<select id="timer-select" size="1"  class="select">
+							<!-- <option>1个月</option>
+							<option>3个月</option>
+							<option>6个月</option>
+							<option>12个月</option> -->
+						</select>
+						<p id="sc-detail-label" class="package-label"><!-- 套餐简介： --></p>
+						<div id="sc-description" class="sc-detail"></div>
+						<div class="cost-div">
+							<span id="price-label"><!-- 费用： --></span>
+							<span id="price">0</span>
+							<span id="price-unit-label"></span>
+							<span id="price-tip-label"><!-- 元/小时 --></span>								
+							<!-- <span id="price-point-label">元/月）</span>	
+							<span id="price-point">元/月）</span>
+							<span id="price-point-unit">元/月）</span>	 -->			
+						</div>
+						<p id="sc-count-label" class="package-label"><!-- 购买数量： --></p>
+						<div>
+							<span  id="reduce_count-btn"  class="add-btn"  >-</span>
+							<input id="sc-count-text" maxlength=2/>
+							<span  id="add_count-btn"  class="add-btn" >+</span>
+							<span class="count-unit-span"><!-- 台 --></span>
+						</div>
+						<!-- <div style="background-color:#f5f6fa; border-radius:5px 5px 5px 5px; border:2px solid; border-color:#84c020; width:300px; height:30px;padding-left: 10px;padding-right: 10px; padding-top:20px; font-family:微软雅黑; font-size:14px;margin-top:30px;">费用：
+							<strong>
+								<font color="#FF6600">
+									<font style="font-size:24px">280</font>
+								</font>
+							</strong>元&nbsp;&nbsp;&nbsp;&nbsp;
+							<font style="font-weight:normal">(根据您的配置，自动报价)</font>
+						</div> -->
+						<!-- <span id="btn-add" class="button button-rounded button-primary btn-add">添&nbsp;&nbsp;加</span> -->
+						<span id="btn-try" class="button button-rounded button-action btn-try">申请试用</span>
+					</div>
+					<div style="width:308px; height:99%; margin-left:0px; float:right; background-color:#f5f6fa;border:1px solid; border-color:#e8e9ed;">
+						<img id="product-img" src="" style="margin-left:20px; float:left;"/>
+						<div id="selectedVM-label">
+							<!-- 您已选择的云主机 -->
+						</div>
+						<div style="background:#e2e3e7; width:308px; height:1px; margin-top:40px"></div>    
+						<div id="accordion-resizer" >
+							<h3>
+								<span id="vmtype-label-h3"><!-- 云主机型号： --></span>
+								<span id="vmtype-span-h3"><!-- RGB-116 --></span>
+							</h3>
+							<div style="height:100%;padding: 1em 2.2em;">
+								<div class="vmconfig-label" ><!-- 配置： --></div>
+								<div class="vmconfig-text"><!-- 北京机房, 2核CPU, 1G内存, 60G硬盘, 20M中国电信宽带, Windows2008系统. --></div>
+								<!-- <div style=" margin-top:30px; font-weight:bold; font-size:12px; float:left; height:20px; width:40px;line-height:24px">数量：</div>
+								<div style=" margin-right:50px">
+									<input disabled="disabled"  style="width:50px; margin-top:30px;" name="" type="text" value="1" />
+								</div> -->
+								<div class="vmtime-label"><!-- 时长： --></div>
+								<div class="vmtime-text" ><!-- 1个月 --></div>
+								<div class="vmprice-label" ><!-- 费用： --></div>
+								<div class="vmprice-text"><!-- 280元 --></div>
+							</div>
+						</div>    
+						<div style="background:#e2e3e7; width:308px; height:1px;"></div>
+						<div style="width:160px; height:100px; float:left;">
+							<p>
+								<span class="total-label" style="font-family:微软雅黑; font-size:14px; margin-left:20px;"><!-- 总计： --></span>
+								<span id="total-text" style="color:#FF6600;font-size:24px">1</span>
+								<span class="total-unit-span" style="font-family:微软雅黑; font-size:14px; margin-left:20px;"><!-- 台 --></span>
+							</p>
+							<p>
+								<span class="totalprice-label"  style="font-family:微软雅黑; font-size:14px; margin-left:20px;"><!-- 共计： --></span>
+								<span id="totalprice-text"  style="color:#FF6600;font-size:24px">0<!-- 1278 --></span>
+								<span class="totalprice-unit-label"  style="font-family:微软雅黑; font-size:14px; margin-left:10px;">元</span>								
+							</p>	 
+						</div>
+						<div style="width:148px; height:100px; float:left;">
+							<span id="btn-submit" class="button button-rounded button-primary btn-submit">提交订单</span>
+						</div>
+						<div style="width:258px; float:left; padding-left:30px;font-family:宋体; font-size:12px;">
+							<input type="checkbox" id="agreeTerm" value="false" />
+							<span class="agreeTerm-span">我已阅读并同意</span>
+							<a id="serviceTerms"  href="#" style="color: #03C;">《息壤服务条款》</a>
+							<div id="serviceTermMessage"></div>
+						</div>
+					</div>
+			</div>
+		</div>
+		
+		<!-- footer -->
+		<div id="footer" class="footer"></div>
+	</div>
+</body>
+</html>

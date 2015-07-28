@@ -1,0 +1,246 @@
+<html>
+<head>
+<title>虚机账单统计</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel='stylesheet' type='text/css' href='../../extjs-4.1.0/resources/css/ext-all-gray.css' />
+<script type='text/javascript' src='../../extjs-4.1.0/ext-all.js'></script>
+<script type="text/javascript" src="../../js/head.js"></script>
+<script type="text/javascript" src="../../js/ux/data/PagingMemoryProxy.js"></script>
+<script type="text/javascript" src="../../js/ux/form/SearchField.js"></script>
+<script src="../../js/jquery-1.7.2.min.js" type="text/javascript"></script>
+<script type="text/javascript" charset="utf-8" src="../../js/i18n.js"></script>
+<script type="text/javascript" src="../systemmanagement/common.js"></script>
+
+<script>
+Ext.require([
+    'Ext.chart.*',
+	'Ext.form.field.ComboBox',
+    'Ext.form.FieldSet',
+	'Ext.Window', 
+    'Ext.data.*',
+    'Ext.panel.Panel',
+    'Ext.layout.container.Fit',
+    'Ext.ux.form.SearchField',
+	'Ext.fx.target.Sprite',
+	'Ext.ux.data.PagingMemoryProxy'
+]);
+
+Ext.onReady(function () {
+    MultiLang = (function() {
+        return {
+            init: function() {
+                // load ExtJS locale
+                params = getCookie("lang");
+                i18n.set({
+  				  lang: params, 
+  				  path: '../../resources'
+  				});
+                if (params) {
+                    var url = Ext.util.Format.format('../../extjs-4.1.0/locale/ext-lang-{0}.js', params);
+                    Ext.Ajax.request({
+                        url: url,
+                        success: this.onLoadExtLocaleSuccess,
+                        failure: this.onLoadExtLocaleFailure,
+                        scope: this
+                    });
+                } else {
+                	this.setup();
+                }
+            },
+            onLoadExtLocaleSuccess: function(response) {
+                try {
+                    eval(response.responseText);
+                } catch (e) {
+                    Ext.Msg.alert('Failure', e.toString());
+                }
+                this.setup();
+            },
+            onLoadExtLocaleFailure: function() {
+                Ext.Msg.alert('Failure', 'Failed to load locale file.');
+                this.setup();
+            },
+            setup: function() {
+            	
+	var appyearStore = Ext.create('Ext.data.Store',{
+		autoLoad : true,
+		fields: ['year'],
+		proxy : new Ext.data.proxy.Ajax({
+			url : path+ '../../../../report_mgmt/cloudApplicationReport!getAppYear.action',
+			reader : {
+				type : 'json',
+				root : 'resultObject'
+			},
+			listeners:{
+				exception:function(reader, response, error, eOpts){
+					ajaxException(reader, response, error, eOpts );										
+				}
+			}							
+		})		
+	});
+	
+	Ext.define('appBillReport', {
+	    extend: 'Ext.data.Model',
+	    fields: [
+	        {name: 'year', type: 'int'},
+	        {name: 'month', type: 'int'},
+	        {name: 'totalPrice', type: 'auto'}
+	    ],
+	    idProperty:'month'
+	});
+	
+	var billReportStore = Ext.create('Ext.data.Store',{
+		autoLoad : true,
+		model: 'appBillReport',
+		proxy : new Ext.data.proxy.Ajax({
+			url : path+ '../../../../report_mgmt/cloudApplicationReport!getAppBillReport.action',
+			reader : {
+				type : 'json',
+				root : 'resultObject'
+			},
+			listeners:{
+				exception:function(reader, response, error, eOpts){
+					ajaxException(reader, response, error, eOpts );										
+				}
+			}							
+		}),
+		listeners : {
+			beforeload : function(store,operation, eOpts ){	
+				v_mask = new Ext.LoadMask(Ext.getBody(), {
+					msg : i18n._('please wait'),
+					removeMask : true			
+				});
+				v_mask.show();
+			},
+			load : function(store, records, successful, eOpts ){
+				v_mask.hide();
+			}
+		}		
+	});
+	
+	var imgb = new Ext.Button({  
+    		        text: '<font color="#ee7700">'+i18n._('Search')+'</font>',
+    		        icon: "images/search.png",
+    		        handler :function(btn) { 
+    		        	var searchAppyear = Ext.getCmp('searchAppyear').getValue();
+						var new_params={'searchyear':searchAppyear};
+						Ext.apply(billReportStore.proxy.extraParams,new_params);
+						billReportStore.load(new_params);
+    	            }
+    		    }); 
+
+	
+var grid = Ext.create('Ext.panel.Panel', {
+    id:'button-grid',
+    title:i18n._('报表管理')+'&nbsp;&nbsp;>&nbsp;&nbsp;'+i18n._('云应用')+'&nbsp;&nbsp;>&nbsp;&nbsp;'+i18n._('月收入统计'),
+	layout:'fit',
+    width:'100%',
+	height:'100%',
+    frame: true,
+	border:false,
+	simpleSelect :true,
+    iconCls: 'icon-grid',
+	renderTo: Ext.getBody(),
+	//自适应
+    viewConfig: {
+        stripeRows: true,
+		forceFit: true
+    }
+});
+
+Ext.create('Ext.form.Panel', {
+    width: 400,
+	margin:'10px 0 30px 320px',
+    bodyPadding: 10,
+    renderTo: Ext.getBody(),
+    layout: {
+        type: 'hbox',
+        align: 'middle'
+    },
+    items: [{
+        xtype: 'label',
+        forId: 'myFieldId',
+        text: i18n._('years'),
+        margins: '0 10px 0 50px'
+    },{
+       xtype:'combobox',
+	   margins: '0 10px 0 0 ',
+		name:'searchAppyear', 
+		id:'searchAppyear', 
+		store: appyearStore,                 
+		queryMode: 'local',                    
+		displayField: 'year',              
+		valueField: 'year',                   
+		emptyText:Ext.util.Format.date(new Date(),'Y'),                    
+		fieldLabel:'',
+		hideLabel:true
+    },imgb]
+});
+
+	Ext.create('Ext.chart.Chart', {
+	    renderTo: Ext.getBody(),
+		margin:'0 0 0 200px',
+	    width: 600,
+	    height: 400,
+	    animate: true,
+	    store: billReportStore,
+	    axes: [{
+	            type: 'Numeric',
+	            position: 'left',
+	            fields: ['totalPrice'],
+	            label: {
+	                renderer: Ext.util.Format.numberRenderer('0.00')
+	            },
+	            title: i18n._('reportYTitle'),
+	            grid: true,
+	            minimum: 0
+	        }, {
+	            type: 'Category',
+	            position: 'bottom',
+	            fields: ['month'],
+	            title: i18n._('reportXTitle'),
+	        }],
+	        series: [{
+	            type: 'column',
+	            axis: 'left',
+	            highlight: true,
+	            style:{width:30},
+	            tips: {
+	              trackMouse: true,
+	              width: 140,
+	              height: 28,
+	              renderer: function(storeItem, item) {
+	                this.setTitle(i18n._('money') + ': ' + storeItem.get('totalPrice') + i18n._('cny'));
+	              }
+	            },
+	            label: {
+	                display: 'insideEnd',
+	                'text-anchor': 'middle',
+	                field: 'totalPrice',
+	                renderer: Ext.util.Format.numberRenderer('0.00'),
+	                orientation: 'vertical',
+	                rotate: {
+                        degrees: 0
+                    },
+	                color: '#333'
+	            },
+ 	            xField: 'month',
+	            yField: 'totalPrice' 
+	        }]
+	});
+   
+            }
+        };
+    })();
+
+    MultiLang.init();
+});
+function getCookie(name){
+    var arr = document.cookie.match(new RegExp("(^| )"+name+"=([^;]*)(;|$)"));
+    if(arr != null) return unescape(arr[2]);
+	 return null;
+}
+</script>
+</head>
+<body>
+</body>
+</html>

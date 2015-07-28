@@ -1,0 +1,259 @@
+<html>
+<head>
+<title>登录</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<!-- <link rel="stylesheet" href="css/ui-lightness/jquery-ui-1.8.23.custom.css"> -->
+<link rel="stylesheet" href="css/index.css">
+<script type="text/javascript" src="./extjs-4.2/include-ext.js"></script>
+<script type="text/javascript" src="extjs-4.2/options-toolbar.js"></script>
+<script type="text/javascript" src="common/jquery.js"></script>
+<!-- <script type="text/javascript" src="common/jquery-ui-1.8.23.custom.min.js"></script> -->
+<script type="text/javascript" src="common/i18n.js"></script>
+<script type="text/javascript" src="common/common.js"></script>
+<style type="text/css">
+	.x-form-empty-userName {
+		background: url("images/login/username.png") no-repeat;
+		background-position: left; center;
+		padding-left: 15px;
+		_line-height:45px;
+	}
+	.x-form-empty-password {
+		background: url("images/login/password.png") no-repeat;
+		background-position: left; center;
+		padding-left: 15px;
+		_line-height:45px;
+	}
+</style>
+<script type="text/javascript">
+if (window.top !== window.self) { // are you trying to put self in an iframe?       
+    window.open(location.href,'_top');  
+}
+
+Ext.onReady(function(){
+	var params;
+	MultiLang = (function() {
+		return {
+			init: function() {
+				// load ExtJS locale
+				params = getCookie("lang");
+				i18n.set({
+					lang: params, 
+					path: 'resources'
+				});
+				if (params) {
+					var url = Ext.util.Format.format('extjs-4.2/locale/ext-lang-{0}.js', params);
+					Ext.Ajax.request({
+						url: url,
+						success: this.onLoadExtLocaleSuccess,
+						failure: this.onLoadExtLocaleFailure,
+						scope: this
+					});
+				} else {
+					// no language found, locale of ExtJS will be english as default
+					//this.loadmyprojectLocale();
+					this.setup();
+				}
+			},
+			onLoadExtLocaleSuccess: function(response) {
+				try {
+					eval(response.responseText);
+				} catch (e) {
+					Ext.Msg.alert('Failure', e.toString());
+				}
+				//this.loadmyprojectLocale();
+				this.setup();
+			},
+			onLoadExtLocaleFailure: function() {
+				Ext.Msg.alert('Failure', 'Failed to load locale file.');
+				this.setup();
+				//this.loadmyprojectLocale();
+			},
+			setup: function() {	            	
+				var userField=Ext.create('Ext.form.field.Text',{
+					renderTo:'userName',
+					width:'280',
+					height:'50',
+					emptyCls :'x-form-empty-userName',
+					emptyText:i18n._('userName')
+				});
+				var passwordField2=Ext.create('Ext.form.field.Text',{
+					renderTo:'password',
+					width:'280',
+					height:'50',
+					hidden:true,
+					enableKeyEvents:true,
+					inputType:'password',
+					listeners : {
+						blur:function(e, The, eOpts){
+							if(e.getValue()==null || e.getValue()==''){
+								e.hide();
+								passwordField.show();
+							}							
+						},
+						keydown:function(element, event, eOpts){
+							if(event.keyCode==13){
+								clickhandler();
+							}
+						}
+					}
+				});
+				var passwordField=Ext.create('Ext.form.field.Text',{
+					renderTo:'password',
+					width:'280',
+					height:'50',
+					emptyCls :'x-form-empty-password',
+					emptyText:i18n._('password'),
+					listeners : {
+						focus:function(e, The, eOpts){
+							e.hide();
+							passwordField2.show();
+							passwordField2.focus();
+						}						
+					}
+				});				
+				var submitBtn = Ext.get("submit");
+				//事件绑定
+				//给元素绑定click事件：
+				var clickhandler = function () {
+					if(userField.getValue()==null || userField.getValue()==''){
+						Ext.MessageBox.show({
+							title : i18n._('Warning'),
+							msg : i18n._('please enter your user name'),
+							buttons : Ext.MessageBox.OK,
+							icon : Ext.MessageBox.WARNING,
+							fn:function(){
+								userField.focus();
+							}
+						});// INFO,QUESTION,WARNING,ERROR
+						return;
+					}
+					if(passwordField2.getValue()==null || passwordField2.getValue()==''){
+						Ext.MessageBox.show({
+							title : i18n._('Warning'),
+							msg : i18n._('please enter your password'),
+							buttons : Ext.MessageBox.OK,
+							icon : Ext.MessageBox.WARNING,
+							fn:function(){
+								passwordField.hide();
+								passwordField2.show();
+								passwordField2.focus();
+							}
+						});// INFO,QUESTION,WARNING,ERROR
+						return;
+					}
+					login(userField.getValue(),passwordField2.getValue());
+				};
+				submitBtn.on("click", clickhandler);
+				function login(userName,password){
+					Ext.Ajax.request({
+						url : 'login!login.action',
+						method : 'POST',
+						timeout:180000,
+						params : {
+							'userName' : userName,			
+							'password':password
+						},
+						success : function(form, action) {
+							var obj = Ext.decode(form.responseText);
+							if (obj == null || obj.success == null) {
+								Ext.MessageBox.show({
+									title : i18n._('errorNotice'),
+									msg : i18n._('returnNull'),
+									buttons : Ext.MessageBox.OK,
+									icon : Ext.MessageBox.ERROR
+								});// INFO,QUESTION,WARNING,ERROR
+								return;
+							}
+							if (!obj.success) {
+								Ext.MessageBox.show({
+									title : i18n._('errorNotice'),
+									msg : obj.resultMsg,
+									buttons : Ext.MessageBox.OK,
+									icon : Ext.MessageBox.WARNING
+								});
+								return;
+							}							
+							window.location.href = "cloud-storage/index.html";
+						},
+						failure : function(form, action) {
+							v_mask.hide();
+							Ext.MessageBox.show({
+								title : i18n._('errorNotice'),
+								msg : i18n._('operateFail'),
+								buttons : Ext.MessageBox.OK,
+								icon : Ext.MessageBox.WARNING,
+								fn: reLoadData
+							});
+						}
+					});
+				};
+			}
+		};
+	})();
+	MultiLang.init();    
+});	
+</script>
+</head>
+<body bgcolor="#FFFFFF" leftmargin="0" topmargin="0" marginwidth="0" marginheight="0">
+<table id="__01" width="100%" height="768" border="0" cellpadding="0" cellspacing="0">
+	<tr>
+		<td colspan="3" bgcolor="#157fcc"></td>
+		<td>
+			<img src="images/login/delimiter.gif" width="1" height="173" alt="">
+		</td>
+	</tr>
+	<tr>
+		<td rowspan="3"><img src="images/login/hscloudstoragelogin_02.png" width="345" height="339" alt=""></td>
+		<td><img src="images/login/hscloudstoragelogin_03.png" width="587" height="138" alt=""></td>
+		<td rowspan="2"><img src="images/login/hscloudstoragelogin_04.gif" width="416" height="230" alt=""></td>
+		<td><img src="images/login/delimiter.gif" width="1" height="138" alt=""></td>
+	</tr>
+	<tr>
+		<td bgcolor="#ffffff" rowspan="3" valign="top">
+			<table align="top" cellpadding="0" cellspacing="0" height="92">
+				<tr>
+					<td bgcolor="#ffffff"><img src="images/login/icon.png"  alt=""></td>
+					<td>
+						<table id="loginForm" align="center" style="" cellpadding="0" cellspacing="0">										
+							<tr>
+								<td><div id="userName"></div></td>								
+								<!-- <td><input type="text" id="name" style="width:280px;height:50px;" /></td> -->
+							</tr>
+							<tr>
+								<td>&nbsp;</td>
+							</tr>
+							<tr>
+								<td><div id="password"></div></td>								
+								<!-- <td>
+									<input type="password" id="pass" style="width:280px;height:50px;display: none;" />
+									<input id="showPwd" type="text" id="showPwd" style="width:280px;height:50px;"  />
+								</td> -->
+							</tr>										
+							<tr>
+								<td>&nbsp;</td>
+							</tr>
+							<tr>
+								<!-- <td><div id="submitBtn"></div></td> -->								
+								<td  align="center"><img id="submit" src="images/login/login.png" width="280" height="50" style="cursor: pointer;"/></td>
+							</tr>					
+						</table>
+					</td>
+				</tr>
+			</table>			
+		</td>	 
+		<td><img src="images/login/delimiter.gif" width="1" height="92" alt=""></td>
+	</tr>
+	<tr>
+		<td rowspan="2" bgcolor="#ffffff"></td>
+		<td bgcolor="#ffffff"><img src="images/login/delimiter.gif" width="1" height="109" alt=""></td>
+	</tr>
+	<tr>
+		<td bgcolor="#ffffff"></td>
+		<td bgcolor="#ffffff"><img src="images/login/delimiter.gif" width="1" height="256" alt=""></td>
+	</tr>
+</table>
+<div id="loginfailmsg" style="display: none"></div>
+<!-- End Save for Web Slices -->
+
+</body>
+</html>

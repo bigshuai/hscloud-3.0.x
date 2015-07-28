@@ -1,0 +1,732 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+ <head>
+  <title>订单列表 </title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel='stylesheet' type="text/css" href="../../extjs-4.1.0/resources/css/ext-all-gray.css"/>
+<script type="text/javascript" src="../../extjs-4.1.0/ext-all.js"></script>
+<script type="text/javascript" src="../../js/ux/data/PagingMemoryProxy.js"></script>
+<script type="text/javascript" src="../../js/ux/form/SearchField.js"></script>
+<script type="text/javascript" src="../../js/ux/ProgressBarPager.js"></script>
+<script type="text/javascript" src="../../js/ux/RowExpander.js"></script>
+<script src="../../js/jquery-1.7.2.min.js" type="text/javascript"></script>
+<script type="text/javascript" charset="utf-8" src="../../js/i18n.js"></script>
+<script type="text/javascript" src="../../js/head.js"></script>
+<script type="text/javascript" src="../business/common.js"></script>
+<style type="text/css">
+.x-form-trigger-input-cell input{
+  width:30px;
+}
+</style>
+<script type="text/javascript">
+Ext.Loader.setConfig({
+    enabled: true
+});
+Ext.QuickTips.init(true,{dismissDelay:600000});
+Ext.require([
+    'Ext.data.*',
+    'Ext.panel.Panel',
+    'Ext.view.View',
+    'Ext.layout.container.Fit',
+    'Ext.toolbar.Paging',
+    'Ext.ux.form.SearchField',
+	'Ext.ux.RowExpander',
+    'Ext.selection.CheckboxModel',
+	'Ext.ux.data.PagingMemoryProxy',
+    'Ext.ux.ProgressBarPager'
+]);
+
+
+Ext.onReady(function() {
+	var vmid=0;
+    var params;
+    MultiLang = (function() {
+        return {
+            init: function() {
+                // load ExtJS locale
+                params = getCookie("lang");
+                i18n.set({
+  				  lang: params, 
+  				  path: '../../resources'
+  				});
+                if (params) {
+                    var url = Ext.util.Format.format('../../extjs-4.1.0/locale/ext-lang-{0}.js', params);
+                    Ext.Ajax.request({
+                        url: url,
+                        success: this.onLoadExtLocaleSuccess,
+                        failure: this.onLoadExtLocaleFailure,
+                        scope: this
+                    });
+                } else {
+                    // no language found, locale of ExtJS will be english as default
+                    //this.loadmyprojectLocale();
+                	this.setup();
+                }
+            },
+            onLoadExtLocaleSuccess: function(response) {
+                try {
+                    eval(response.responseText);
+                } catch (e) {
+                    //Ext.Msg.alert('Failure', e.toString());
+                }
+                //this.loadmyprojectLocale();
+                this.setup();
+            },
+            onLoadExtLocaleFailure: function() {
+                //Ext.Msg.alert('Failure', 'Failed to load locale file.');
+                this.setup();
+                //this.loadmyprojectLocale();
+            },
+            setup: function() {
+  var fuzzy='';
+  var exportStatus=3  //默认导出所有状态
+  Ext.define('appOrderVO', {
+      extend: 'Ext.data.Model',
+      fields: [
+          {name: 'id',type:'int'},
+          {name: 'orderNo',type:'string'},
+          {name: 'appName',type:'string'},
+          {name: 'createDate',type: 'date', dateFormat: 'time'},
+          {name: 'expireDate',type: 'date', dateFormat: 'time'},
+          {name: 'userName',type:'string'},
+          {name: 'supplierName',type:'string'},
+          {name: 'totalPrice', type: 'double'},
+          {name: 'orderStatus', type: 'int'},
+          {name: 'orderContent', type: 'string'},
+          {name: 'remark', type: 'string'}
+      ]
+  });
+
+  // create the Data Store
+  var store = Ext.create('Ext.data.Store', {
+      pageSize: pageSize,
+      model: 'appOrderVO',
+      remoteSort: true,
+      listeners:{
+      	beforeload:function(){
+    		fuzzy=Ext.getCmp("searchfield").getValue();
+    	}
+      },
+      proxy: new Ext.data.proxy.Ajax({
+      	url: path+'/../application_mgmt/applicationOrder!getAppOrderByPage.action',
+		reader: {
+              type: 'json',
+              root: 'resultObject.result',
+              totalProperty: 'resultObject.totalCount'
+        },
+        listeners:{
+			exception:function(reader, response, error, eOpts){
+				ajaxException(reader, response, error, eOpts );
+			}
+		}
+      })
+  });
+ 
+    ////////////////////////////////////////////////////////////////////////////////////////
+    // Grid 4
+    ////////////////////////////////////////////////////////////////////////////////////////
+    var selModel = Ext.create('Ext.selection.CheckboxModel', {
+        listeners: {
+            selectionchange: function(sm, selections) {
+                grid4.down('#removeButton').setDisabled(selections.length == 0);
+            }
+        }
+    });
+    var sm = Ext.create('Ext.selection.RowModel');
+    var pluginExpanded = true;
+    var grid = Ext.create('Ext.grid.Panel', {
+        id:'button-grid',
+        store: store,
+        title:i18n._('applicationManagement')+'&nbsp;&nbsp;>&nbsp;&nbsp;'+i18n._('appOrder'),
+		layout:'fit',
+		//sortableColumns:false,
+		margin:'0 0 0 0',
+	    width:'100%',
+		height:'100%',
+	//	height:300,
+        frame: true,
+		border:false,
+		simpleSelect :true,
+     	selModel:sm,
+        iconCls: 'icon-grid',
+		//自适应
+        viewConfig: {
+            stripeRows: true,
+			forceFit: true
+        },
+        columns:[
+		{xtype: 'rownumberer',flex:0.1},
+       {
+            text: i18n._('order_id'),
+            dataIndex: 'orderNo',
+            flex: 0.4,
+            sortable: true
+        },{
+            text: i18n._('applicationName'),
+            dataIndex: 'appName',
+            flex: 0.2,
+            sortable: true
+        },{
+            text: i18n._('buyTime'),
+            dataIndex: 'createDate',
+            renderer: Ext.util.Format.dateRenderer('Y-m-d H:i:s'),
+            flex: 0.35,
+            sortable: true
+        },{
+            text: i18n._('expireTime'),
+            dataIndex: 'expireDate',
+            renderer: Ext.util.Format.dateRenderer('Y-m-d H:i:s'),
+            flex: 0.35,
+            sortable: true
+        },{
+            text: i18n._('username'),
+            dataIndex: 'userName',
+            flex: 0.25,
+            sortable: false
+        },{
+            text: i18n._('supplier'),
+            dataIndex: 'supplierName',
+            flex: 0.25,
+            sortable: false
+        },{
+            text: i18n._('money')+"("+i18n._('cny')+")",
+            //xtype:'templatecolumn', tpl:'{totalPrice} RMB',
+            flex: 0.2,
+            dataIndex:'totalPrice',
+            align:'right',
+            renderer:function(value,metaData,record,colIndex,store,view){
+            	if(value){
+            		return Ext.util.Format.number(value,"0.00");
+            	}else{
+            		return "0.00";
+            	}
+            		
+            },
+            sortable: true
+        },{
+            text: i18n._('status'),
+            dataIndex: 'orderStatus',
+            flex: 0.15,
+            sortable: true,
+            renderer: function(value){
+            	switch(value){
+			    	case 1: return i18n._('appPaid');break;
+			    	case 2: return i18n._('Canceled');break;
+			    	default:return i18n._('Unpaid');
+	        	}
+             }
+        },{
+        	text: i18n._('orderContent'),
+            dataIndex: 'orderContent',
+            flex: 0.6,
+            sortable: false,
+            renderer: function(value,metaData,record,colIndex,store,view) {
+           	if(value!=null){
+   	         	metaData.tdAttr = 'data-qtip="' + value + '"';
+   	         	return value;
+           	}
+            }
+        },{
+    	    text: i18n._('Remark'),
+            dataIndex: 'remark',
+            flex: 0.6,
+            sortable: false,
+            renderer: function(value,metaData,record,colIndex,store,view) {
+        	if(value!=null){
+	        	var strLine=value.split(";");
+	        	var result=strLine.join("<br/>");
+	         	metaData.tdAttr = 'data-qtip="' + result + '"';
+	         	return value;
+        	}
+         }
+    }],
+        columnLines: true,
+         //page
+
+		 bbar: Ext.create('Ext.PagingToolbar', {
+            store: store,
+			pageSize: 0,
+			inputItemWidth:pagingBarPageNumWidth,
+			displayInfo: true
+        }),
+        
+        listeners:{
+        	"itemdblclick":{
+        		fn:function(){
+        			viewDetail();
+        		}
+        	}
+        },
+        
+        // inline buttons
+        dockedItems: [ {
+            xtype: 'toolbar',
+            cls: 'toolbarCSS',
+            //style:'background-color:#4c4c4c; background-image:url();',
+            items: [
+			{   xtype:'button',
+                itemId: 'removeButton',
+                shadow:false,
+                tooltip: i18n._('Cancel'),
+                text:'<font id="cancelOrder" color="white">'+i18n._('Cancel')+'</font>',
+                listeners: {
+					 "mouseout" : function() {
+						 document.getElementById("cancelOrder").style.color = "white";
+					 },
+					 "mouseover" : function() {
+						 document.getElementById("cancelOrder").style.color = "black";
+					 }
+						
+				},
+                icon:'../../images/cancel.png',
+			    handler: function(e) {
+			    	getSessionUser();
+			    	var rows = grid.getSelectionModel().getSelection();
+			    	if(rows.length > 0){
+			    		var status = rows[0].get('orderStatus');
+			    		if(status == 1){
+			    			Ext.MessageBox.show({
+		    		           title: i18n._('Prompt'),
+			    		           msg: i18n._('The order has been completed can not be canceled'),
+			  		           icon:Ext.MessageBox.WARNING,
+			  		           buttons: Ext.MessageBox.OK
+			  		           
+			  		       }); 
+			    			return ;
+			    		}
+			    		
+			    		if(status == 2){
+			    			Ext.MessageBox.show({
+			    		           title: i18n._('Prompt'),
+			    		           msg: i18n._('The order has been canceled can not be canceled'),
+				  		           icon:Ext.MessageBox.WARNING,
+				  		           buttons: Ext.MessageBox.OK
+				  		           
+				  		       }); 
+			    			return ;
+			    		}
+			    		if(status == 0){
+				    		Ext.MessageBox.show({
+				                   title:i18n._('Prompt'),
+				                   msg: i18n._('Are you sure to cancel'),
+				                   buttons: Ext.MessageBox.YESNO,
+				                   icon: Ext.MessageBox.QUESTION,
+				                   fn:function(e){
+				                	   if(e=='yes'){
+				                	   var id = rows[0].get('id');
+				                	   Ext.Ajax.request({
+				                		    url: path + '/../application_mgmt/applicationOrder!cancelAppOrder.action',
+				                		    params: {
+				                		    	"appOrderId": id
+				                		    },
+				                		    success: function(response){
+				                		    	var json = Ext.decode(response.responseText);
+				                		        if(json.success){
+				                		        	Ext.MessageBox.show({
+					     				  		           title: i18n._('Prompt'),
+					     				  		           msg: i18n._('Cancel successfully'),
+				     				  		           icon:Ext.MessageBox.INFO,
+				     				  		           buttons: Ext.MessageBox.OK
+				     				  		           
+				     				  		       }); 
+				                		        	store.load();
+				                		        }else{
+				                		        	Ext.MessageBox.show({
+					     				  		           title: i18n._('Prompt'),
+					     				  		           msg:json.resultMsg,
+				     				  		           icon:Ext.MessageBox.INFO,
+				     				  		           buttons: Ext.MessageBox.OK
+				     				  		           
+				     				  		       }); 
+				                		        }
+				                		    }
+				                		});
+				                	   }
+				                	}
+				    		});
+			    		}
+			    	}else{
+			    		Ext.MessageBox.show({
+		    		           title: i18n._('Prompt'),
+		    		           msg: i18n._('selectOne'),
+			  		           icon:Ext.MessageBox.WARNING,
+			  		           buttons: Ext.MessageBox.OK
+			  		           
+			  		       }); 
+			    	}
+                    
+            }},{
+            	xtype:'button',
+                text:'<font id="orderDetail" color="white">'+i18n._('Details')+'</font>',
+                listeners: {
+					 "mouseout" : function() {
+						 document.getElementById("orderDetail").style.color = "white";
+					 },
+					 "mouseover" : function() {
+						 document.getElementById("orderDetail").style.color = "black";
+					 }
+						
+				},
+                tooltip:i18n._('Details'),
+                shadow:false,
+                icon:'../../images/detail.png',
+                handler:function(){
+                	viewDetail();
+            	}},{
+
+					xtype:'button',//导出
+				    text:'<font id="export" color="white">'+i18n._('export')+'</font>',
+				    listeners: {
+						 "mouseout" : function() {
+							 document.getElementById("export").style.color = "white";
+						 },
+						 "mouseover" : function() {
+							 document.getElementById("export").style.color = "black";
+						 }
+							
+					},
+				    tooltip:i18n._('export'),
+				    shadow:false,
+				    icon:'../../images/export.png',
+				    handler:function(){
+                         var downloadForm = Ext.create('Ext.form.Panel',{
+                             frame:true,
+                             standardSubmit:true
+                         });
+                         downloadForm.getForm().submit({
+                             url:path + '/../excelExport!excelExportAppOrder.action',
+                             method:'post',
+                             params:{
+                            	 'queryVO.fuzzy':fuzzy,
+                            	 'queryVO.transactionType':exportStatus
+                         }
+                         });
+					}
+            	},
+            {xtype:'tbfill'},
+            {
+                xtype:'splitbutton',
+                id:'orderStatebutton',
+                text:'<span style="bottom:2px;position:relative;"><font id="orderStateSplit" color="white">'+i18n._('OrderStatus')+':'+'</font></span>', 
+                listeners: {
+					 "mouseout" : function() {
+						 document.getElementById("orderStateSplit").style.color = "white";
+					 },
+					 "mouseover" : function() {
+						 document.getElementById("orderStateSplit").style.color = "black";
+					 }
+						
+				},
+                menu: new Ext.menu.Menu({
+                    items: [
+						{
+						    text: i18n._('All'),//全部
+						    handler: function(){
+						        Ext.getCmp('orderStatebutton').setText('<font color="#ffffff" id="orderStateSplit">' + i18n._('All') + '</font>');
+						        var new_params={'queryVO.transactionType':3};
+						        exportStatus=3;
+								Ext.apply(store.proxy.extraParams,new_params);
+								store.loadPage(1,null);
+						    }
+						},
+                        {
+                            text: i18n._('Unpaid'),//未支付
+                            handler: function(){
+                            	Ext.getCmp('orderStatebutton').setText('<font color="#ffffff" id="orderStateSplit">' + i18n._('Unpaid') + '</font>');
+                            	var new_params={'queryVO.transactionType':0};
+                            	exportStatus=0;
+                        		Ext.apply(store.proxy.extraParams,new_params);
+                        		store.loadPage(1,null);
+                            }
+                        },
+                        {
+                            text: i18n._('appPaid'),//已支付
+                            handler: function(){
+                            	Ext.getCmp('orderStatebutton').setText('<font color="#ffffff" id="orderStateSplit">' + i18n._('Paid') + '</font>');
+                            	var new_params={'queryVO.transactionType':1};
+                            	exportStatus=1;
+                				Ext.apply(store.proxy.extraParams,new_params);
+                				store.loadPage(1,null);
+                            }
+                        },
+                        {
+                            text: i18n._('Canceled'),//已取消
+                            handler: function(){
+                                Ext.getCmp('orderStatebutton').setText('<font color="#ffffff" id="orderStateSplit">' + i18n._('Canceled') + '</font>');
+                                var new_params={'queryVO.transactionType':2};
+                                exportStatus=2;
+                        		Ext.apply(store.proxy.extraParams,new_params);
+                        		store.loadPage(1,null);
+                            }
+                        }
+                     ]
+                })
+            },
+            {
+				xtype:'displayfield',
+				hideLabel:true,
+				value:'<span style="bottom:3px;position:relative;"><font color="white">'+i18n._('QuickSearch')+':'+'</font></span>'
+			},
+	        {
+                xtype: 'searchfield',
+                id:'searchfield',
+                hideLabel:true,
+				hasSearch:true,
+				width:200,
+				emptyText:i18n._('appOrderSearchText'),
+                store: store,                           
+                listeners:{
+                	specialkey:function(f,e){
+                		if (e.getKey() == e.ENTER) {
+                	    fuzzy=Ext.getCmp("searchfield").getValue();
+                		}
+                	}   
+			   }
+			 }
+            ]
+        }]
+    });
+    
+    function setUrl(rightUrl, url) {
+    	if(rightUrl == '') {
+    		rightUrl = url;
+    	}
+    	return rightUrl;
+    }
+    
+    function viewDetail(){
+    	var rows = grid.getSelectionModel().getSelection();
+    	if(rows.length > 0){
+    		var id = rows[0].get('id');
+    		Ext.define('appOrderDetailVO', {
+    		      extend: 'Ext.data.Model',
+    		      fields: [
+    		          {name: 'createDate', type: 'date', dateFormat: 'time'},
+    		          {name: 'buyDate', type: 'date', dateFormat: 'time'},
+    		          {name: 'orderType', type: 'int'},
+    		          {name: 'appPrice', type: 'double'},
+    		          {name: 'vmPrice', type: 'double'},
+    		          {name: 'totalPrice', type: 'double'},
+    		          {name: 'count', type: 'int'},
+    		          {name: 'remark', type: 'string'},
+    		          {name: 'createDate', type: 'date', dateFormat: 'time'},
+    		      ]
+    		  });
+
+    		
+    		  // create the Data Store
+    		  var store1 = Ext.create('Ext.data.Store', {
+    		      model: 'appOrderDetailVO',
+    		      remoteSort: true,
+    		      autoLoad: true,
+    		      proxy: new Ext.data.proxy.Ajax({
+    		    	  url: path+'/../application_mgmt/applicationOrder!getAppOrderById.action?appOrderId='+id,
+        				reader: {
+        		              type: 'json',
+        		              root: 'resultObject'
+        		        }
+    		      })
+    		  });
+              
+    		  var arr;
+    		  var orderNo=rows[0].get('orderNo');
+    		  var orderStatus=rows[0].get('orderStatus');
+    		  var orderContent=rows[0].get('orderContent');
+    		  var totalPrice=rows[0].get('totalPrice');
+    		  var appName=rows[0].get('appName');
+    		  store1.on('load',function(){
+    	    		arr = new Array();
+    	    		var fieldSetItems=new Array();
+    	    		var createDate=store1.getAt(0).get('createDate');
+    	    		var orderNoField=Ext.create('Ext.form.Display',{
+    	    			fieldLabel:i18n._('order_id'),
+    	    			value:orderNo,
+    	    			margin:'10 10 10 10'
+    	    		})
+    	    		var createDateField=Ext.create('Ext.form.Display',{
+    	    			fieldLabel:i18n._('createTime'),
+    	    			value:createDate,
+    	    			renderer: Ext.util.Format.dateRenderer('Y-m-d H:i:s'),
+    	    			margin:'10 10 10 10'
+    	    		})
+    	    	    var orderRemarkField=Ext.create('Ext.form.Display',{
+    	    	    	margin:'10 10 10 10',
+    	    	    	fieldLabel: i18n._('appTotalPrice'),
+    	    	    	value:totalPrice
+    	    		})
+    	    		arr.push(orderNoField);
+    	    		arr.push(createDateField);
+    	    		arr.push(orderRemarkField);
+    	    		for(var i=0;i<store1.getCount();i++){
+    	    		    var title='';
+    	    		    var tempTime='';
+    	    		    if(store1.getAt(i).get('orderType')==1){
+    	    		    	title=i18n._('buyDetail');
+    	    		    	tempTime=i18n._('buyTime');
+    	    		    }
+    	    		    if(store1.getAt(i).get('orderType')==17){
+    	    		        title=i18n._('renewDetail');
+    	    		        tempTime=i18n._('renewTime');
+    	    		    }
+    	    		    if(store1.getAt(i).get('orderType')==18){
+    	    		        title=i18n._('refundDetail');
+    	    		        tempTime=i18n._('refundTime');
+    	    		    }
+    	    		    fieldSetItems=[
+    	     	    	{
+    	     	    	xtype: 'fieldset',
+    	     	    	width:400,
+    	     	    	height: 200,
+    	     	    	items: [
+    	     	    	{
+    	     	    	    xtype: 'displayfield',
+    	     	            style:'margin:10 0 0 30',
+    	     	    	    fieldLabel:tempTime,
+    	     	    	    name: 'tempTime',
+    	     	    	    value: store1.getAt(i).get('buyDate'),
+    	     	    	    renderer: Ext.util.Format.dateRenderer('Y-m-d H:i:s')
+    	     	    	},{
+    	     	    	    xtype: 'displayfield',
+    	     	    		style:'margin:0 0 0 30',
+    	     	    	    fieldLabel: i18n._('applicationName'),
+    	     	    	    name: 'appName',
+    	     	    	    value: appName
+    	     	    	},{
+    	     	    	    xtype: 'displayfield',
+    	     	    		style:'margin:0 0 0 30',
+    	     	    	    fieldLabel: i18n._('appOnePrice'),
+    	     	    	    name: 'appOnePrice',
+    	     	    	    value: Ext.util.Format.number(store1.getAt(i).get('totalPrice'),"0.00")+i18n._('cny')
+    	     	    	},{
+    	     	    	    xtype: 'displayfield',
+    	     	    		style:'margin:0 0 0 30',
+    	     	    	    fieldLabel: i18n._('Quantity'),
+    	     	    	    name: 'count',
+    	     	    	    value: store1.getAt(i).get('count')
+    	     	    	}/* ,{
+    	     	    	    xtype: 'displayfield',
+    	     	    	    style:'margin:0 0 0 30',
+    	             	    fieldLabel: i18n._('appPrice'),
+    	     	    	    name: 'appPrice',
+    	     	    	    value: Ext.util.Format.number(store1.getAt(i).get('appPrice'),"0.00")
+    	     	    	},{
+    	     		    	xtype: 'displayfield',
+    	     		    	style:'margin:0 0 0 30',
+    	     	        	fieldLabel: i18n._('vmPrice'),
+    	     		    	name: 'vmPrice',
+    	     		    	value: Ext.util.Format.number(store1.getAt(i).get('vmPrice'),"0.00")
+    	     		    } */,{
+    	     	    	    xtype: 'displayfield',
+    	     	    		style:'margin:0 0 0 30',
+    	     	    	    fieldLabel: i18n._('money'),
+    	     	    	    name: 'totalPrice',
+    	     	    	    value: Ext.util.Format.number(store1.getAt(i).get('totalPrice'),"0.00")+i18n._('cny')
+    	     		    },{
+    	     	    	    xtype: 'displayfield',
+    	     	    		style:'margin:0 0 0 30',
+    	     	    	    fieldLabel: i18n._('remark'),
+    	     	    	    name: 'remark',
+    	     	    	    value: store1.getAt(i).get('remark')
+    	     	    	}]
+    	     	    }];
+
+	    	    	var fieldSet =  Ext.create('Ext.form.FieldSet', {
+	    	    	        title:title,
+	    	    	        layout: 'anchor',
+	    	    	        defaults: {anchor: '100%'},
+	    	    				margin:'0 0 0 0',
+	    	    				collapsible: true,
+	    	    	        items: fieldSetItems
+	    	    		});
+    	    		arr.push(fieldSet);
+
+    	    	}
+
+    	    		var win = Ext.create('Ext.window.Window', {
+    	    	        title: i18n._('Order Detail'),
+    	    	        width: 570,
+    	    	        height: 430,
+    	    	        constrain:true,
+    	    	        layout: 'fit',
+    	    	        plain:true,
+    	    	        modal:true,
+    	    	        items: {
+    	    			    xtype: 'form',
+    						//layout:"fit",
+    	    		        height:'100%',
+    	    			    width:'80%',
+    	    				autoScroll:true,
+    	    			//	margin:10,
+    	    	            border: false,
+    	    			    items: arr
+    	    			}
+/*     	    	        buttons: [{
+    	    	            xtype: 'displayfield',
+    	    	            id:"totalPriceField",
+    	    	            name: 'price',
+    	    				layout:{pack:'start'},
+    	    	            fieldLabel: i18n._('Total Cost'),
+    	    	            labelAlign:'left',
+    	    		    	//style:'margin:5 0 0 45',
+    	    				margin:'0 0 0 0',
+    	    		    	width: 550
+    	    	     }] */
+    	    	    }).show();
+    	    		
+    	    		//Ext.getCmp('totalPriceField').setValue(Ext.util.Format.number(totalPrice,"0.00")+' RMB');
+    	    		
+    	    	});
+    	}else{
+    		Ext.MessageBox.show({
+    	           title: i18n._('Prompt'),
+    	           msg: i18n._('selectOne'),
+    		           icon:Ext.MessageBox.WARNING,
+    		           buttons: Ext.MessageBox.OK
+    		           
+    		       }); 
+    	}
+    }
+
+Ext.create('Ext.Viewport',{
+	 layout:'fit',
+	 items: grid
+	});
+
+		var new_params={'queryVO.transactionType':3};
+		Ext.apply(store.proxy.extraParams,new_params);
+    	store.load();
+		
+            }
+        };
+    })();
+
+    MultiLang.init();
+    
+});
+
+
+
+function splitExtDisk(addDisk){
+	if(addDisk){
+		var extDiskNameArr=addDisk.split(",");
+		for(var i in extDiskNameArr){
+			extDiskNameArr[i]=extDiskNameArr[i]+'G';
+		}
+		return extDiskNameArr.join(',');
+		}else{
+			return '';
+		}
+}
+function getCookie(name){
+         var arr = document.cookie.match(new RegExp("(^| )"+name+"=([^;]*)(;|$)"));
+         if(arr != null) return unescape(arr[2]);
+		 return null;
+ }
+
+</script>
+ </head>
+
+ <body>
+  
+ </body>
+</html>

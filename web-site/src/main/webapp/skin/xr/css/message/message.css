@@ -1,0 +1,171 @@
+.box_datepicker{
+	float:left;
+	border: 1px solid #c1c1c1;
+	/*background: url(images/datepicker.png);*/
+    border-radius: 3px;
+    color: #555555;
+    font-family: Arial,Helvetica,sans-serif;
+	font-size:14px;
+	color:#999;
+    line-height: 18px;
+	padding-left: 10px;
+	margin-left:10px;
+    width:100px;
+    height: 33px;
+	vertical-align: middle;
+	
+}
+.box_datepicker:focus{
+    border-color:#00a1cb;
+}
+.box_datepicker1 {
+	float:left;
+	border: 1px solid #c1c1c1;
+	/*background: url(images/calendar.png);*/
+    color: #555555;
+    font-family: Arial,Helvetica,sans-serif;
+	font-size:14px;
+	color:#999;
+    line-height: 18px;
+	padding-left: 10px;
+    width:100px;
+    height: 33px;
+	vertical-align: middle;
+	
+}
+.box_datepicker1:focus{
+    border-color:#00a1cb;
+}
+.cn_blue_bold{
+	font-weight:bold; 
+	font-family: Arial, Helvetica, sans-serif; 
+	color:#4d6587; 
+	font-size:14px;
+}
+
+.cn_blue_bold_2{
+	font-family: Arial, Helvetica, sans-serif;
+	color:#4d6587; 
+	font-size:14px;
+}
+
+.login_input0{
+	border: 1px solid #CCCCCC;
+    border-radius: 5px 5px 5px 5px;
+    color: #555555;
+	background-color:#F2F2F2;
+    display: inline-block;
+    font-family: 微软雅黑;
+	font-size:14px;
+	color:# 1A1A1A;
+    line-height: 30px;
+	padding-left: 10px;
+	margin-left:5px;
+    width: 90px;
+    height: 30px;
+	vertical-align: middle;
+	
+}
+.login_input0:focus{
+    border-color: rgba(15, 161, 253, 0.8);
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset, 0 0 6px rgba(155, 216, 255, 0.8);
+    outline: 0 none;
+}
+
+#btn_message_search{
+	margin-left:-20px;
+	width: 40px;
+	cursor:pointer;
+}
+
+.btn_message_allread {
+	margin-left: 260px; 
+	height: 25.6px; 
+	line-height: 25.6px; 
+	background: #8FCF00; 
+	border-radius: 3px; 
+	display: inline-block; 
+	padding: 0px 20.48px; 
+	text-decoration: none; 
+	text-align: center; 
+	vertical-align: middle; 
+	color: rgb(255, 255, 255);
+}
+
+.message_title {
+	float:left;
+	border:1px solid #e1e1e5;
+	width:840px;
+	height:430px;
+	background:url(../../images/message/table_light.png) repeat-x #f5f6fa;
+	margin-top:15px;
+	margin-left:50px;
+	padding-top:10px;
+	font-size:14px;
+	line-height:14px;
+	border-radius:3px;
+}
+
+#message_set_all_read {
+	margin-top:2px;
+	margin-left:30px;
+	cursor:pointer;
+	width: 75px;
+}
+#to_span {
+	line-height:33px;
+	float:left;
+	margin-left: -18px;
+}
+#message_content {
+	line-height:33px;
+	float:left;
+}
+#div_operating {
+	height:44px; 
+	padding-left:10px;
+	margin-left:20px;
+	padding-top:30px;
+}
+
+.cn_blue_mormal{ 
+	font-family: Arial, Helvetica, sans-serif; 
+	color:#4d6587; 
+	font-size:14px;
+	line-height:20px;
+}
+.cn_blue_mormal:hover{
+	background-color:#fff;
+	cursor:pointer;
+}
+.div_message_result_2 {
+	margin-left:30px; 
+	margin-top:15px; 
+	float:left
+}
+.div_message_result_3 {
+	width: 480px;
+	margin-left:30px; 
+	margin-top:15px; 
+	float:left;
+}
+.div_message_result_4 {
+	margin-left:30px; 
+	margin-top:10px; 
+	float:left;
+}
+#message_delete_all_read {
+	margin-left:30px;
+	margin-top:2px;
+	
+	cursor:pointer;
+	width: 98px;
+}
+
+.ui-datepicker-trigger{
+	position:relative;
+	top:8px;
+	left:-27px;
+	float:left;
+	cursor:pointer;
+}

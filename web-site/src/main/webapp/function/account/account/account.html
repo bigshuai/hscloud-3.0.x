@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>账户中心</title>
+<script src="../../../resources/config/config.js" type="text/javascript"></script>
+<script>document.write("<link rel='stylesheet' type='text/css' href='../../../skin/"+customerPath+"/css/common/pageUtil.css' />");</script>
+<script>document.write("<link rel='stylesheet' type='text/css' href='../../../skin/"+customerPath+"/css/common/common.css' />");</script>
+<script>document.write("<link rel='stylesheet' type='text/css' href='../../../skin/"+customerPath+"/js/common/dialog/dialog.css' />");</script>
+<script>document.write("<link rel='stylesheet' type='text/css' href='../../../skin/"+customerPath+"/css/account/account-recharge.css' />");</script>
+<script>document.write("<script src='../../../skin/"+customerPath+"/js/common/jquery/jquery-1.10.2.min.js'><\/script>");</script>
+<script>document.write("<script src='../../../skin/"+customerPath+"/js/common/jquery/jquery.cookie.js'><\/script>");</script>
+<script>document.write("<script src='../../../skin/"+customerPath+"/js/common/common.js'><\/script>");</script>
+<script>document.write("<script src='../../../skin/"+customerPath+"/js/common/i18n.js'><\/script>");</script>
+<script>document.write("<script src='../../../skin/"+customerPath+"/js/col/header.js'><\/script>");</script>
+<script>document.write("<script src='../../../skin/"+customerPath+"/js/col/footer.js'><\/script>");</script>
+<script>document.write("<script src='../../../skin/"+customerPath+"/js/common/pageUtil.js'><\/script>");</script>
+<script>document.write("<script src='../../../skin/"+customerPath+"/js/common/dialog/dialog.js'><\/script>");</script>
+<script>document.write("<script src='../../../skin/"+customerPath+"/js/account/account.js'><\/script>");</script>
+
+
+</head>
+<body>
+    <div id="wapper" class="wapper">
+        <!-- header -->
+        <div id="header" class="header">
+            <div id="logoLoginDIV"></div>
+            <div id="menuDIV"></div>
+        </div>
+        
+        <!-- content -->
+        <div id="content" class="content">
+            <div id ="tab"></div>
+            <div id ="main">
+                
+                
+                <table width='80%' align='center'>
+                    <tr height='180px'>
+                        <td colspan='2'>
+                            <div style="float:left; 
+                                    width:840px; 
+                                    height:160px; 
+                                    padding-top:20px;
+                                    font-size:14px;
+                                    line-height:20px;" 
+                                    class="websjy2">
+                                <div id="accountId_div" style="margin-left:10px; color:#4d6587;">充值账户：</div>
+                                <div id="transferShow_div" style="float:right;margin-right:10px;display:none;" class="button button-rounded button-action button-small">账户转账</div>
+                                <div id='accountBalance_div' style=" width:600px; margin-left:10px; color:#4d6587;  margin-top:15px;">账户余额：<a style="color:#390; font-size:22px; font-weight:bold;font-family:微软雅黑;"></a>元</div>      
+                                <div id='pointsBalance_div' style=" width:400px; margin-left:10px; color:#4d6587;   margin-top:15px;">账户余额：<a style="color:#390; font-size:22px; font-weight:bold;font-family:微软雅黑;"></a>元</div>
+                                <div id='giftsBalance_div' style=" width:400px; margin-left:10px; color:#4d6587; margin-top:15px;">账户余额：<a style="color:#390; font-size:22px; font-weight:bold;font-family:微软雅黑;"></a>元</div>
+                            </div>
+                            
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan='2'>
+                            <table id="recharge_manue_t" width="100%" border="0"
+                                cellpadding="0" cellspacing="0"
+                                style="font-size: 14px; font-family:微软雅黑; font-weight: bold">
+                                <tr style="height:38px">
+                                    <td class='td_start_css' style="background-repeat:no-repeat;width:6px">
+                                        &nbsp;
+                                    </td>
+                                    <td id="td1"
+                                        onClick="selectRecharge(this)" class='rechargeTypeCss td1_css'
+                                        >网上银行</td>
+                                    <td id="td2"
+                                        onClick="selectRecharge(this)" class='rechargeTypeCss td_css'
+                                        >支付平台</td>
+                                    <td id="td3"
+                                        onClick="selectRecharge(this)" class='rechargeTypeCss td_css'
+                                        >线下支付</td>
+                                    <td class='td_css'>&nbsp;</td>
+                                    <td class='td_end_css' style="background-repeat:no-repeat;width:6px">
+                                        &nbsp;
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr id="td1_pay">
+                        <td colspan='2'>
+                            <table width='100%'>
+                                <tr style="height:40px">
+                                    <td width='4%'  align='right'><input type="radio" name="pay_bank" value="ICBCB2C" /></td>
+                                    <td width='20%'><div onclick='selectRadio("ICBCB2C")' class="icon ICBC"></div></td>
+                                    <td width='5%' align='right'><input type="radio" name="pay_bank" value="CMB" /></td>
+                                    <td width='20%'><div onclick='selectRadio("CMB")' class="icon CMB"></div></td>
+                                    <td width='5%' align='right'><input type="radio" name="pay_bank" value="CCB" /></td>
+                                    <td width='20%'><div onclick='selectRadio("CCB")' class="icon CCB"></div></td>
+                                    <td width='5%' align='right'><input type="radio" name="pay_bank" value="BOCB2C" /></td>
+                                    <td width='21%'><div onclick='selectRadio("BOCB2C")' class="icon BOC"></div></td>
+                                </tr>
+                                <tr style="height:40px">
+                                    <td align='right'><input type="radio" name="pay_bank" value="ABC" /></td>
+                                    <td><div onclick='selectRadio("ABC")' class="icon ABC"></div></td>
+                                    <td align='right'><input type="radio" name="pay_bank" value="COMM" /></td>
+                                    <td><div onclick='selectRadio("COMM")' class="icon COMM"></div></td>
+                                    <td align='right'><input type="radio" name="pay_bank"
+                                        value="PSBC-DEBIT" /></td>
+                                    <td><div onclick='selectRadio("PSBC-DEBIT")' class="icon PSBC"></div></td>
+                                    <td align='right'><input type="radio" name="pay_bank" value="CEBBANK" /></td>
+                                    <td><div onclick='selectRadio("CEBBANK")' class="icon CEB"></div></td>
+                                </tr>
+                                <tr style="height:40px">
+                                    <td align='right'><input type="radio" name="pay_bank" value="SPDB" /></td>
+                                    <td><div onclick='selectRadio("SPDB")' class="icon SPDB"></div></td>
+                                    <td align='right'><input type="radio" name="pay_bank" value="GDB" /></td>
+                                    <td><div onclick='selectRadio("GDB")' class="icon GDB"></div></td>
+                                    <td align='right'><input type="radio" name="pay_bank" value="CITIC" /></td>
+                                    <td><div onclick='selectRadio("CITIC")' class="icon CITIC"></div></td>
+                                    <td align='right'><input type="radio" name="pay_bank" value="CIB" /></td>
+                                    <td><div onclick='selectRadio("CIB")' class="icon CIB"></div></td>
+                                </tr>
+                                <tr style="height:40px">
+                                    <td align='right'><input type="radio" name="pay_bank" value="SDB" /></td>
+                                    <td><div onclick='selectRadio("SDB")' class="icon SDB"></div></td>
+                                    <td align='right'><input type="radio" name="pay_bank" value="CMBC" /></td>
+                                    <td><div onclick='selectRadio("CMBC")' class="icon CMBC"></div></td>
+                                    <td align='right'><input type="radio" name="pay_bank" value="BJBANK" /></td>
+                                    <td><div onclick='selectRadio("BJBANK")' class="icon BJBANK"></div></td>
+                                    <td align='right'><input type="radio" name="pay_bank" value="HZCBB2C" /></td>
+                                    <td><div onclick='selectRadio("HZCBB2C")' class="icon HZCB"></div></td>
+                                </tr>
+                                <tr style="height:40px">
+                                    <td align='right'><input type="radio" name="pay_bank" value="SHBANK" /></td>
+                                    <td><div onclick='selectRadio("SHBANK")' class="icon SHBANK"></div></td>
+                                    <td align='right'><input type="radio" name="pay_bank" value="BJRCB" /></td>
+                                    <td><div onclick='selectRadio("BJRCB")' class="icon BJRCB"></div></td>
+                                    <td align='right'><input type="radio" name="pay_bank" value="SPABANK" /></td>
+                                    <td><div onclick='selectRadio("SPABANK")' class="icon SPABANK"></div></td>
+                                    <td align='right'><input type="radio" name="pay_bank" value="FDB" /></td>
+                                    <td><div onclick='selectRadio("FDB")' class="icon FDB"></div></td>
+                                </tr>
+                                <tr style="height:40px">
+                                    <td align='right'><input type="radio" name="pay_bank" value="WZCBB2C-DEBIT" /></td>
+                                    <td><div onclick='selectRadio("WZCBB2C-DEBIT")' class="icon WZCB"></div></td>
+                                    <td align='right'><input type="radio" name="pay_bank" value="NBBANK" /></td>
+                                    <td><div onclick='selectRadio("NBBANK")' class="icon NBBANK"></div></td>
+                                    <td align='right'><input type="radio" name="pay_bank" value="ICBCBTB" /></td>
+                                    <td><div onclick='selectRadio("ICBCBTB")' class="icon ICBCBTB"></div></td>
+                                    <td align='right'><input type="radio" name="pay_bank" value="CCBBTB" /></td>
+                                    <td><div onclick='selectRadio("CCBBTB")' class="icon CCBBTB"></div></td>
+                                </tr>
+                                <tr style="height:40px">
+                                    <td align='right'><input type="radio" name="pay_bank" value="SPDBB2B" /></td>
+                                    <td><div onclick='selectRadio("SPDBB2B")' class="icon SPDBBTB"></div></td>
+                                    <td align='right'><input type="radio" name="pay_bank" value="ABCBTB" /></td>
+                                    <td colspan='5'><div onclick='selectRadio("ABCBTB")' class="icon ABCBTB"></div></td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan='2'>
+                            <table id="td2_pay" width="100%"  border="0px" style='display:none;' 
+                                cellpadding="0" cellspacing="0">
+                                <tr>
+                                    <td width='4%' align='right'>
+                                        <input type="radio" name="pay_bank" value="directPay" />
+                                    </td>
+                                    <td >
+                                        <img id='payImgId' onclick='selectRadio("directPay")' style="border:1px solid #a4a4a4;height: 35px; width: 120px" />
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr id='tdLine'>
+                        <td colspan='2'>
+                            <hr align="left" color="#CCCCCC" size="1" width="840" />
+                        </td>
+                    </tr>
+                    <tr id='tdButton' height="30">
+                        <td style="width:17em;font-size: 14px; font-weight: bold;font-family: Arial, Helvetica, sans-serif;">
+                            <span id='payAmountId' style="margin-left:20px;" class="cn_blue_bold">充值金额：</span>
+                            <input type="text" id="bankTotalFee" style="width: 80px" class="login_input0" />
+                            <span id='yuan_div' style="margin-left:0px;" class="cn_blue_bold">元</span>
+                        </td>
+                        <td>
+                            <span id="submit_btn" onclick='payment();' class="button button-rounded button-primary">充值</span>
+                        </td>
+                    </tr>
+                    
+                    <tr>
+                        <td>
+                            <table id="td3_pay" width="100%" cellpadding="0" cellspacing="0" style="display: none">
+                                <tr>
+                                    <td width='50px' height='60px'></td>
+                                    <td id="offlinePayTitle_div" class="fontBold" ></td>
+                                </tr>
+                                <tr>
+                                    <td></td>
+                                    <td>
+                                        <table id="offlinePayTable" cellpadding="0" cellspacing="0">
+                                            <tr>
+                                                <td id="offlineBank_div" class="left"></td>
+                                                <td id="offlineBank" class="right"></td>
+                                            </tr>
+                                            <tr>
+                                                <td id="offlineCardId_div" class="left"></td>
+                                                <td id="offlineCardId" class="right"></td>
+                                            </tr>
+                                            <tr>
+                                                <td id="offlineCompanyName_div"class="left lastTr "></td>
+                                                <td id="offlineCompanyName" class="right lastTr"></td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td height='80px'></td>
+                                    <td id="offlinePayDesc_div" class="fontBold" ></td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+                
+            </div>
+        </div>
+        
+        <!-- footer -->
+        <div id="footer" class="footer"></div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,171 @@
+<html>
+<head>
+<title>hscloud-storage</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" href="../css/index.css">
+<!--<link rel="stylesheet" type="text/css" href="../extjs-4.2/resources/css/ext-all.css" />-->
+<!--<script type="text/javascript" src="../extjs-4.2/ext-all.js"></script>-->
+<!--<script type="text/javascript" src="../extjs-4.2/ext-theme-neptune.js"></script>-->
+<script type="text/javascript" src="../extjs-4.2/include-ext.js"></script>
+<script type="text/javascript" src="../extjs-4.2/ux/form/SearchField.js"></script>
+<script type="text/javascript" src="../common/jquery.js"></script>
+<script type="text/javascript" src="../common/i18n.js" charset="utf-8"></script>
+<script type="text/javascript" src="../common/common.js"></script>
+<script type="text/javascript">	
+  Ext.onReady(function(){
+	var params;
+  	params = getCookie("lang");
+      i18n.set({
+  		lang: params, 
+  		path: '../resources'
+  	});
+    MultiLang = (function() {
+        return {
+            init: function() { 
+            	
+                if (params) {
+                    var url = Ext.util.Format.format('../extjs-4.2/locale/ext-lang-{0}.js', params);
+                    Ext.Ajax.request({
+                        url: url,
+                        success: this.onLoadExtLocaleSuccess,
+                        failure: this.onLoadExtLocaleFailure,
+                        scope: this
+                    });
+                } else {
+                	this.setup();
+                }
+            },
+            onLoadExtLocaleSuccess: function(response) {
+                try {
+                    eval(response.responseText);
+                } catch (e) {
+                    Ext.Msg.alert('Failure', e.toString());
+                }
+                //this.loadmyprojectLocale();
+                this.setup();
+            },
+            onLoadExtLocaleFailure: function() {
+                Ext.Msg.alert('Failure', 'Failed to load locale file.');
+                this.setup();
+                //this.loadmyprojectLocale();
+            },
+            setup: function() {
+            	getSessionUser();
+				Ext.create('Ext.Viewport',{
+					layout:'border',
+					autoScroll:true,
+					minHeight: 84 + 689 + 20,
+					items:[
+					{
+						   region:'north',
+						   xtype:'panel',
+						   border: false,
+						   layout:'fit',
+						   height:84,
+						   minWidth:1240,
+						   maxWidth:1348,
+				           minHeight:84,
+						   maxHeight:84,
+						   items:[
+						   {
+								xtype: 'component',       
+								contentEl:'top'
+				          }]
+					},//top
+					{
+						id:'main',
+						region:'center',
+						xtype:'panel',
+						border: false,
+						minWidth:1240,
+						minHeight:689,
+						layout:'fit',		
+						items:[{
+							xtype:'component',
+							width:'100%',
+							height:'100%',
+							autoEl:{
+								tag:'iframe',
+								name:'iframe',
+								src:'hc_cloud_storage.html',
+								frameborder:'5px'		   
+							}
+						}]
+					},
+					{
+						region:'south',
+						xtype:'panel',
+						layout:'fit',
+						height:20,
+						minHeight:20,
+						maxHeight:100,
+						items:[
+						{
+							xtype: 'component',
+					        contentEl:'bottomId'
+						}]
+					}]
+				});//页面布局 
+				document.getElementById("welcome").innerHTML=i18n._("Welcome");
+			    document.getElementById("quit").innerHTML=i18n._('Quit');
+			    document.getElementById("downloadPlayerImg").title=i18n._('downloadPlay');
+			    document.getElementById("downloadId").innerHTML=i18n._('downloadPlay');
+			}
+        };
+    })();
+
+    MultiLang.init();
+    
+});
+  
+  function downloadPlay() {
+	  window.location.href = '../download!downloadPlayer.action';
+  }
+</script>
+</head>
+<body>
+	<table id="top" width="1348" border="0" cellpadding="0" cellspacing="0">
+		<tr>
+			<td width="62" height="80" background= "../images/head/website_01.png">
+				<!-- <img src="../images/head/website_01.png" width="70" height="169" alt=""> -->
+			</td>
+			<td width="361" height="80" background= "../images/head/website_02_d_02.png">
+				<!-- <img src="../images/head/website_02.png" width="365" height="169" alt=""> -->
+			</td>
+			<td width="868" height="80" id="logoId" background= "../images/head/website_04.png">
+				<ul style="margin-right:50px;">              
+                    <li>
+                        &nbsp;
+                    </li>
+                    <li style="padding:0px 520px 0px 50px;font-weight:bold;font-size:13px">
+                        <span id="welcome" style="color:#ffffff;"></span>
+                        <span id="CurrentUser" style="color:#ffffff;"></span>
+                    </li>
+                    <li>
+                        <a href="#" style="text-decoration:none;color:white" 
+                        onclick="downloadPlay();">
+                            <span><img id="downloadPlayerImg" src="../images/head/IM2.png" alt=""></span>
+                            <span id="downloadId" style="color:#3d92bb"></span>
+                        </a>
+                        <span style="padding:0px 10px 0px 10px"></span>
+                        <a href="#" style="text-decoration:none;color:white" onclick="userlogout();">
+                            <span><img src="../images/head/exit.png" width="21" height="20" alt=""></span>
+                            <span  id="quit" style="color:#ee8800;"></span>
+                        </a>
+                    </li>
+                </ul>
+				<!-- <img src="../images/head/website_04.png" width="868" height="169" alt=""> -->			
+			</td>
+		</tr>
+		<tr>
+			<td colspan="4" width="100%" height="5" background= "../images/head/website_05.png">			
+				<!-- <img src="../images/head/website_05.png" width="100%" height="4" alt="">-->
+			</td> 
+		</tr>
+	</table>	
+<!-- End Save for Web Slices -->
+	<div id="bottomId" style="background-color:#f0f0f0;height:100%;font-color:#707070;font-size:10pt;font-family:Arial;" align="left" >
+		<span>© 2013 Pactera Technology International Limited.All rights reserved. </span>
+	</div>
+</body>
+</html>

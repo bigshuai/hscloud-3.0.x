@@ -1,0 +1,156 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title>业务中心</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<script src="../../../resources/config/config.js" type="text/javascript"></script>
+<script>document.write("<script src='../../../skin/"+customerPath+"/js/common/jquery/jquery-1.10.2.min.js'><\/script>");</script>
+<script>document.write("<script src='../../../skin/"+customerPath+"/js/common/jquery/jquery.cookie.js'><\/script>");</script>
+<script>document.write("<script src='../../../skin/"+customerPath+"/js/common/jquery/jquery-ui-1.10.3.custom.min.js'><\/script>");</script>
+<script>document.write("<script src='../../../skin/"+customerPath+"/js/common/common.js'><\/script>");</script>
+<script>document.write("<script src='../../../skin/"+customerPath+"/js/common/i18n.js'><\/script>");</script>
+<script>document.write("<script src='../../../skin/"+customerPath+"/js/business/unpaid/payingorder.js'><\/script>");</script>
+</head>
+<body>
+	<div id="wapper" class="wapper">
+		<!-- header -->
+		<div id="header" class="header">
+			<div id="logoLoginDIV"></div>
+			<div id="menuDIV"></div>
+		</div>
+
+		<!-- content -->
+		<div id="content" class="content">
+			<div id="tab"></div>
+			<div id="main">
+			     
+				<div id="contentDiv">
+					<table id="orderinfoDiv" cellpadding="0" cellspacing="0">
+						<tr id="backimg">
+							<td>
+								<div id="order_detail">
+									<p>
+										<span id="s_orderNo"></span> : <span id="orderNo"></span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+										<span id="s_dealtime"></span><span id="orderTime"></span>
+									</p>
+									<p>
+										<span id="detailMes"></span>
+									</p>
+									<p>
+										<span id="detailMes"></span>
+									</p>
+								</div>
+							</td>
+							<td><span class="split_line"></span></td>
+							<td id="order_detail_right"><span id="priceContent">
+									<span id="totalPrice"></span><span id="yuan"></span>
+							</span></td>
+						</tr>
+					</table>
+					<table id="payContent" style="padding-right:5px;" cellpadding="0" cellspacing="0">
+						<tr class="payType">
+							<td style="width:120px">
+								<div class="pay_pattern checked">
+									<span id="payment"></span>
+								</div>
+							</td>
+							<td style="width:120px">
+							    <!-- 
+								<div class="pay_pattern item2">
+									<span id="account_online"></span>
+								</div>
+								 -->
+							</td>
+							<td style="width:120px">
+							    <!-- 
+								<div class="pay_pattern item3">
+									<span id="account_platform"></span>
+								</div>
+								 -->
+							</td>
+							<td style="width:120px">
+							    <!-- 
+								<div class="pay_pattern item4">
+									<span id="account_offline"></span>
+								</div>
+								 -->
+							</td>
+							<td>&nbsp;</td>
+						</tr>
+						<tr>
+							<td colspan="18">
+								<div id="contentMoney"></div>
+							</td>
+						</tr>
+					</table>
+					<div id="item1Content">
+						<p class="bal_user_content"></p>
+						<p>
+							<span class="bal_val_content"></span>:<span id='balance'></span><span
+								class="yuan"></span>
+						</p>
+						<p id="couponP" style="display: none" class="couponP">
+							<input type="checkbox" id="doUseCoupon"
+								onchange="doUseCouponFunc(this)" checked=true /> <span
+								class="recharge" id="doUseCouponText"></span> &nbsp;&nbsp; <span
+								id="couponInfo" class="couponInfoCss"></span>
+						</p>
+                        <p id="giftP" style="display: none" class="couponP">
+                            <input type="checkbox" id="doUseGift"
+                                onchange="doUseGiftFunc(this)" checked=true /> <span
+                                class="recharge" id="doUseGiftText"></span> &nbsp;&nbsp; <span
+                                id="giftInfo" class="couponInfoCss"></span>
+                        </p>
+						<a id="order_submit_1" href="javascript:void(0)">
+						   <span id="payImagId" ></span>
+						</a>
+						<p class="promptMes">
+							完成此次交易还需付款 <span class="recharge D_value"></span>元,请<span
+								onclick="goToCharge()" class="recharge prepaid">充值</span>后付款,或去网上银行支付。
+						</p>
+					</div>
+					<div id="item2Content">
+						<p id="comingsoon1"></p>
+					</div>
+					<div id="item3Content">
+						<p id="comingsoon2"></p>
+					</div>
+					<div id="item4Content">
+						<table id="td3_pay" width="100%" height="60%" border="0"
+							cellpadding="0" cellspacing="0">
+							<tr>
+								<td id="offlinePayTitle" class="fontBold"><span id="account_offlinePayTitle"></span></td>
+							</tr>
+							<tr>
+								<td colspan="8">
+									<table id="offlinePayTable" cellpadding="0" cellspacing="0">
+										<tr>
+											<td class="left"><span id="account_offlineBank"></span></td>
+											<td id="offlineBank" class="right"></td>
+										</tr>
+										<tr>
+											<td class="left"><span id="account_offlineCardId"></span> </td>
+											<td id="offlineCardId" class="right"></td>
+										</tr>
+										<tr>
+											<td class="left lastTr "><span id="account_offlineCompanyName"></span>  </td>
+											<td id="offlineCompanyName" class="right lastTr"></td>
+										</tr>
+									</table>
+								</td>
+							</tr>
+							<tr>
+								<td id="offlinePayDesc" class="fontBold">
+								  <span id="account_offlinePayDesc"></span>
+								</td>
+							</tr>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- footer -->
+        <div id="footer" class="footer"></div>
+	</div>
+</body>
+</html>

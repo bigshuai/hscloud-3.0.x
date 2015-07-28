@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqls>
+
+    <sql id="GET_ALL_VMINFO_BY_MACHINENO">
+       SELECT 
+			vr.id,vr.`name` AS vmname,vi.vm_id AS machineno,
+			vr.vm_innerIP AS fixedip,vr.vm_outerIP AS floatingip,
+			vp.start_time AS createon,vp.end_time AS expiredon,
+			vr.vm_status AS vmstate,vr.vm_business_status AS bizstate,
+			vr.radom_user as osLoginUser, vr.radom_pwd as osLoginPwd, 
+			vr.createflag AS createflag 
+			FROM hc_vpdc_reference vr 
+			LEFT JOIN hc_vpdc_instance vi ON vr.id = vi.VpdcRefrenceId
+			LEFT JOIN hc_vpdcReference_period vp ON vr.id = vp.renferenceId 
+			WHERE vr.`status`=0 AND vi.`status`=0 
+			AND vi.vm_id = ?
+			AND vr.vm_owner = ?;
+    </sql>
+    <sql id="GET_ALL_VMINFO_BY_VMID">
+      SELECT 
+			vr.id,vr.`name` AS vmname,vi.vm_id AS machineno,
+			vr.vm_innerIP AS fixedip,vr.vm_outerIP AS floatingip,
+			vp.start_time AS createon,vp.end_time AS expiredon,
+			vr.vm_status AS vmstate,vr.vm_business_status AS bizstate, 
+			vr.radom_user AS osLoginUser, vr.radom_pwd AS osLoginPwd, 
+			vr.createflag AS createflag 
+			FROM hc_vpdc_reference vr 
+			LEFT JOIN hc_vpdc_instance vi ON vr.id = vi.VpdcRefrenceId
+			LEFT JOIN hc_vpdcReference_period vp ON vr.id = vp.renferenceId 
+			WHERE vr.`status`=0 AND vi.`status`=0 
+			AND vr.id = ?
+			AND vr.vm_owner = ?;
+    </sql>
+    <sql id="GET_ALL_VMINFO">
+      SELECT 
+            vr.id,vr.`name` AS vmname,vi.vm_id AS machineno,
+            vr.vm_innerIP AS fixedip,vr.vm_outerIP AS floatingip,
+            vp.start_time AS createon,vp.end_time AS expiredon,
+            vr.vm_status AS vmstate,vr.vm_business_status AS bizstate, 
+            vr.radom_user AS osLoginUser, vr.radom_pwd AS osLoginPwd, 
+            vr.createflag AS createflag 
+            FROM hc_vpdc_reference vr 
+            LEFT JOIN hc_vpdc_instance vi ON vr.id = vi.VpdcRefrenceId
+            LEFT JOIN hc_vpdcReference_period vp ON vr.id = vp.renferenceId 
+            WHERE vr.`status`=0 AND vi.`status`=0 
+            AND vr.vm_owner = ?;
+    </sql> 
+   <sql id="GET_ONE_ORDER_RELATION"><![CDATA[select * from hc_pm_order_relation where vm_id=? and start_time<? and stop_time>?]]>
+    </sql>
+   <sql id="INSERT_ORDER_RELATION">
+       insert into hc_pm_order_relation values(?,?,?,?,?,?,?,?,?,?,?)
+   </sql>
+   <sql id="GET_IP_BY_ACCESSID">
+       select ip from hc_access_account where accessid=?
+   </sql>
+   <sql id="GETALL_PLANS4INFO_SQL"><![CDATA[
+       SELECT
+			t.id,t.`name` AS scname,temp_fee.fee_type AS price,t.effective_date AS effectiveon,
+			t.expiration_date AS expiredon,t.description,temp_os.os_info, t_catalog_zone.zonegroup zone_group 
+			FROM
+			(select t.* from hc_service_catalog t ,hc_catalog_brand t1,hc_user_brand t2,hc_user t3
+where t.id=t1.service_catalog_id and t1.brand_id=t2.id
+and t2.`code`=t3.`level` and t3.id = ? ) t,
+			(SELECT
+						GROUP_CONCAT(
+							CONCAT(
+								'id:',
+								t.id,
+								',',
+								'period:',
+								t.period,
+								',',
+								'price:',
+								t.price
+							)
+							ORDER BY
+								(t.period + 0) SEPARATOR ';'
+						) AS fee_type,
+						sc_id
+					FROM
+						hc_sc_feetype t,
+						hc_service_catalog t1
+					WHERE
+						t.sc_id = t1.id
+					GROUP BY
+						t.sc_id) temp_fee,
+			(SELECT
+			GROUP_CONCAT(CONCAT('osname:',t2.`name`,',','osid:',t2.item_id) separator ';') AS os_info,
+			t.id
+			FROM hc_service_catalog t,hc_service_catalog_item t1,hc_service_item t2
+			WHERE t.id = t1.service_catalog_id
+			AND t1.item_id = t2.item_id
+			AND t2.service_type = 4 
+			GROUP BY
+			t.id) temp_os,
+			(select service_catalog_id, GROUP_CONCAT(name) zonegroup from (
+			select cz.service_catalog_id, zg.id, zg.name from 
+			hc_catalog_zone cz, hc_zone_zonegroup zzg, hc_zonegroup zg 
+			where cz.zone_id = zzg.zone_id and zzg.zonegroup_id = zg.id 
+			group by cz.service_catalog_id, zg.id) t_zone
+			group by t_zone.service_catalog_id) t_catalog_zone 
+			WHERE t.`status` = 1  
+			AND t.id = temp_fee.sc_id
+			AND t.id=temp_os.id
+			AND t.id = t_catalog_zone.service_catalog_id
+			AND t.effective_date < NOW()
+			AND t.expiration_date > NOW()
+       ]]>
+   </sql>
+   
+   <sql id="QUERY_ACCESS_KEY">
+       select * from hc_access_account where accessid = ?
+   </sql>
+   <sql id="QUERY_FACTORY_SENQUENCE">
+       select factory_senquence from hc_access_account where accessid = ?
+   </sql>
+   
+   <sql id="QUERY_USER_ID">
+       select userid  from hc_access_account where accessid = ?
+   </sql>
+   
+   <sql id="QUERY_ACCESS">
+       select * from hc_access_account where accessid = ?
+   </sql>
+   
+   <sql id="QUERY_REFERENCEID_BY_VMID">
+       SELECT vi.VpdcRefrenceId FROM hc_vpdc_instance vi, hc_vpdc_reference vr
+       where vi.status = 0 and vi.vm_id = ? and vr.status = 0 and vi.VpdcRefrenceId = vr.id and vr.vm_owner = ?;
+   </sql>
+   
+   <sql id="QUERY_CREATEFLAG_BY_VMID">
+       SELECT vr.createflag FROM hc_vpdc_instance vi, hc_vpdc_reference vr
+       where vi.status = 0 and vi.vm_id = ? and vr.status = 0 and vi.VpdcRefrenceId = vr.id;
+   </sql>
+
+   <sql id="SAVE_TASK">
+       insert into hc_api_task(create_id, status, machine_no, operating_type, create_date) 
+       values (?, ?, ?, ?, now())
+   </sql>
+   
+   <sql id="GET_OPERATION_RESULT">
+       select t.result, t.id as jobId,t1.id as logId
+       from hc_event_vmops t ,hc_api_task t1 
+       where t.id=t1.job_id and t1.id = ? and t1.create_id= ? 
+   </sql>
+    <sql id="GET_OPERATION_RESOURCE_RESULT">
+       select t.result, t.id as jobId,t1.id as logId
+       from hc_event_resource t ,hc_api_task t1 
+       where t.id=t1.job_id and t1.id = ? and t1.create_id= ? 
+   </sql>
+   <sql id="QUERY_ACCESS_KEY_BY_EMAIL">
+       select * from hc_access_account where accessid = ? and emailaddr=?
+   </sql>
+   <sql id="QUERY_PLATFORM_RELATION_BY_EUSERID">
+   		SELECT pr.userId,pr.external_userId FROM hc_platform_relation AS pr WHERE pr.external_userId = ?
+   </sql>
+   <sql id="SAVE_PLATFORM_RELATION">
+       INSERT INTO hc_platform_relation(userId, external_userId) 
+       values (?, ?)
+   </sql>
+</sqls>

@@ -1,0 +1,147 @@
+.header {
+	width: 100%;
+	height: 125px;
+	margin: 0px;
+	padding: 0px;
+}
+
+.cn-login {
+	font-size: 14px;
+	color: #666666;
+	font-weight: normal;
+	font-family: "微软雅黑";
+}
+
+.login_input {
+	border: 1px solid #CCCCCC;
+	border-radius: 3px 3px 3px 3px;
+	color: #555555;
+	display: inline-block;
+	font-family: Arial, Helvetica, sans-serif;
+	line-height: 18px;
+	width: 180px;
+	height: 28px;
+}
+
+.login_input:focus {
+	border-color: rgba(15, 161, 253, 0.8);
+	box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset, 0 0 6px
+		rgba(155, 216, 255, 0.8);
+	outline: 0 none;
+}
+
+#logoDIV {
+	width: 40%;
+	height: 125px;
+	line-height: 125px;
+	float: left;
+}
+
+#loginDIV {
+	width: 40%;
+	height: 125px;
+	line-height: 125px;
+	float: right;
+}
+
+#logoDIV img {
+	margin-left: 8em;
+}
+
+#loginDIV img {
+	vertical-align: middle;
+}
+
+#btn_login {
+	cursor: pointer;
+}
+
+#btn_register {
+	margin-left: 40px;
+	cursor: pointer;
+}
+
+#loginDIV span {
+	height: 41px;
+	line-height: 41px;
+	cursor: pointer;
+	color: #FFFFFF;
+	font-size: 12px;
+	font-family: 微软雅黑;
+	font-weight: bold;
+}
+
+.msgCss {
+	height: 12px;
+	font-size: 12px;
+	font-family: 微软雅黑;
+}
+
+.loginbutton {
+	border-radius: 2px;
+	cursor: pointer;
+	width: 160px;
+	margin-top:42px;
+	height: 40px;
+	background-image: url(../../../images/portal/col/HSbutton_bg.png);
+	color: #FFF;
+	font-family: 微软雅黑;
+	font-size: 16px;
+	font-weight: bold;
+	line-height: 40px;
+	text-align: center;
+	display: inline-block;
+	float:left;
+}
+
+.loginbutton:hover {
+	background-image: url(../../../images/portal/col/HSbutton_bg_.png);
+}
+
+.r_button {
+	margin-left: 30px;
+	border-radius: 2px;
+	cursor: pointer;
+	margin-top:42px;
+	width: 100px;
+	height: 40px;
+	background-image:
+		url(../../../images/portal/col/HSregisterbutton_bg.png);
+	color: #3a4759;
+	font-family: 微软雅黑;
+	font-size: 16px;
+	line-height: 40px;
+	text-align: center;
+	display: inline-block;
+	float:left;
+}
+
+.r_button:hover {
+	background-image:
+		url(../../../images/portal/col/HSregisterbutton_bg_.png);
+}
+
+.loginButton {
+	
+	padding: 0 60px;
+	background: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #4e90ff),
+        color-stop(100%, #2d62ba));
+    background: -webkit-linear-gradient(top, #4e90ff, #2d62ba);
+    background: -moz-linear-gradient(top, #4e90ff, #2d62ba);
+    background: -o-linear-gradient(top, #4e90ff, #2d62ba);
+    background: linear-gradient(top, #4e90ff, #2d62ba);
+    background-color: #457ddc;
+    border-color: #176fb4;
+    color: white;
+    text-shadow: 0 -1px 1px rgba(0, 40, 50, 0.35);
+}
+
+.loginButton:hover {
+	background-color: #457ddc;
+    background: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #6cb6fc),
+        color-stop(100%, #2d62ba));
+    background: -webkit-linear-gradient(top, #6cb6fc, #2d62ba);
+    background: -moz-linear-gradient(top, #6cb6fc, #2d62ba);
+    background: -o-linear-gradient(top, #6cb6fc, #2d62ba);
+    background: linear-gradient(top, #6cb6fc, #2d62ba);
+}

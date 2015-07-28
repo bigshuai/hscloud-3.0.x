@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE struts PUBLIC
+    "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+    "http://struts.apache.org/dtds/struts-2.0.dtd">
+<struts>
+	<constant name="struts.objectFactory" value="spring" />
+	<constant name="struts.i18n.encoding" value="UTF-8" />
+	<package namespace="/monitoring" name="hicloud-vpdc-monitoring" extends="hscloud-default">
+		<interceptors>
+            <interceptor name="authorInterceptor" class="com.hisoft.hscloud.web.interceptor.AuthorInterceptor"/>
+            <interceptor-stack name="authorStack">
+                <interceptor-ref name="authorInterceptor"/>
+                <interceptor-ref name="hscloudStack"/>
+            </interceptor-stack>
+        </interceptors>
+
+        <global-results>
+            <result name="login" type="redirect">/index.jsp?err=1</result>
+        </global-results>
+        <global-exception-mappings>
+            <exception-mapping result="input" exception="java.lang.Exception"></exception-mapping>
+        </global-exception-mappings>		
+		<!-- 重新定义的action -->
+		<!-- 虚拟机历史监控 -->
+ 		<action name="ossVmHistory"
+			class="com.hisoft.hscloud.web.action.MonitorAction">
+		</action>
+		<!-- 虚拟机实时监控 -->
+ 		<action name="ossVmRealTime"
+			class="com.hisoft.hscloud.web.action.MonitorAction">
+		</action>		
+	</package>
+</struts>

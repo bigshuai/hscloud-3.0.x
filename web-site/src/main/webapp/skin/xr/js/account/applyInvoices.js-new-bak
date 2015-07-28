@@ -1,0 +1,460 @@
+var pageObje = new PageObje('tableId');
+var invoiceTitleMap="";
+pageObje.size = 8;
+pageObje.methodArray = [["invoiceNo","invoiceNoStr"],["invoiceAmount","invoiceAmountStr"],["invoiceType","invoiceTypeStr"],["status","applyStatus"],["applicationTime","timeString"],["billingTime","timeString"]];
+pageObje.column = ['invoiceNo','invoiceAmount','invoiceType','status','applicationTime','billingTime'];
+
+
+function get(str) {
+	return i18n.get(str);
+}
+
+function histroy(){
+		var html = "<div style='height:400px;'>" + 
+			"<table id='tableId' cellpadding=\"0\" cellspacing=\"0\" style=\"display:none;width: 750px;padding-bottom: 5px; cursor: auto;table-layout: fixed;text-align: center;\">" +
+			"<tr height='40px' style='font-family: 微软雅黑;font-weight:bold;font-size: 14px;'>" +
+				"<td width='8%' align='center'>"+get("no.")+"</td>" +
+				"<td width='10%' align='center'>"+get("invoiceNo")+"</td>" +
+				"<td width='10%' align='center'>"+get("invoiceamount")+"</td>" +
+				"<td width='14%' align='center'>"+get("invoiceType")+"</td>" +
+				"<td width='10%' align='center'>"+get("status")+"</td>" +
+				"<td width='22%' align='center'>"+get("applyDate")+"</td>" +
+				"<td width='22%' align='center'>"+get("approveDate")+"</td>" +
+			"</tr><tr id='templateId1' class=\"list\" style=\"height: 45px;font-family: 微软雅黑;font-weight:normal;border-left: 0px;border-right: 0px;\"><td width='20px' align='center' style='border-left: 0px;border-right: 0px;'>$indexPage$</td><td width='90px' align='center' title=\"$invoiceNo$\" style='border-left: 0px;border-right: 0px;overflow: hidden; white-space: nowrap; text-overflow: ellipsis;'>$invoiceNo$</td><td width='90px' align='center' style='border-left: 0px;border-right: 0px;'>$invoiceAmount$</td><td width='55px' align='center' style='border-left: 0px;border-right: 0px;'>$invoiceType$</td><td width='55px' align='center' style='border-left: 0px;border-right: 0px;'>$status$</td><td width='150px' align='center' style='border-left: 0px;border-right: 0px;'>$applicationTime$</td><td width='150px' align='center' style='border-left: 0px;border-right: 0px;'>$billingTime$</td></tr>" +
+			"</table>" + 
+			"</div>" + 
+			"<div style=\"width: 650px; height: 40px;margin-top: 10px; line-height: 40px; color: #666\"><div style='float: right;' id='totalPages'></div>&nbsp;&nbsp;<div class=\"page_last\" onclick='pageObje.pageLast()'></div><div class=\"page_next\" onclick='pageObje.pageRight()'></div><div id='templateButton'><div class=\"page\" onclick='pageChangeService(pageObje, $pageNum$)'>$pageNum$</div></div><div class=\"page_before\" onclick='pageObje.pageLeft()'></div><div class=\"page_first\" onclick='pageObje.pageFirst()'></div></div>";
+		openDialog(html, get("invoiceHistroy"), 400, 800);
+		pageHistroy();
+}
+
+
+function pageHistroy(){
+	pageObje.jsonRequest = {
+			"page" : pageObje.current,
+			"limit" : pageObje.size,
+		    "sort": "[{\"property\":\"createDate\",\"direction\":\"DESC\"}]"
+		};
+		pageObje.initFlag = true;
+		pageObje.pageFirst();
+}
+
+function invoiceNoStr(data){
+	if(null == data || "" == data){
+		return "";
+	}
+	return data;
+}
+
+function invoiceAmountStr(data){
+	return data + " " +get("yuan");
+}
+
+function applyStatus(data){
+	return get("bill"+data);
+}
+
+function timeString(time){
+	if(null == time || "" ==time){
+		return "";
+	}
+    return formatDateTime(new Date(time));
+}
+
+function invoiceTypeStr(data){
+	if(data == 1){
+		return get("PersonalVATInvoice");
+	}else if(data == 2){
+		return get("VATInvoices");
+	}else{
+		return "";
+	}
+}
+function pageChange(pageObje) {
+		pageObje.jsonRequest['page'] = pageObje.current;
+		var url = "../../../order/invoice!findInvoiceList.action";
+		$.ajax({
+			url :url,
+			type: 'GET',
+			dataType: 'json',
+			async : false,
+			contentType: "application/json; charset=utf-8",
+			data: pageObje.jsonRequest,
+			success: function(data){
+				if(data.success == true) {
+					pageCreatorR2(pageObje, data.resultObject,true);
+				} else {
+					openDialog(data.resultMsg);
+				}
+			}
+		});
+}
+
+function apply(){
+	
+    var invoiceAmount = $("#invoiceAmount").val();
+    var invoiceTitle = $("#invoiceTitle").text();
+    var description = $("#description").val();
+    var takeInvoiceType =  $("input[name='takeInvoiceType']:checked").val();
+    var courierDeliveryTime =  $("input[name='courierDeliveryTime']:checked").val();
+    var recipient = $("#recipient").val();
+    var recipientCompany = $("#recipientCompany").val();
+    var province = $("#province").val();
+    var city = $("#city").val();
+    var address = $("#address").val();
+    var postcode = $("#postcode").val();
+    var mobile = $("#mobile").val();
+    var telephone = $("#telephone").val();
+    var fax = $("#fax").val();
+    var account = $("#accountValue").val();
+    var invoiceType = $("#invoice_select").find('option:selected').val();
+    
+    invoiceAmount = trim(invoiceAmount);
+    invoiceTitle = trim(invoiceTitle);
+    description = trim(description);
+    takeInvoiceType = trim(takeInvoiceType);
+    courierDeliveryTime = trim(courierDeliveryTime);
+    recipient = trim(recipient);
+    recipientCompany = trim(recipientCompany);
+    province = trim(province);
+    city = trim(city);
+    address = trim(address);
+    postcode = trim(postcode);
+    mobile = trim(mobile);
+    telephone = trim(telephone);
+    fax = trim(fax);
+    account = trim(account);
+    invoiceType = trim(invoiceType);
+//    alert("invoiceType:"+invoiceType);
+    
+    $("#invoice_select").change(function(){
+		$("#invoice_select_msg").html('');
+	});
+    
+    if(!(checkInvoiceAmount() & checkPostCode() & checkFax() & checkRecipient()
+	  & checkRecipientCompany() & checkCity() & checkAddress() & checkPostCode()  & checkTelephone()
+	  & checkMobile())){
+	  return false;	
+    }
+    if(invoiceType == 0){
+    	$("#invoice_select_msg").html("* "+get("invoiceTypeSelect"));
+    	return false;
+    }
+	var jsonRequest = '{"invoiceAmount":"' + invoiceAmount + '","invoiceTitle":"' + invoiceTitle +  
+		'","description":"' + description + '","takeInvoiceType":"' + takeInvoiceType + 
+		'","courierDeliveryTime":"' + courierDeliveryTime + '","recipient":"' + recipient +
+		'","recipientCompany":"' + recipientCompany + '","province":"' + province +
+		'","city":"' + city + '","address":"' + address + '","postcode":"' + postcode + 
+		'","mobile":"' + mobile + '","telephone":"' + telephone + 
+		'","fax":"' + fax + '","account":"' + account +'","invoiceType":"'+ invoiceType + '"}';
+	
+
+    $('#apply').unbind('click');
+    $('#apply').removeClass("button-primary button-rounded");
+    $('#apply').addClass("button button-pill invoice_submit_disable");
+    
+	$.ajax({
+		url :"../../../order/invoice!applyInvoice.action",
+		type: 'POST',
+		dataType: 'json',
+		async : true,
+		contentType: "application/json; charset=utf-8",
+		data: jsonRequest,
+		success: function(data){
+			var message = get("apply")+get("failed");
+		    if(data["success"]){
+		    	reset();
+		    	loadProvince();
+		    	message = get("apply")+get("succeed");
+		    	$('#apply').attr('onclick',"apply()");
+		    	$('#apply').removeClass("button-pill invoice_submit_disable");
+		    	$('#apply').addClass('button-rounded button-primary');
+		    }else{
+		    	message = data["resultMsg"];
+		    }
+		    openDialog(message);
+		}
+	});
+}
+
+function checkTelephone(){
+    var $val = $("#telephone");
+	var val = $val.val();
+    //电话验证
+    var reg = /(^[0-9]{3,4}\-[0-9]{7,8}\-[0-9]{3,4}$)|(^[0-9]{3,4}\-[0-9]{7,8}$)|(^[0-9]{7,8}$)/;
+	if(val != '' &&!reg.test(val)) {
+		$val.css('border', '1px solid red');
+		$("#telephone_msg").html("*"+get("formaterror"));
+		return false;
+	}
+	$val.css('border', '1px solid #a4a4a4');
+	$("#telephone_msg").html("");
+	return true;
+	
+}
+
+function checkInvoiceTitle(){
+	return checkNull("invoiceTitle","invoiceTitle_msg");
+}
+
+function checkRecipient(){
+	return checkNull("recipient","recipient_msg");
+}
+
+function checkRecipientCompany(){
+	return checkNull("recipientCompany","recipientCompany_msg");
+}
+
+function checkCity(){
+	return checkNull("city","city_msg");
+}
+
+function checkAddress(){
+	return checkNull("address","address_msg");
+}
+
+function checkMobile(){
+	var $val = $("#mobile");
+	var val = $val.val();
+	//手机验证
+	reg = /^0{0,1}1[0-9]{10}$/;
+	if(""!=val  && !reg.test(val)) {
+		$("#mobile_msg").html("*"+get("formaterror"));
+		$val.css('border', '1px solid red');
+    	return false;
+	} 
+	$val.css('border', '1px solid #a4a4a4');
+	$("#mobile_msg").html("");
+	return true;
+	
+}
+
+function checkPostCode(){
+	
+	var $val = $("#postcode");
+	var postcode = $val.val();
+	//邮政编码验证
+	reg = /^[0-9]{6}$/;
+	if(postcode == ''){
+		$val.css('border', '1px solid red');
+		$("#postcode_msg").html("* "+get("cannotempty"));
+		return false;
+	} else if(!reg.test(postcode)) {
+		$val.css('border', '1px solid red');
+		$("#postcode_msg").html("* "+get("formaterror"));
+		return false;
+	}
+	$val.css('border', '1px solid #a4a4a4');
+	$("#postcode_msg").html("");
+	return true;
+	
+}
+
+function checkFax(){
+	var $val = $("#fax");
+	var fax = $val.val();
+	//传真验证
+    reg = /(^[0-9]{3,4}\-[0-9]{7,8}$)|(^[0-9]{7,8}$)/;
+    if("" != fax){
+    	if(!reg.test(fax)) {
+    		$val.css('border', '1px solid red');
+    		$("#fax_msg").html("*"+get("formaterror"));
+    		return false;
+    	}
+    	$val.css('border', '1px solid #a4a4a4');
+    	$("#fax_msg").html("");
+    	return true;
+    }
+    $val.css('border', '1px solid #a4a4a4');
+    $("#fax_msg").html("");
+    return true;
+    
+}
+
+function checkNull(valID,mesID){
+	var $val = $("#"+valID);
+	var val = $val.val();
+	if(null == val || "" == val){
+		$val.css('border', '1px solid red');
+		$("#"+mesID).html("* "+get("cannotempty"));
+		return false;
+	}
+	$val.css('border', '1px solid #a4a4a4');
+	$("#"+mesID).html("");
+	return true;
+}
+
+function checkInvoiceAmount(){
+	var $val = $("#invoiceAmount");
+	var invoiceAmount = $val.val();
+	var account = $("#accountValue").val();
+	var reg = /(^0\.[0-9]{1,2}$)|(^[1-9][0-9]{0,}\.{1}[0-9]{1,2}$)|(^[1-9][0-9]{0,}$)/;
+	if(""==invoiceAmount){
+		$val.css('border', '1px solid red');
+		$("#invoiceAmount_msg").html("* "+get("cannotempty"));
+		return false;
+	}
+	if(parseInt(account) < parseInt(invoiceAmount) ){
+		$val.css('border', '1px solid red');
+		$("#invoiceAmount_msg").html("* "+get("noenough"));
+		return false;
+	} else if(!reg.test(invoiceAmount)) {  //发票金额格式错误
+		$val.css('border', '1px solid red');
+		$("#invoiceAmount_msg").html("* "+get("formaterror"));
+	    return false;
+	} 
+	$val.css('border', '1px solid #a4a4a4');
+	$("#invoiceAmount_msg").html("");
+	return true;
+}
+
+//去掉字符串左边的空格 
+function ltrim(s) {
+  if (s == null) return "";
+  var whitespace = new String(" \t\n\r");
+  var str = new String(s);
+  if (whitespace.indexOf(str.charAt(0)) != -1) {
+      var j = 0, i = str.length;
+      while (j < i && whitespace.indexOf(str.charAt(j)) != -1) {
+          j++;
+      }
+      str = str.substring(j, i);
+  }
+  return str;
+}
+
+//去掉字符串右边的空格 
+function rtrim(s) {
+  if (s == null) return "";
+  var whitespace = new String(" \t\n\r");
+  var str = new String(s);
+  if (whitespace.indexOf(str.charAt(str.length - 1)) != -1) {
+      var i = str.length - 1;
+      while (i >= 0 && whitespace.indexOf(str.charAt(i)) != -1) {
+          i--;
+      }
+      str = str.substring(0, i + 1);
+  }
+  return str;
+}
+//去除字符串两边空格
+function trim(text) {
+	return ltrim(rtrim(text));
+}
+
+function reset(){
+	$("#invoiceAmount").val("");
+	$("#invoiceAmount").css('border', '1px solid #a4a4a4');
+	$("#invoiceAmount_msg").html("");
+	$("#description").css('border', '1px solid #a4a4a4');
+	$("#description").val("");
+	$("#recipient").css('border', '1px solid #a4a4a4');
+	$("#recipient").val("");
+	$("#recipient_msg").html("");
+	$("#recipientCompany").val("");
+	$("#recipientCompany").css('border', '1px solid #a4a4a4');
+	$("#recipientCompany_msg").html("");
+	$("input[name=takeInvoiceType]").get(0).checked = true;
+	$("input[name=courierDeliveryTime]").get(0).checked = true;
+	$("#province option:first").prop("selected", "selected");
+	$("#city").val("");
+	$("#city").css('border', '1px solid #a4a4a4');
+	$("#city_msg").html("");
+	$("#address").css('border', '1px solid #a4a4a4');
+	$("#address").val("");
+	$("#address_msg").html("");
+	$("#postcode").css('border', '1px solid #a4a4a4');
+	$("#postcode").val("");
+	$("#postcode_msg").html("");
+	$("#mobile").css('border', '1px solid #a4a4a4');
+	$("#mobile").val("");
+	$("#mobile_msg").html("");
+	$("#telephone").css('border', '1px solid #a4a4a4');
+	$("#telephone").val("");
+	$("#telephone_msg").html("");
+	$("#fax").val("");
+	$("#fax").css('border', '1px solid #a4a4a4');
+	$("#fax_msg").html("");
+	$("#invoice_select")[0].options.add(new Option(i18n.get('invoiceTypeSelect'), 0, false, false));
+//	$("#invoice_select").val(i18n.get("invoiceTypeSelect"));
+	$("#invoice_select").val(0);
+}
+
+function loadProvince(){
+	var url = "../../../order/invoice!initInvoice.action";
+	$.ajax({
+		async : false,
+		type : "get",
+		url : url,
+		dataType : 'json',
+		success : function(data) {	
+			var resultObject = data.resultObject.invoiceVO;
+			$("#accountValue").val(resultObject.account); //为申请操作提供传入值
+			
+			$("#account").text(resultObject.account + "  " + i18n.get("yuan"));
+			$("#deposit").text(resultObject.deposit +"  "+ i18n.get("yuan")); 
+			$("#billingValue").text(resultObject.billingValue +"  "+ i18n.get("yuan")); 
+			$("#applicationValue").text(resultObject.applicationValue +"  "+ i18n.get("yuan"));
+			$("#invoiceTitle").text(data.resultObject.user.name);
+			invoiceTitleMap = data.resultObject.user.id;
+			applicationValue = resultObject.applicationValue;
+			var provinceList = data.resultObject.provinceList;
+			$.each(provinceList, function(index, value) {
+				$("#province")[0].options.add(new Option(value["provinceName"], value["provinceCode"], false, false));
+			});
+		}
+	});
+}
+
+$("document").ready(function(){
+	i18n.init();//国际化初始化
+	initTagAndMenu(accountTagNameArr,accountPageUrls);
+	
+	$('#invoiceHistroy').text(get('invoicehistory'));
+	$('#attention').text(get('attention'));
+	
+	$('#invoicetotal_span').text(get('invoicetotal') + "：");
+	$('#deposit_span').text(get('depositgrowth') + "：");
+	$('#invoiced_span').text(get('invoiced') + "：");
+	$('#applying_span').text(get('applying') + "：");
+	$('#invoiceamount_span').text(get('invoiceamount') + "：");
+	$('#invoicetitle_span').text(get('invoicetitle') + "：");
+	$('#description_span').text(get('description') + "：");
+	$('#takeType_span').text(get('takeType') + "：");
+	$('#deliveryTime_span').text(get('deliveryTime') + "：");
+	$('#recipient_span').text(get('recipient') + "：");
+	$('#recipientcomany_span').text(get('recipientcomany') + "：");
+	$('#province_span').text(get('province') + "：");
+	$('#city_span').text(get('city') + "：");
+	$('#address_span').text(get('address') + "：");
+	$('#postcode_span').text(get('postcode') + "：");
+	$('#mobile_span').text(get('mobile') + "：");
+	$('#telephone_span').text(get('telep') + "：");
+	$('#fax_span').text(get('fax') + "：");
+	$('#apply').text(get('submit'));
+	$('#reset').text(get('reset'));
+	
+	$('#express_span').text(get('express'));
+	$('#ems_span').text(get('ems'));
+	$('#takebyyourself_span').text(get('takebyyourself'));
+	$('#workingday_span').text(get('workingday'));
+	$('#weekend_span').text(get('weekend'));
+	$('#anytime_span').text(get('anytime'));
+	$("#invoice_select").val(0);
+	$("#apply").click(apply);
+	$("#reset").click(reset);
+	$("#invoiceHistroy").click(histroy);
+    $("#invoiceAmount").blur(checkInvoiceAmount);
+    $("#recipient").blur(checkRecipient);
+    $("#recipientCompany").blur(checkRecipientCompany);
+    $("#city").blur(checkCity);
+    $("#address").blur(checkAddress);
+    $("#postcode").blur(checkPostCode);
+    $("#mobile").blur(checkMobile);
+    $("#telephone").blur(checkTelephone);
+    $("#fax").blur(checkFax);
+    $("#invoice_select").bind('mousedown',function(){
+		$("#invoice_select option[value=0]").remove();
+	});
+	loadProvince();
+});

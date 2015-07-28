@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE struts PUBLIC
+    "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+    "http://struts.apache.org/dtds/struts-2.0.dtd">
+
+<struts>
+	<constant name="struts.objectFactory" value="spring" />
+	<package name="hicloud-application" extends="hscloud-default"
+		namespace="/application_mgmt">
+		<interceptors>
+            <interceptor name="authorInterceptor" class="com.hisoft.hscloud.web.interceptor.AuthorInterceptor"/>
+            <interceptor-stack name="authorStack">
+                <interceptor-ref name="authorInterceptor"/>
+                <interceptor-ref name="hscloudStack"/>
+            </interceptor-stack>
+        </interceptors>
+
+		<action name="application" class="com.hisoft.hscloud.web.action.ApplicationManagementAction" >
+			<!-- <interceptor-ref name="authorStack"/>  -->
+		</action>
+		<action name="ApplicationInvoice" class="com.hisoft.hscloud.web.action.ApplicationInvoiceAction" > </action>
+		<action name="applicationRefund" class="com.hisoft.hscloud.web.action.ApplicationRefundAction" > </action>
+		<action name="applicationEvaluate" class="com.hisoft.hscloud.web.action.ApplicationEvaluateAction" > </action>
+		<action name="getAppTransactionByPage" class="com.hisoft.hscloud.web.action.ApplicationTranscationLogAction" >
+		</action>
+		<action name="applicationOrder" class="com.hisoft.hscloud.web.action.ApplicationOrderAction" >
+		</action>
+		
+		<action name="upload" class="com.hisoft.hscloud.web.action.ApplicationManagementAction" >
+			<interceptor-ref name="defaultStack"/>
+		</action>
+	</package>
+</struts>

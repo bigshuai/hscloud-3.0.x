@@ -1,0 +1,251 @@
+#contentDiv {
+	margin: auto;
+	padding-top:30px;
+	width: 840px;
+}
+
+#orderinfoDiv {
+	margin: auto;
+	border: solid 2px #3c6ab9;
+	width: 840px;
+	height: 190px;
+}
+
+#order_detail {
+	width: 650px;
+	height: 110px;
+	/* 	padding-top: 3px; */
+	margin-left: 1px;
+	margin-bottom: -32px;
+	margin-top: -8px;
+	font-family: 宋体, Arial, Helvetica, sans-serif;
+	font-size: 12px;
+	color: #3f3f3f;
+}
+
+#order_detail p {
+	position: relative;
+	padding-left: 10px;
+	top: -45px;
+	font-size: 15px;
+}
+
+#payContent {
+	padding-top: 10px;
+	margin: auto;
+	width: 100%;
+	width: 844px;
+}
+
+.resloc {
+	position: relative;
+	top: 2px;
+}
+
+.pay_pattern {
+	cursor: pointer;
+	color: white;
+	height: 40px;
+	text-align: center;
+	padding-top: 5px;
+}
+
+.pay_pattern:hover {
+	background: url(images/hover.png);
+}
+
+.checked {
+	background: url(images/select.png);
+}
+
+.pay_pattern_bar {
+	width: 110px;
+	height: 39px;
+	/* 	background-image: url("images/index_30.png"); */
+	cursor: pointer;
+	text-align: center;
+	font-size: 12pt;
+	font-family: 微软雅黑;
+	font-weight: bold;
+	color: #334456;
+}
+
+.pay_pattern span {
+	position: relative;
+	top: 5px;
+}
+
+#content {
+	padding: 10px 0 0 15px;
+	font-family: 宋体, Arial, Helvetica, sans-serif;
+	font-size: 14px;
+}
+
+#item1Content,#item2Content,#item3Content,#item4Content {
+	display: none;
+}
+
+#totalPrice,#balance {
+	font-family: Arial;
+	font-size: 24pt;
+	color: #3c6ab9;
+	display: inline-block;
+	margin-left: 8px;
+}
+
+#priceContent {
+	font-family: 微软雅黑, Arial, Helvetica, sans-serif;
+	color: #3c6ab9;
+	text-align: center;
+}
+
+.promptMes {
+	font-family: 微软雅黑, Arial, Helvetica, sans-serif;
+	font-family: 宋体;
+	font-size: 12pt;
+	color: #3f3f3f;
+}
+
+.recharge {
+	color: #3c6ab9;
+}
+
+.prepaid {
+	cursor: pointer;
+}
+
+.yuan {
+	color: #3c6ab9;
+}
+
+#detailMes {
+	font-weight: bold;
+}
+
+#order_detail_right {
+	width: 200px;
+	text-align: center;
+}
+
+.split_line {
+	height: 70px;
+	border-left: 1px solid #3c6ab9;
+	display: inline-block;
+}
+
+button {
+	padding: 0px 11px 0px 21px !important;
+	font-size: 1.3em !important;
+}
+
+#offlinePayTable {
+	width: 710px;
+	height: 120px;
+}
+
+#offlinePayTable tr {
+	height: 20px;
+}
+
+#offlinePayTable td {
+	font-size: 13px;
+}
+
+#offlinePayTable .left {
+	background-color: #f5f5f5;
+	text-align: right;
+	border-color: #e7e6e6;
+	border-style: solid;
+	border-top-width: 1px;
+	width: 150px;
+	border-bottom-width: 0px;
+	border-left-width: 1px;
+	border-right-width: 1px;
+}
+
+#offlinePayTable .right {
+	padding-left: 20px;
+	border-color: #e7e6e6;
+	border-style: solid;
+	border-bottom-width: 0px;
+	border-top-width: 1px;
+	border-left-width: 0px;
+	border-right-width: 1px;
+}
+
+#offlinePayDesc {
+	padding-top: 30px;
+	padding-left: 5px;
+}
+
+.fontBold {
+	font-size: 14px;
+	font-weight: bold;
+}
+
+#offlinePayTable .lastTr {
+	border-bottom-width: 1px;
+}
+
+.couponInfoCss {
+	font-family: 微软雅黑, Arial, Helvetica, sans-serif;
+	font-family: 宋体;
+	font-size: 12px;
+	color: #3f3f3f;
+}
+
+.couponP {
+	font-size: 12px;
+}
+
+.couponInput {
+	height: 15px;
+	border: 1px solid #cdcdcd;
+	width: 50px;
+	padding-left: 5px;
+}
+
+.couponIntCss {
+	font-size: 16px;
+	color: #3c6ab9;
+}
+
+.button_d {
+	float: left;
+	/* 	margin-top:20px; */
+	border-radius: 3px;
+	cursor: pointer;
+	width: 86px;
+	height: 32px;
+	background-color: #00a1cb;
+	color: #fff;
+	font-family: 微软雅黑;
+	font-size: 12px;
+	line-height: 32px;
+	text-align: center
+}
+
+.button_d:hover {
+	background-color: #10b3de;
+	color: #FFF;
+}
+
+.button_g {
+	float: left;
+	/* 	margin-top: 20px; */
+	border-radius: 3px;
+	cursor: default;
+	width: 86px;
+	height: 32px;
+	margin-right:10px;
+	background-color: #c1c1c1;
+	color: #fff;
+	font-family: 微软雅黑;
+	font-size: 12px;
+	line-height: 32px;
+	text-align: center
+}
+.payType{
+	height:40px;
+	background:url(../../../images/business/upaid/normal.png);
+}

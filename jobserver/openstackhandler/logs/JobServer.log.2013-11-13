@@ -1,0 +1,172 @@
+2013-11-13 11:26:57,114 INFO [pool-1-thread-1][com.pactera.hscloud.openstackhandler.eventhandler.OpenstackEventHandler:29] - receive the event of Openstack,begin to handle message:{"vm_state": "active", "task_state": "", "uuid": "f75345d9-4b40-482a-930f-d7b7d1fc823d", "event_time": "2013-11-13 11:15:43", "sync_type": "syncvmstate"}}
+2013-11-13 11:27:05,749 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:399] - sql:insert into hc_event_sync (id,message,event_time,deal_time,finish_time,update_time,type,biz_type,operator_id,operator,operator_type,messager,result,error_info,remark,job_id,reference_id,uuid,vm_state,vm_task,fixed_ip,floating_ip,method) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);
+2013-11-13 11:27:05,825 INFO [MLog-Init-Reporter][com.mchange.v2.log.MLog:106] - MLog clients using log4j logging.
+2013-11-13 11:27:06,015 INFO [pool-1-thread-1][com.mchange.v2.c3p0.C3P0Registry:216] - Initializing c3p0-0.9.5-pre3 [built 22-May-2013 08:30:06 -0700; debug? true; trace: 10]
+2013-11-13 11:27:06,245 INFO [pool-1-thread-1][com.mchange.v2.c3p0.impl.AbstractPoolBackedDataSource:522] - Initializing c3p0 pool... com.mchange.v2.c3p0.ComboPooledDataSource [ acquireIncrement -> 3, acquireRetryAttempts -> 30, acquireRetryDelay -> 1000, autoCommitOnClose -> true, automaticTestTable -> null, breakAfterAcquireFailure -> true, checkoutTimeout -> 1000, connectionCustomizerClassName -> null, connectionTesterClassName -> com.mchange.v2.c3p0.impl.DefaultConnectionTester, dataSourceName -> 1bqoq1w8ym2315fj1wlbv|13e15f7, debugUnreturnedConnectionStackTraces -> false, description -> null, driverClass -> com.mysql.jdbc.Driver, factoryClassLocation -> null, forceIgnoreUnresolvedTransactions -> false, identityToken -> 1bqoq1w8ym2315fj1wlbv|13e15f7, idleConnectionTestPeriod -> 60, initialPoolSize -> 10, jdbcUrl -> jdbc:mysql://172.16.15.244:3306/hscloud?useUnicode=true&amp;characterEncoding=utf-8, maxAdministrativeTaskTime -> 0, maxConnectionAge -> 0, maxIdleTime -> 60, maxIdleTimeExcessConnections -> 0, maxPoolSize -> 50, maxStatements -> 0, maxStatementsPerConnection -> 0, minPoolSize -> 5, numHelperThreads -> 3, preferredTestQuery -> null, properties -> {user=******, password=******}, propertyCycle -> 0, statementCacheNumDeferredCloseThreads -> 0, testConnectionOnCheckin -> true, testConnectionOnCheckout -> true, unreturnedConnectionTimeout -> 0, userOverrides -> {}, usesTraditionalReflectiveProxies -> false ]
+2013-11-13 11:27:06,555 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:425] - id:null
+2013-11-13 11:27:06,565 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:425] - message:{"vm_state": "active", "task_state": "", "uuid": "f75345d9-4b40-482a-930f-d7b7d1fc823d", "event_time": "2013-11-13 11:15:43", "sync_type": "syncvmstate"}}
+2013-11-13 11:27:06,565 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:425] - event_time:Wed Nov 13 11:15:43 CST 2013
+2013-11-13 11:27:06,575 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:425] - deal_time:Wed Nov 13 11:27:05 CST 2013
+2013-11-13 11:27:06,575 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:425] - finish_time:null
+2013-11-13 11:27:06,575 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:425] - update_time:Wed Nov 13 11:27:05 CST 2013
+2013-11-13 11:27:06,575 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:425] - type:null
+2013-11-13 11:27:06,575 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:425] - biz_type:null
+2013-11-13 11:27:06,575 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:425] - operator_id:null
+2013-11-13 11:27:06,575 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:425] - operator:null
+2013-11-13 11:27:06,575 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:425] - operator_type:null
+2013-11-13 11:27:06,575 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:425] - messager:Messager-1
+2013-11-13 11:27:06,575 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:425] - result:null
+2013-11-13 11:27:06,585 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:425] - error_info:null
+2013-11-13 11:27:06,585 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:425] - remark:null
+2013-11-13 11:27:06,585 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:425] - job_id:null
+2013-11-13 11:27:06,585 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:425] - reference_id:null
+2013-11-13 11:27:06,585 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:425] - uuid:f75345d9-4b40-482a-930f-d7b7d1fc823d
+2013-11-13 11:27:06,585 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:425] - vm_state:ACTIVE
+2013-11-13 11:27:06,585 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:425] - vm_task:
+2013-11-13 11:27:06,585 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:425] - fixed_ip:null
+2013-11-13 11:27:06,585 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:425] - floating_ip:null
+2013-11-13 11:27:06,585 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:425] - method:syncVMState
+2013-11-13 11:27:19,808 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:625] - sql:select * from  hc_vpdc_instance where vm_id='f75345d9-4b40-482a-930f-d7b7d1fc823d'
+2013-11-13 11:27:19,818 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:107] - id:31062
+2013-11-13 11:27:19,818 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:107] - vm_id:f75345d9-4b40-482a-930f-d7b7d1fc823d
+2013-11-13 11:27:19,818 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:107] - VpdcRefrenceId:30770
+2013-11-13 11:27:19,818 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:107] - nodeName:HSCloudNode002
+2013-11-13 11:27:19,818 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:107] - status:0
+2013-11-13 11:27:19,818 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:635] - SQL语句“select * from  hc_vpdc_instance where vm_id='f75345d9-4b40-482a-930f-d7b7d1fc823d'”。查询“hc_vpdc_instance”成功！共查询出：1条！
+2013-11-13 11:27:22,507 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:399] - sql:update hc_vpdc_instance set vm_id = (?) ,nodeName=(?) where id=(?)
+2013-11-13 11:27:22,517 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:425] - vm_id:f75345d9-4b40-482a-930f-d7b7d1fc823d
+2013-11-13 11:27:22,528 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:425] - nodeName:HSCloudNode002
+2013-11-13 11:27:22,528 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:425] - id:31062
+2013-11-13 11:27:30,331 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:399] - sql:update hc_vpdc_instance set vm_id = (?) ,nodeName=(?) where id=(?)
+2013-11-13 11:27:30,341 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:425] - vm_id:f75345d9-4b40-482a-930f-d7b7d1fc823d
+2013-11-13 11:27:30,341 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:425] - nodeName:HSCloudNode002
+2013-11-13 11:27:30,341 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:425] - id:31062
+2013-11-13 11:27:35,741 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:625] - sql:select * from  hc_vpdc_reference where id=30770
+2013-11-13 11:27:35,741 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:107] - id:30770
+2013-11-13 11:27:35,741 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:107] - event_time:2013-11-13 11:10:26.0
+2013-11-13 11:27:35,741 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:107] - vm_innerIP:10.0.0.84
+2013-11-13 11:27:35,741 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:107] - vm_outerIP:16.0.0.112,16.0.0.112
+2013-11-13 11:27:35,741 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:107] - vm_status:RESIZING
+2013-11-13 11:27:35,757 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:107] - vm_task_status:RESIZE_PREP
+2013-11-13 11:27:35,757 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:107] - radom_user:administrator
+2013-11-13 11:27:35,757 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:107] - radom_pwd:Be3g2GsxdPqw
+2013-11-13 11:27:35,757 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:107] - create_id:2
+2013-11-13 11:27:35,757 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:107] - name:218c416f-2131-49f6-9177-56d7b5ce05c7
+2013-11-13 11:27:35,757 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:107] - createflag:1
+2013-11-13 11:27:35,757 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:107] - imageId:0b7c7cb3-5fd0-46b6-8921-19318531d037
+2013-11-13 11:27:35,757 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:107] - osId:10
+2013-11-13 11:27:35,757 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:107] - update_date:2013-11-13 11:07:00.0
+2013-11-13 11:27:35,757 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:107] - try_time:0
+2013-11-13 11:27:35,757 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:635] - SQL语句“select * from  hc_vpdc_reference where id=30770”。查询“hc_vpdc_reference”成功！共查询出：1条！
+2013-11-13 11:27:35,757 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:399] - sql:update hc_vpdc_reference set vm_status = (?),vm_task_status=(?),event_time=(?) where (event_time is null or event_time<=(?)) and id=(?)
+2013-11-13 11:27:35,757 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:425] - vm_status:ACTIVE
+2013-11-13 11:27:35,757 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:425] - vm_task_status:
+2013-11-13 11:27:35,757 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:425] - event_time:Wed Nov 13 11:15:43 CST 2013
+2013-11-13 11:27:35,757 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:425] - event_time:Wed Nov 13 11:15:43 CST 2013
+2013-11-13 11:27:35,757 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:425] - id:30770
+2013-11-13 11:27:35,836 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:399] - sql:update hc_event_sync set finish_time = (?) where id = (?);
+2013-11-13 11:27:35,836 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:425] - finish_time:Wed Nov 13 11:27:35 CST 2013
+2013-11-13 11:27:35,836 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:425] - id:42901
+2013-11-13 11:27:35,836 INFO [main][com.pactera.hscloud.common4j.commonhandler.CommonHandler:88] - beyond the waiting time,thread pool will be end and jobserver will be end....
+2013-11-13 11:27:35,836 INFO [main][com.pactera.hscloud.common4j.commonhandler.CommonHandler:92] - abandoned tasks:[]
+2013-11-13 11:27:35,836 INFO [main][com.pactera.hscloud.openstackhandler.server.OpenstackServer:154] - Messager Proecess finished!
+2013-11-13 16:39:21,460 INFO [pool-1-thread-1][com.pactera.hscloud.openstackhandler.eventhandler.OpenstackEventHandler:29] - receive the event of Openstack,begin to handle message:{"result": 2,"job_ext": {"method":"VM_RecycleRestore"},  "job_id": "12514", "event_time": "2013-11-13 15:21:25","job_type": "Resource", "sync_type": "saveresult","error_info": ""}
+2013-11-13 16:39:21,641 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:399] - sql:insert into hc_event_sync (id,message,event_time,deal_time,finish_time,update_time,type,biz_type,operator_id,operator,operator_type,messager,result,error_info,remark,job_id,reference_id,uuid,vm_state,vm_task,fixed_ip,floating_ip,method) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);
+2013-11-13 16:39:21,672 INFO [MLog-Init-Reporter][com.mchange.v2.log.MLog:106] - MLog clients using log4j logging.
+2013-11-13 16:39:21,779 INFO [pool-1-thread-1][com.mchange.v2.c3p0.C3P0Registry:216] - Initializing c3p0-0.9.5-pre3 [built 22-May-2013 08:30:06 -0700; debug? true; trace: 10]
+2013-11-13 16:39:22,017 INFO [pool-1-thread-1][com.mchange.v2.c3p0.impl.AbstractPoolBackedDataSource:522] - Initializing c3p0 pool... com.mchange.v2.c3p0.ComboPooledDataSource [ acquireIncrement -> 3, acquireRetryAttempts -> 30, acquireRetryDelay -> 1000, autoCommitOnClose -> true, automaticTestTable -> null, breakAfterAcquireFailure -> true, checkoutTimeout -> 1000, connectionCustomizerClassName -> null, connectionTesterClassName -> com.mchange.v2.c3p0.impl.DefaultConnectionTester, dataSourceName -> 1bqoq1w8ymd8lta1oit1fx|510e39, debugUnreturnedConnectionStackTraces -> false, description -> null, driverClass -> com.mysql.jdbc.Driver, factoryClassLocation -> null, forceIgnoreUnresolvedTransactions -> false, identityToken -> 1bqoq1w8ymd8lta1oit1fx|510e39, idleConnectionTestPeriod -> 60, initialPoolSize -> 10, jdbcUrl -> jdbc:mysql://172.16.15.244:3306/hscloud?useUnicode=true&amp;characterEncoding=utf-8, maxAdministrativeTaskTime -> 0, maxConnectionAge -> 0, maxIdleTime -> 60, maxIdleTimeExcessConnections -> 0, maxPoolSize -> 50, maxStatements -> 0, maxStatementsPerConnection -> 0, minPoolSize -> 5, numHelperThreads -> 3, preferredTestQuery -> null, properties -> {user=******, password=******}, propertyCycle -> 0, statementCacheNumDeferredCloseThreads -> 0, testConnectionOnCheckin -> true, testConnectionOnCheckout -> true, unreturnedConnectionTimeout -> 0, userOverrides -> {}, usesTraditionalReflectiveProxies -> false ]
+2013-11-13 16:39:22,343 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:425] - id:null
+2013-11-13 16:39:22,370 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:425] - message:{"result": 2,"job_ext": {"method":"VM_RecycleRestore"},  "job_id": "12514", "event_time": "2013-11-13 15:21:25","job_type": "Resource", "sync_type": "saveresult","error_info": ""}
+2013-11-13 16:39:22,375 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:425] - event_time:Wed Nov 13 15:21:25 CST 2013
+2013-11-13 16:39:22,380 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:425] - deal_time:Wed Nov 13 16:39:21 CST 2013
+2013-11-13 16:39:22,381 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:425] - finish_time:null
+2013-11-13 16:39:22,381 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:425] - update_time:Wed Nov 13 16:39:21 CST 2013
+2013-11-13 16:39:22,381 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:425] - type:null
+2013-11-13 16:39:22,381 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:425] - biz_type:null
+2013-11-13 16:39:22,381 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:425] - operator_id:null
+2013-11-13 16:39:22,381 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:425] - operator:null
+2013-11-13 16:39:22,382 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:425] - operator_type:null
+2013-11-13 16:39:22,382 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:425] - messager:Messager-1
+2013-11-13 16:39:22,383 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:425] - result:2
+2013-11-13 16:39:22,383 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:425] - error_info:null
+2013-11-13 16:39:22,383 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:425] - remark:null
+2013-11-13 16:39:22,383 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:425] - job_id:12514
+2013-11-13 16:39:22,383 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:425] - reference_id:null
+2013-11-13 16:39:22,383 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:425] - uuid:null
+2013-11-13 16:39:22,383 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:425] - vm_state:null
+2013-11-13 16:39:22,383 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:425] - vm_task:null
+2013-11-13 16:39:22,383 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:425] - fixed_ip:null
+2013-11-13 16:39:22,384 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:425] - floating_ip:null
+2013-11-13 16:39:22,384 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:425] - method:saveResult
+2013-11-13 16:39:31,626 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:625] - sql:select * from  hc_event_resource where id=12514
+2013-11-13 16:39:31,646 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:107] - id:12514
+2013-11-13 16:39:31,647 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:107] - update_time:null
+2013-11-13 16:39:31,648 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:107] - obj_name:01e55bae-0e10-4220-94e1-121ee90ff457
+2013-11-13 16:39:31,649 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:107] - result:3
+2013-11-13 16:39:31,650 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:107] - error_info:null
+2013-11-13 16:39:31,651 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:107] - owner_email:null
+2013-11-13 16:39:31,651 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:107] - operator_id:1
+2013-11-13 16:39:31,652 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:107] - biz_type:15
+2013-11-13 16:39:31,653 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:107] - message:{"JobMethod":"VM_RecycleRestore","HcEventResource":{"biz_type":15,"event_time":{"date":13,"day":3,"hours":15,"minutes":21,"month":10,"seconds":24,"time":1384327284986,"timezoneOffset":-480,"year":113},"needIP":1,"obj_id":30729,"obj_name":"01e55bae-0e10-4220-94e1-121ee90ff457","operator":"hscloud@hisoft.com","operator_id":1,"operator_type":2,"res_type":3,"result":3,"type":1},"Parameter":{"uuid":"d6a8be56-786a-41bf-bb87-ec8e8b968197"}}
+2013-11-13 16:39:31,653 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:107] - domain_id:0
+2013-11-13 16:39:31,654 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:107] - ext_column_str:null
+2013-11-13 16:39:31,655 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:107] - obj_id:30729
+2013-11-13 16:39:31,657 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:107] - type:1
+2013-11-13 16:39:31,658 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:107] - res_type:3
+2013-11-13 16:39:31,659 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:635] - SQL语句“select * from  hc_event_resource where id=12514”。查询“hc_event_resource”成功！共查询出：1条！
+2013-11-13 16:39:32,970 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:625] - sql:select * from  hc_vpdc_reference where status=0 and id=30729
+2013-11-13 16:39:32,978 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:635] - SQL语句“select * from  hc_vpdc_reference where status=0 and id=30729”。查询“hc_vpdc_reference”成功！共查询出：0条！
+2013-11-13 16:39:32,979 ERROR [pool-1-thread-1][com.pactera.hscloud.openstackhandler.dao.impl.OpenstackDaoImpl:68] - date error:No result or not Unique
+2013-11-13 16:39:32,979 ERROR [pool-1-thread-1][com.pactera.hscloud.openstackhandler.dao.impl.OpenstackDaoImpl:76] - date errorcom.pactera.hscloud.openstackhandler.exception.OpenstackHandlerException
+2013-11-13 17:09:38,592 INFO [pool-1-thread-1][com.pactera.hscloud.openstackhandler.eventhandler.OpenstackEventHandler:29] - receive the event of Openstack,begin to handle message:{"result": 2,"job_ext": {"method":"VM_RecycleRestore"},  "job_id": "12514", "event_time": "2013-11-13 15:21:25","job_type": "Resource", "sync_type": "saveresult","error_info": ""}
+2013-11-13 17:09:38,763 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:399] - sql:insert into hc_event_sync (id,message,event_time,deal_time,finish_time,update_time,type,biz_type,operator_id,operator,operator_type,messager,result,error_info,remark,job_id,reference_id,uuid,vm_state,vm_task,fixed_ip,floating_ip,method) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);
+2013-11-13 17:09:38,854 INFO [MLog-Init-Reporter][com.mchange.v2.log.MLog:106] - MLog clients using log4j logging.
+2013-11-13 17:09:38,914 INFO [pool-1-thread-1][com.mchange.v2.c3p0.C3P0Registry:216] - Initializing c3p0-0.9.5-pre3 [built 22-May-2013 08:30:06 -0700; debug? true; trace: 10]
+2013-11-13 17:09:39,160 INFO [pool-1-thread-1][com.mchange.v2.c3p0.impl.AbstractPoolBackedDataSource:522] - Initializing c3p0 pool... com.mchange.v2.c3p0.ComboPooledDataSource [ acquireIncrement -> 3, acquireRetryAttempts -> 30, acquireRetryDelay -> 1000, autoCommitOnClose -> true, automaticTestTable -> null, breakAfterAcquireFailure -> true, checkoutTimeout -> 1000, connectionCustomizerClassName -> null, connectionTesterClassName -> com.mchange.v2.c3p0.impl.DefaultConnectionTester, dataSourceName -> 1bqoq1w8ymebjx816m98lh|1412e75, debugUnreturnedConnectionStackTraces -> false, description -> null, driverClass -> com.mysql.jdbc.Driver, factoryClassLocation -> null, forceIgnoreUnresolvedTransactions -> false, identityToken -> 1bqoq1w8ymebjx816m98lh|1412e75, idleConnectionTestPeriod -> 60, initialPoolSize -> 10, jdbcUrl -> jdbc:mysql://172.16.15.244:3306/hscloud?useUnicode=true&amp;characterEncoding=utf-8, maxAdministrativeTaskTime -> 0, maxConnectionAge -> 0, maxIdleTime -> 60, maxIdleTimeExcessConnections -> 0, maxPoolSize -> 50, maxStatements -> 0, maxStatementsPerConnection -> 0, minPoolSize -> 5, numHelperThreads -> 3, preferredTestQuery -> null, properties -> {user=******, password=******}, propertyCycle -> 0, statementCacheNumDeferredCloseThreads -> 0, testConnectionOnCheckin -> true, testConnectionOnCheckout -> true, unreturnedConnectionTimeout -> 0, userOverrides -> {}, usesTraditionalReflectiveProxies -> false ]
+2013-11-13 17:09:39,413 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:425] - id:null
+2013-11-13 17:09:39,430 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:425] - message:{"result": 2,"job_ext": {"method":"VM_RecycleRestore"},  "job_id": "12514", "event_time": "2013-11-13 15:21:25","job_type": "Resource", "sync_type": "saveresult","error_info": ""}
+2013-11-13 17:09:39,433 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:425] - event_time:Wed Nov 13 15:21:25 CST 2013
+2013-11-13 17:09:39,443 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:425] - deal_time:Wed Nov 13 17:09:38 CST 2013
+2013-11-13 17:09:39,443 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:425] - finish_time:null
+2013-11-13 17:09:39,443 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:425] - update_time:Wed Nov 13 17:09:38 CST 2013
+2013-11-13 17:09:39,443 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:425] - type:null
+2013-11-13 17:09:39,444 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:425] - biz_type:null
+2013-11-13 17:09:39,444 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:425] - operator_id:null
+2013-11-13 17:09:39,444 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:425] - operator:null
+2013-11-13 17:09:39,444 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:425] - operator_type:null
+2013-11-13 17:09:39,445 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:425] - messager:Messager-1
+2013-11-13 17:09:39,445 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:425] - result:2
+2013-11-13 17:09:39,445 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:425] - error_info:null
+2013-11-13 17:09:39,445 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:425] - remark:null
+2013-11-13 17:09:39,445 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:425] - job_id:12514
+2013-11-13 17:09:39,445 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:425] - reference_id:null
+2013-11-13 17:09:39,446 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:425] - uuid:null
+2013-11-13 17:09:39,446 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:425] - vm_state:null
+2013-11-13 17:09:39,446 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:425] - vm_task:null
+2013-11-13 17:09:39,446 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:425] - fixed_ip:null
+2013-11-13 17:09:39,446 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:425] - floating_ip:null
+2013-11-13 17:09:39,446 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:425] - method:saveResult
+2013-11-13 17:09:42,138 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:625] - sql:select * from  hc_event_resource where id=12514
+2013-11-13 17:09:42,159 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:107] - id:12514
+2013-11-13 17:09:42,160 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:107] - update_time:2013-11-13 16:41:21.0
+2013-11-13 17:09:42,161 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:107] - obj_name:01e55bae-0e10-4220-94e1-121ee90ff457
+2013-11-13 17:09:42,162 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:107] - result:2
+2013-11-13 17:09:42,163 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:107] - error_info:Exception:HTTPConflict,Message:None,Traceback:Traceback (most recent call last):
+  File "/usr/lib/python2.7/dist-packages/nova/hs_notification.py", line 358, in wrapper_func
+    return func(self, req, *args, **kwargs)
+  File "/usr/lib/python2.7/dist-packages/nova/api/openstack/compute/contrib/deferred_delete.py", line 57, in _restore
+    'restore')
+  File "/usr/lib/python2.7/dist-packages/nova/api/openstack/common.py", line 336, in raise_http_conflict_for_instance_invalid_state
+    raise webob.exc.HTTPConflict(explanation=msg % locals())
+HTTPConflict: Cannot 'restore' while instance is in vm_state active
+
+2013-11-13 17:09:42,164 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:107] - owner_email:null
+2013-11-13 17:09:42,165 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:107] - operator_id:1
+2013-11-13 17:09:42,165 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:107] - biz_type:15
+2013-11-13 17:09:42,168 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:107] - message:{"JobMethod":"VM_RecycleRestore","HcEventResource":{"biz_type":15,"event_time":{"date":13,"day":3,"hours":15,"minutes":21,"month":10,"seconds":24,"time":1384327284986,"timezoneOffset":-480,"year":113},"needIP":1,"obj_id":30729,"obj_name":"01e55bae-0e10-4220-94e1-121ee90ff457","operator":"hscloud@hisoft.com","operator_id":1,"operator_type":2,"res_type":3,"result":3,"type":1},"Parameter":{"uuid":"d6a8be56-786a-41bf-bb87-ec8e8b968197"}}
+2013-11-13 17:09:42,169 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:107] - domain_id:0
+2013-11-13 17:09:42,169 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:107] - ext_column_str:null
+2013-11-13 17:09:42,169 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:107] - obj_id:30729
+2013-11-13 17:09:42,170 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:107] - type:1
+2013-11-13 17:09:42,170 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:107] - res_type:3
+2013-11-13 17:09:42,171 INFO [pool-1-thread-1][com.pactera.hscloud.common4j.util.DBUtil:635] - SQL语句“select * from  hc_event_resource where id=12514”。查询“hc_event_resource”成功！共查询出：1条！

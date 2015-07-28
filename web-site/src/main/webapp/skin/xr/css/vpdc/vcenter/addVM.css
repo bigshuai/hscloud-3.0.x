@@ -1,0 +1,237 @@
+@CHARSET "UTF-8";
+
+#step1,#step2,#step3,.vpdcTable {
+	font-family: 微软雅黑;
+	font-size: 16px;
+	color: #4d6587;
+	width: 940px;
+	vertical-align: middle;
+}
+
+.vpdcTd1 {
+	text-align: right;
+	width: 180px;
+	vertical-align: middle;
+	color: #666666;
+	font-family: "微软雅黑";
+	font-size: 16px;
+	font-weight: normal;
+	height: 50px;
+}
+
+.vpdcTd2 {
+	text-align: left;
+	padding-left: 20px;
+	vertical-align: middle;
+	color: #666666;
+	font-family: 微软雅黑;
+	font-size: 14px;
+	font-weight: normal;
+}
+
+.stepPic {
+	margin-left: 5px;
+	margin-right: 5px;
+}
+
+/* 蓝色外发光选择按钮 */
+.cpu-btn,.os-btn {
+	border: 1px solid #CCCCCC;
+	border-radius: 5px 5px 5px 5px;
+	color: #555555;
+	background-color: #F2F2F2;
+	display: inline-block;
+	font-family: 微软雅黑;
+	font-size: 16px;
+	color: #1A1A1A;
+	line-height: 40px;
+	padding-left: 25px;
+	margin-left: 20px;
+	width: 50px;
+	height: 40px;
+	vertical-align: middle;
+	cursor: pointer;
+}
+
+.cpu-btn:hover,.os-btn:hover {
+	background-color: #fff;
+	border-color: rgba(15, 161, 253, 0.8);
+	box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset, 0 0 6px
+		rgba(155, 216, 255, 0.8);
+	outline: 0 none;
+}
+
+.cpu-selected-btn,.os-selected-btn {
+	border: 1px solid #9bd8ff;
+	border-radius: 5px 5px 5px 5px;
+	color: #555555;
+	background-color: #F2F2F2;
+	display: inline-block;
+	font-family: 微软雅黑;
+	font-size: 16px;
+	color: #1A1A1A;
+	line-height: 40px;
+	padding-left: 25px;
+	width: 50px;
+	height: 40px;
+	vertical-align: middle;
+	cursor: pointer;
+	background-color: #fff;
+	border-color: rgba(15, 161, 253, 0.8);
+	box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset, 0 0 6px
+		rgba(155, 216, 255, 0.8);
+	outline: 0 none;
+	margin-left: 20px;
+}
+
+.slider-div {
+	width: 400px;
+	height: 15px;
+	float: left;
+	margin-top: 5px;
+}
+
+.slider-input {
+	color: #72b205;
+	height: 25px;
+	width: 50px;
+	font-family: 微软雅黑;
+	font-size: 13px;
+	margin-left: 20px;
+	text-align: center;
+}
+
+.cn-2 {
+	font-size: 12px;
+	color: #333;
+	font-family: "微软雅黑";
+	float: right;
+	font-weight: normal;
+}
+
+.ui-state-default,.ui-widget-content .ui-state-default,.ui-widget-header .ui-state-default
+	{
+	background: none repeat scroll 0 0 #CECECE;
+	border: 1px solid #BEBEBE;
+	font-weight: normal;
+}
+
+.ui-widget-header {
+	background: none repeat scroll 0 0 #8ECD00;
+	border: 1px solid #AAAAAA;
+}
+
+.add-btn {
+	border: 1px solid #CCCCCC;
+	border-radius: 3px 3px 3px 3px;
+	color: #555555;
+	background-color: #F2F2F2;
+	display: inline-block;
+	font-family: 微软雅黑;
+	line-height: 25px;
+	width: 25px;
+	height: 25px;
+	vertical-align: middle;
+	text-align: center;
+	cursor: pointer;
+	font-size: 18px;
+	font-weight: bold;
+}
+
+.add-btn:hover {
+	background-color: #fff;
+	border-color: rgba(15, 161, 253, 0.8);
+	box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset, 0 0 6px
+		rgba(155, 216, 255, 0.8);
+	outline: 0 none;
+}
+
+#turnToStep2,#previousStep,#addOnceAgain {
+	cursor: pointer;
+	margin-left: 400px;
+}
+
+#cancelCreateVM,#turnToStep3,#generateOrders {
+	cursor: pointer;
+	margin-left: 10px;
+}
+
+#vmList {
+	background: url("../../../images/message/table_light.png") repeat-x
+		scroll 0 0 #F5F6FA;
+	border: 1px solid #E1E1E5;
+	border-radius: 3px;
+	float: left;
+	font-size: 14px;
+	height: 160px;
+	line-height: 14px;
+	margin-left: 8px;
+	margin-top: 5px;
+	margin-bottom: 3px;
+	width: 920px;
+	height: 386px;
+}
+
+#os-select,#timer-select {
+	background: #fff;
+	border: 1px solid #bbb;
+	-webkit-border-radius: 5px;
+	border-radius: 5px;
+	box-sizing: border-box;
+	height: 30px;
+	margin: 0;
+	padding: 4px;
+	width: 354px;
+	font-family: Tahoma, Geneva, sans-serif;
+	font-size: 12px;
+	line-height: 18px;
+}
+
+#os-select:hover,#timer-select:hover {
+	background-color: #fff;
+	border-color: rgba(15, 161, 253, 0.8);
+	box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset, 0 0 6px
+		rgba(155, 216, 255, 0.8);
+	outline: 0 none;
+}
+
+.list {
+	height: 50px;
+	width: 840px;
+	text-align: center;
+	vertical-align: middle;
+	word-break: break-all;
+	font-family: Arial, Helvetica, sans-serif;
+	color: #4d6587;
+	font-size: 14px;
+}
+
+.list:hover {
+	background-color: #fff;
+}
+
+.tableHeader {
+	color: #4D6587;
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 14px;
+	font-weight: bold;
+	line-height: 14px;
+}
+
+.vmPrice {
+	color: #2E65C0;
+	font-family: Arial, 微软雅黑;
+	font-size: 20px;
+	font-weight: bold;
+}
+
+.yuan {
+	color: #2E65C0;
+	font-family: Arial, 微软雅黑;
+	font-size: 13px;
+	font-weight: bold;
+}
+
+.vmIndex {
+	margin-right: 40px;
+}

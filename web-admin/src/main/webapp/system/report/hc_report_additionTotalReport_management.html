@@ -1,0 +1,228 @@
+<html>
+<head>
+<title>新增产品总量统计</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel='stylesheet' type='text/css' href='../../extjs-4.1.0/resources/css/ext-all-gray.css' />
+<script type='text/javascript' src='../../extjs-4.1.0/ext-all.js'></script>
+<script type="text/javascript" src="../../js/head.js"></script>
+<script type="text/javascript" src="../../js/ux/data/PagingMemoryProxy.js"></script>
+<script type="text/javascript" src="../../js/ux/form/SearchField.js"></script>
+<script src="../../js/jquery-1.7.2.min.js" type="text/javascript"></script>
+<script type="text/javascript" charset="utf-8" src="../../js/i18n.js"></script>
+<script type="text/javascript" src="../systemmanagement/common.js"></script>
+
+<script>
+Ext.require('Ext.chart.*');
+//Ext.require(['Ext.Window', 'Ext.layout.container.Fit', 'Ext.fx.target.Sprite']);
+
+Ext.require([
+	'Ext.form.field.ComboBox',
+    'Ext.form.FieldSet',
+	'Ext.Window', 
+    'Ext.data.*',
+    'Ext.panel.Panel',
+    'Ext.layout.container.Fit',
+    'Ext.ux.form.SearchField',
+	'Ext.fx.target.Sprite',
+	'Ext.ux.data.PagingMemoryProxy'
+]);
+
+Ext.onReady(function () {
+
+var appyearStore = new Ext.data.JsonStore( {  
+        fields : [ 'id', 'name' ],  
+        data : [ {  
+        	id : '0',  
+            name : '2015'  
+       },{  
+            id : '1',  
+           name : '2014'  
+       },{  
+            id : '2',  
+           name : '2013'  
+       },{  
+            id : '3',  
+           name : '2012'  
+       },{  
+            id : '4',  
+           name : '2011'  
+       }]  
+}); 
+
+
+
+var appReportModel = Ext.define('appReportModel', {
+		extend : 'Ext.data.Model',
+		fields : [
+		          'id','appSum','appYear','appMonth','deal_date'
+		          ]
+	})
+
+   var store = Ext.create('Ext.data.JsonStore', {
+        fields: ['year', 'comedy', 'action'],
+        data: [
+                {year: 1, comedy: 340, action: 238},
+                {year: 2, comedy: 567, action: 389},
+                {year: 3, comedy: 421, action: 504},
+				{year: 4, comedy: 421, action: 304},
+				{year: 5, comedy: 424, action: 203},
+				{year: 6, comedy: 425, action: 304},
+				{year: 7, comedy: 424, action: 104},
+				{year: 8, comedy: 427, action: 204},
+				{year: 9, comedy: 421, action: 303},
+				{year: 10, comedy: 421, action: 404},
+				{year: 11, comedy: 429, action: 204},
+                {year: 12, comedy: 389, action: 360}
+              ]
+    });
+
+
+	var appReportStore = Ext.create('Ext.data.Store', {
+		model : 'appReportModel',
+		autoLoad : true,
+		proxy : new Ext.data.proxy.Ajax({
+			url : path + '/../report_mgmt/cloudApplicationReport!getMonthlyIncomeReport.action',
+			 reader : {
+				type : 'json',
+				root : 'resultObject'
+			},
+			listeners:{
+				exception:function(reader, response, error, eOpts){
+					ajaxException(reader, response, error, eOpts );
+				}
+			}
+		}),	
+		listeners : {
+			beforeload : function(store,operation, eOpts ){	
+				v_mask = new Ext.LoadMask(Ext.getBody(), {
+					msg : i18n._('please wait'),
+					removeMask : true			
+				});
+				v_mask.show();
+			},
+			load : function(store, records, successful, eOpts ){
+				v_mask.hide();
+			}
+		}
+	});	
+	
+	var imgb = new Ext.Button({  
+    		        text: '<font color="#ee7700">'+i18n._('Search')+'</font>',
+    		        icon: "images/search.png",
+    		        handler :function(btn) { 
+    		        	var proxy = appReportStore.getProxy();
+    		        	var searchAppyear = Ext.getCmp('searchAppyear').getValue();
+						proxy.setExtraParam('searchAppyear',searchAppyear);
+						proxy.extraParams.start = 0;
+						applicationEvaluateStore.loadPage(1,null);
+    	            }
+    		    }); 
+
+var grid = Ext.create('Ext.panel.Panel', {
+    id:'button-grid',
+    //store: appyearStore,
+    title:i18n._('报表管理')+'&nbsp;&nbsp;>&nbsp;&nbsp;'+i18n._('云应用')+'&nbsp;&nbsp;>&nbsp;&nbsp;'+i18n._('新增产品总量统计'),
+	layout:'fit',
+    width:'100%',
+	height:'100%',
+    frame: true,
+	border:false,
+	simpleSelect :true,
+    iconCls: 'icon-grid',
+	renderTo: Ext.getBody(),
+	//自适应
+    viewConfig: {
+        stripeRows: true,
+		forceFit: true
+    }
+});
+
+Ext.create('Ext.form.Panel', {
+    width: 400,
+	margin:'10px 0 30px 320px',
+    bodyPadding: 10,
+    renderTo: Ext.getBody(),
+    layout: {
+        type: 'hbox',
+        align: 'middle'
+    },
+    items: [{
+        xtype: 'label',
+        forId: 'myFieldId',
+        text: '年份',
+        margins: '0 10px 0 50px'
+    },{
+       xtype:'combobox',
+	   margins: '0 10px 0 0 ',
+		name:'searchAppyear', 
+		id:'searchAppyear', 
+		store: appyearStore,         //       这里的store为combox的数据源                   
+		queryMode: 'local',                    
+		displayField: 'appSum',   // 显示在前台的名字                    
+		valueField: 'id',                // 具体的值                   
+		emptyText:'全部',                //为空的状态下显示的内容                    
+		hideLabel:true
+    },imgb]
+});
+
+
+
+ var panel1 = Ext.create('widget.panel', {
+        width: 800,
+		margin:'10px 0 30px 200px',
+        height: 400,
+        title: '新增产品总量统计',
+        renderTo: Ext.getBody(),
+        layout: 'fit',
+        items: {
+            xtype: 'chart',
+            animate: true,
+            shadow: true,
+            store: store,
+            legend: {
+                position: 'bottom'
+            },
+            axes: [{
+                type: 'Numeric',
+                position: 'bottom',
+                fields: ['comedy', 'action'],
+                title: '新增产品数量（单位：个）',
+                grid: true,
+                label: {
+                    renderer: function(v) {
+                        return String(v).replace(/0$/, 'M');
+                    }
+                },
+                roundToDecimal: false
+            }, {
+                type: 'Category',
+                position: 'left',
+                fields: ['year'],
+                   title: '月份（单位：月）'
+            }],
+            series: [{
+                type: 'bar',
+                axis: 'bottom',
+                gutter: 80,
+                xField: 'year',
+                yField: ['comedy', 'action'],
+                stacked: true,
+                tips: {
+                    trackMouse: true,
+                    width: 65,
+                    height: 28,
+                    renderer: function(storeItem, item) {
+                        this.setTitle(String(item.value[1] / 10) + 'M');
+                    }
+                }
+            }]
+        }
+    });
+
+   
+});
+</script>
+</head>
+<body>
+</body>
+</html>

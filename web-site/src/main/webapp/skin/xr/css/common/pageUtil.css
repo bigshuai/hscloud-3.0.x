@@ -1,0 +1,371 @@
+.w_bg {
+	width: 978px;
+	height: 655px;
+	float: left;
+	margin-left: 190px;
+	background-color: #FFF;
+	color: #2c2c2c;
+	font-family: 微软雅黑;
+	font-size: 16px;
+	box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1) inset, 0 0 20px
+		rgba(19, 19, 19, 0.5);
+}
+
+.label_bg {
+	width: 978px;
+	height: 62px;
+	float: left;
+	margin-left: 190px;
+}
+
+.w_label {
+	width: 144px;
+	height: 42px;
+	float: left;
+	margin-left: 20px;
+	margin-top: 20px;
+	background-color: #FFF;
+	color: #3c6ab9;
+	font-family: 微软雅黑;
+	font-size: 16px;
+	font-weight: bold;
+	text-align: center;
+	line-height: 42px;
+	cursor: pointer;
+	box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1) inset, 0 0 20px
+		rgba(19, 19, 19, 0.5);
+}
+
+.w_label:hover {
+	background-color: #3c6ab9;
+	color: #FFF
+}
+
+.label {
+	width: 144px;
+	height: 42px;
+	float: left;
+	margin-top: 20px;
+	color: #565656;
+	font-family: 微软雅黑;
+	font-size: 16px;
+	text-align: center;
+	line-height: 42px;
+	margin-left: 15px;
+	cursor: pointer
+}
+
+.label:hover {
+	background-color: #3c6ab9;
+	color: #FFF
+}
+
+.button {
+	float: left;
+	margin-top: 10px;
+	margin-left: 10px;
+	border: 1px solid #d4d4d4;
+	border-radius: 3px;
+	cursor: pointer;
+	height: 36px;
+	background-color: #3c6ab8;
+	color: #FFF;
+	font-family: 微软雅黑;
+	font-size: 14px;
+	line-height: 36px;
+	text-align: center
+}
+
+.button:hover {
+	background-color: #537fc8
+}
+
+.button1 {
+	float: left;
+	margin-top: 10px;
+	margin-left: 10px;
+	border: 1px solid #d4d4d4;
+	border-radius: 3px;
+	cursor: pointer;
+	width: 66px;
+	height: 36px;
+	background-color: #fff;
+	color: #434343;
+	font-family: 微软雅黑;
+	font-size: 14px;
+	line-height: 36px;
+	text-align: center
+}
+
+.button1:hover {
+	background-color: #537fc8;
+	color: #FFF;
+}
+
+.list {
+	height: 50px;
+	width: 840px;
+	cursor: pointer;
+	text-align: center;
+	vertical-align: middle;
+	word-break: break-all;
+	
+    font-family: Arial, Helvetica, sans-serif;
+    color:#4d6587; 
+    font-size:14px;
+}
+
+.list:hover {
+	background-color: #fff;
+}
+
+.button_s {
+	float: left;
+	margin-top: 10px;
+	margin-left: 10px;
+	border: 1px solid #d4d4d4;
+	border-radius: 3px;
+	cursor: pointer;
+	width: 66px;
+	height: 36px;
+	background-color: #fff;
+	color: #434343;
+	font-family: 微软雅黑;
+	font-size: 14px;
+	line-height: 36px;
+	text-align: center
+}
+
+.button_s:hover {
+	background-color: #537fc8;
+	color: #FFF;
+}
+
+.button_b {
+	float: left;
+	margin-left: 30px;
+	border-radius: 3px;
+	cursor: pointer;
+	width: 86px;
+	height: 32px;
+	background-color: #3c6ab8;
+	color: #fff;
+	font-family: 微软雅黑;
+	font-size: 12px;
+	line-height: 32px;
+	text-align: center
+}
+
+.button_b:hover {
+	background-color: #537fc8;
+	color: #FFF;
+}
+
+.button_g {
+	float: left;
+	margin-left: 30px;
+	border-radius: 3px;
+	cursor: pointer;
+	width: 86px;
+	height: 32px;
+	background-color: #c1c1c1;
+	color: #fff;
+	font-family: 微软雅黑;
+	font-size: 12px;
+	line-height: 32px;
+	text-align: center
+}
+
+.box_search {
+	float: right;
+	border: 1px solid #c1c1c1;
+	background: url(images/search_.png);
+	color: #555555;
+	display: inline-block;
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 14px;
+	color: #999;
+	line-height: 18px;
+	padding-left: 10px;
+	padding-right: 10px;
+	margin-top: 10px;
+	margin-right: 20px;
+	width: 294px;
+	height: 33px;
+	vertical-align: middle;
+}
+
+.box_search:focus {
+	border-color: #00a1cb;
+	outline: 0 none;
+}
+
+.btn_search {
+	width: 25px;
+	height: 25px;
+	background: url(images/search.png) no-repeat 590px 2px;
+	border: none;
+	text-indent: -9999px;
+	cursor: pointer;
+}
+
+.page {
+	float: left;
+	border: 1px solid #c1c1c1;
+	margin-left: 10px;
+	border-radius: 3px;
+	cursor: pointer;
+	width: 35px;
+	height: 35px;
+	background-image: url(../../images/common/pageUtil/page_bg.png);
+	color: #4e4e4e;
+	font-family: 微软雅黑;
+	font-size: 12px;
+	line-height: 35px;
+	text-align: center
+}
+
+.page_select {
+	float: left;
+	border: 1px solid #c1c1c1;
+	margin-left: 10px;
+	border-radius: 3px;
+	cursor: pointer;
+	width: 35px;
+	height: 35px;
+	background-color: #6a91cf;
+	color: #fff;
+	font-family: 微软雅黑;
+	font-size: 12px;
+	line-height: 35px;
+	text-align: center
+}
+
+.page_first {
+	float: right;
+	border: 1px solid #c1c1c1;
+	margin-left: 10px;
+	border-radius: 3px;
+	cursor: pointer;
+	width: 35px;
+	height: 35px;
+	background-image: url(../../images/common/pageUtil/page_first.png);
+}
+
+.page_before {
+	float: right;
+	border: 1px solid #c1c1c1;
+	margin-left: 10px;
+	border-radius: 3px;
+	cursor: pointer;
+	width: 35px;
+	height: 35px;
+	background-image: url(../../images/common/pageUtil/page_before.png);
+}
+
+.page_last {
+	float: right;
+	border: 1px solid #c1c1c1;
+	margin-left: 10px;
+	border-radius: 3px;
+	cursor: pointer;
+	width: 35px;
+	height: 35px;
+	background-image: url(../../images/common/pageUtil/page_last.png);
+}
+
+.page_next {
+	float: right;
+	border: 1px solid #c1c1c1;
+	margin-left: 10px;
+	border-radius: 3px;
+	cursor: pointer;
+	width: 35px;
+	height: 35px;
+	background-image: url(../../images/common/pageUtil/page_next.png);
+}
+
+#totalPages,#totalPages2,#totalPages3,#totalPages4,#totalPages5 {
+	float: right;
+	margin-left: 10px;
+	font-size: 12px;
+}
+
+#templateButton,#templateButton2,#templateButton3,#templateButton4,#templateButton5
+	{
+	float: right;
+}
+
+.load_overlay {
+	margin: 0px;
+	padding: 0px;
+	border: none;
+	width: 978px;
+	height: 608px;
+	background-color: rgb(51, 51, 51);
+	opacity: 0.6;
+	z-index: 9999;
+	position: relative;
+	left: 0px;
+	top: -56px;
+	display: block;
+}
+
+.load_content {
+	background-color: #FFFFFF;
+	display: block;
+	height: 115px;
+	left: 40%;
+	padding: 0;
+	position: relative;
+	top: -70%;
+	width: 200px;
+	z-index: 10000;
+}
+
+.loading_text {
+	margin-top: 13px;
+	font-family: 微软雅黑;
+	font-size: 13px;
+	margin-left: 18px;
+	color: #3c6ab8;
+}
+
+.load_content img {
+	margin-top: 10px;
+	margin-left: 67px;
+}
+
+.page_div,.page_div2,.page_div3,.page_div4,.page_div5 {
+	color: #666666;
+	float: left;
+	height: 40px;
+	line-height: 40px;
+	margin: 20px auto;
+	width: 900px;
+}
+
+.cn_blue_bold {
+	font-family: Arial, Helvetica, sans-serif;
+	color: #4d6587;
+	font-size: 14px;
+	line-height: 20px;
+	font-weight:bold; 
+}
+
+.cn_blue_mormal:hover {
+	background-color: #fff;
+}
+
+.message_title {
+	float: left;
+	border: 1px solid #e1e1e5;
+	width: 840px;
+	height: 440px;
+	background: url(../../images/message/table_light.png) repeat-x #f5f6fa;
+	margin-top: 20px;
+	margin-left: 50px;
+	font-size: 14px;
+	line-height: 14px;
+	border-radius: 3px;
+}

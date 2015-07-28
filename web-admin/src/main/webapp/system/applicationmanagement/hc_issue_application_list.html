@@ -1,0 +1,1503 @@
+<html>
+<head>
+<title>hc_issue_application_list.html</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel='stylesheet' type='text/css'
+    href='../../extjs-4.1.0/resources/css/ext-all-gray.css' />
+<!-- <script type='text/javascript' src='../../extjs-4.1.0/ext-all.js'></script> -->
+<script type="text/javascript">
+var appId='';//全局变量 记录AppId
+var GpayMethod='';
+var GneedVm='';
+</script>
+<script type='text/javascript' src='../../extjs-4.1.0/ext-all-debug.js'></script>
+<script type="text/javascript" src="../../js/head.js"></script>
+<script type="text/javascript" src="../../js/ux/data/PagingMemoryProxy.js"></script>
+<script type="text/javascript" src="../../js/ux/form/SearchField.js"></script>
+<script src="../../js/jquery-1.7.2.min.js" type="text/javascript"></script>
+<script type="text/javascript" charset="utf-8" src="../../js/i18n.js"></script>
+<script type="text/javascript" src="../systemmanagement/common.js"></script>
+<script type="text/javascript" src="../applicationmanagement/buildApplication.js"></script>
+<script type="text/javascript" src="../applicationmanagement/priceSystem.js"></script>
+<script type="text/javascript" src="../applicationmanagement/couponPolicy.js"></script> 
+<script type="text/javascript" src="../applicationmanagement/durationManagement.js"></script>
+<script type="text/javascript" src="../applicationmanagement/uploadMirror.js"></script>
+<script type="text/javascript" src="../applicationmanagement/uploadPhotos.js"></script>
+<script>
+Ext.Loader.setConfig({enabled: true});
+Ext.require([       
+    'Ext.data.*',
+    'Ext.form.*',
+    'Ext.panel.Panel',
+    'Ext.view.View',
+    'Ext.layout.container.Fit',
+    'Ext.toolbar.Paging',
+	'Ext.selection.CheckboxModel',
+	'Ext.tip.*',
+	'Ext.ux.data.PagingMemoryProxy',
+    'Ext.ux.form.SearchField'
+]);
+//去掉字符串左边的空格 
+function ltrim(s) {
+    if (s == null) return "";
+    var whitespace = new String(" \t\n\r");
+    var str = new String(s);
+    if (whitespace.indexOf(str.charAt(0)) != -1) {
+        var j = 0, i = str.length;
+        while (j < i && whitespace.indexOf(str.charAt(j)) != -1) {
+            j++;
+        }
+        str = str.substring(j, i);
+    }
+    return str;
+}
+
+//去掉字符串右边的空格 
+function rtrim(s) {
+    if (s == null) return "";
+    var whitespace = new String(" \t\n\r");
+    var str = new String(s);
+    if (whitespace.indexOf(str.charAt(str.length - 1)) != -1) {
+        var i = str.length - 1;
+        while (i >= 0 && whitespace.indexOf(str.charAt(i)) != -1) {
+            i--;
+        }
+        str = str.substring(0, i + 1);
+    }
+    return str;
+} 
+Ext.onReady(function() {    
+    Ext.QuickTips.init();
+    MultiLang = (function() {
+        return {
+            init: function() {
+                // load ExtJS locale
+                params = getCookie("lang");
+                i18n.set({
+                  lang: params, 
+                  path: '../../resources'
+                });
+                if (params) {
+                    var url = Ext.util.Format.format('../../extjs-4.1.0/locale/ext-lang-{0}.js', params);
+                    Ext.Ajax.request({
+                        url: url,
+                        success: this.onLoadExtLocaleSuccess,
+                        failure: this.onLoadExtLocaleFailure,
+                        scope: this
+                    });
+                } else {
+                    this.setup();
+                }
+            },
+            onLoadExtLocaleSuccess: function(response) {
+                try {
+                    eval(response.responseText);
+                } catch (e) {
+                    
+                }
+                
+                this.setup();
+            },
+            onLoadExtLocaleFailure: function() {
+                this.setup();
+            },
+            setup: function() { 
+            	var v_mask = null;
+            	var count = 0;
+            	var searchType ='';
+		        var searchStatus ='';
+		        var searchAppName='';
+		        var searchIsCommend='';
+            	//发布应用列表
+            	var issueApplicationModel = Ext.define('issueApplicationModel', {
+            		extend : 'Ext.data.Model',
+            		fields : [
+            		          'id','appName','appCategoryName','appStatus',{name:'createTime',type: 'date', dateFormat: 'time'},
+            		          'buyNum','browseNum','score','isCommend','supplierId','categoryId','logoFileName','logoMaterialId',
+            		          'wechatFileName','wechatMaterialId','wechatQrcode','weiboQrcode','officialUrl','payMethod','introduction',
+            		          'applicationDetailId','logoFilePath','wechatFilePath','appDivideId','appProportion','refuseReason','needVm'
+            		          ]
+            	});
+            	//发布应用列表Store
+            	var issueApplicationStore = Ext.create('Ext.data.Store', {
+            		model : 'issueApplicationModel',
+            		autoLoad : true,//true
+            		pageSize : pageSize,//每页显示16条数据
+            		sorters : [ {
+            			property : 'id',
+            			direction : 'DESC'
+            		} ],
+            		//remoteSort : true,
+            		proxy : new Ext.data.proxy.Ajax({
+            			//type : 'ajax',
+            			url : path + '/../application_mgmt/application!findAppDetailListPage.action',
+            			reader : {
+            				type : 'json',
+            				root : 'resultObject.result',
+            				totalProperty : 'resultObject.totalCount'
+            			},
+            			listeners:{
+            				exception:function(reader, response, error, eOpts){
+            					ajaxException(reader, response, error, eOpts );
+            				}
+            			}
+            		}),	
+            		listeners : {
+            			beforeload : function(store,operation, eOpts ){	
+            				//遮罩层
+            				v_mask = new Ext.LoadMask(Ext.getBody(), {
+            					msg : i18n._('please wait'),
+            					removeMask : true			
+            				});
+            				v_mask.show();
+            			},
+            			load : function(store, records, successful, eOpts ){
+            				v_mask.hide();
+            			}
+            		}
+            	});
+            	
+            /* 	var imgb = new Ext.Button({  
+    		        text: '<font color="#ee7700">'+i18n._('Search')+'</font>',
+    		        icon: "images/search.png",
+    		        handler :function(btn) { 
+    		        	var proxy = issueApplicationStore.getProxy();
+    		        	var searchType = Ext.getCmp('searchType').getValue();
+    		        	var searchStatus = Ext.getCmp('searchStatus').getValue();
+						proxy.setExtraParam('appCategoryId',searchType);
+						proxy.setExtraParam('appStatus',searchStatus)
+						proxy.extraParams.start = 0;
+						issueApplicationStore.loadPage(1,null);
+    	            }
+    		    }); */ 
+            	//分页序号
+            	Ext.grid.PageRowNumberer = Ext.extend(Ext.grid.RowNumberer, { 
+            		baseCls:Ext.baseCSSPrefix + 'column-header ' + Ext.baseCSSPrefix + 'unselectable',
+            		cls:Ext.baseCSSPrefix + 'row-numberer',
+            		tdCls:Ext.baseCSSPrefix+"grid-cell-special",
+            	    renderer:function(value, cellmeta, record, rowIndex, columnIndex, store){   
+            	        return (store.currentPage - 1) * store.pageSize + rowIndex + 1;  
+            	    }       
+            	});
+            	
+            	
+            	 var applicationStatusStore = new Ext.data.JsonStore( {  
+                     fields : [ 'id', 'name' ],  
+                     data : [ {  
+                         id : '10',  
+                         name : '未申请'  
+                     }, {  
+                         id : '20',  
+                         name : '已申请'  
+                     },{
+                    	 id:'30',
+                    	 name:'上架'
+                     },{
+                    	 id:'40',
+                    	 name:'下架'
+                     },{
+                    	 id:'50',
+                    	 name:'已拒绝'
+                     } ]  
+                 }); 
+            	 
+            	 var appIsCommendStore = new Ext.data.JsonStore( {  
+                     fields : [ 'id', 'name' ],  
+                     data : [ {  
+	                         	id : '0',  
+	                         	name : '否'  
+                            },{  
+	                         	id : '1',  
+	                         	name : '是'  
+                            } ]  
+                 }); 
+            	
+            	
+            	var issueApplicationGrid=Ext.create('Ext.grid.Panel', {
+            	    layout:'fit',            		
+            	    store:issueApplicationStore,
+            		simpleSelect:true,
+            		selModel: Ext.create('Ext.selection.RowModel'),
+            	    columns: [
+								Ext.create('Ext.grid.PageRowNumberer',{flex : 0.1}),
+								{
+									header: 'id',
+									dataIndex:'id',
+									flex:0.1,
+									hidden:true
+								},
+								{
+									header: '应用名称',
+									dataIndex:'appName',
+									flex:0.5
+								},
+								{
+									header:'提交时间', //提交时间	
+									dataIndex: 'createTime',
+									flex:0.5,
+									renderer: Ext.util.Format.dateRenderer("Y-m-d H:i:s")
+								},
+								{
+									header:'类别名称', //类别名称	
+									dataIndex: 'appCategoryName',
+									flex:0.5
+								},
+								{
+									header:'状态',//状态
+									dataIndex: 'appStatus',
+									flex:0.5,
+									renderer:function(value){
+										if(value== '10'){
+											return "未申请";
+										}else if(value== '20'){
+											return "已申请";
+										}else if(value== '30'){
+											return "上架";
+										}else if(value== '40'){
+											return "下架";
+										}else if(value== '50'){
+											return "已拒绝";
+										}else{
+											return "";
+										}
+									}
+								},
+								{
+									header:'付款方式',//付款方式
+									dataIndex: 'payMethod',
+									flex:0.5,
+									renderer:function(value){
+										if(value== '0'){
+											return "预付款";
+										}else if(value== '1'){
+											return "后付款";
+										}
+									}
+								},
+								{
+									header:'推荐商品',
+									dataIndex: 'isCommend',
+									flex:0.2,
+									renderer:function(value){
+										if(value== '1'){
+											return "是";
+										}else if(value==null||value=='0'){
+											return "否";
+										}else{
+											return "";
+										}
+									}
+								},
+								{
+									header:'虚拟机',
+									dataIndex: 'needVm',
+									flex:0.2,
+									renderer:function(value){
+										if(value== '1'){
+											return "需要";
+										}else if(value==null||value=='0'){
+											return "不需要";
+										}else{
+											return "";
+										}
+									}
+								},
+								{
+									header:'购买数量',//购买数量
+									dataIndex: 'buyNum',
+									flex:0.2,
+								
+								},
+								{
+									header:'浏览次数', //浏览次数	
+									dataIndex: 'browseNum',
+									flex:0.2
+									
+								},
+								{
+									header:'评价分数', //分数	
+									dataIndex: 'score',
+									flex:0.2
+									
+								},
+								{
+									header:'拒绝原因', //拒绝原因
+									dataIndex: 'refuseReason',
+									flex:0.2
+									
+								}
+            		],
+            		bbar: Ext.create('Ext.toolbar.Paging', {
+            	          store:issueApplicationStore,
+            	          displayInfo: true,
+            	          beforePageText:i18n._('beforePageText'),//"第"
+            	          firstText: i18n._('firstText'),//"第一页"
+            	          prevText: i18n._('prevText'),//"上一页"
+            	          nextText: i18n._('nextText'),//"下一页"
+            	          lastText: i18n._('lastText'),//"最后页"
+            	          refreshText: i18n._('refreshText')//"刷新"
+            	    }),           	
+            	    viewConfig: {
+            	    	stripeRows: true
+            	    },            		
+            		dockedItems:[
+            		{
+            			xtype:'toolbar',
+            			cls: 'toolbarCSS',
+            			dock: 'top',			
+            			items:[			
+		            			{                				   
+		            				xtype : 'button',									
+		        					text: '<font id="addApplication" color="#ffffff" >' + '添加应用' + '</font>',
+		        					listeners: {
+		        						 "mouseout" : function() {
+		        							 document.getElementById("addApplication").style.color = "white";
+		        						 },
+		        						 "mouseover" : function() {
+		        							 document.getElementById("addApplication").style.color = "black";
+		        						 }
+		        							
+		        					},
+		        					icon : 'images/add.png',
+		            				handler:function(){
+		            					buildAppliactionTab.setActiveTab(0);
+		            					appId='';
+		            					getSessionUser();
+		            					addIssueApplicationWin.setTitle("新建应用");
+		            					appCategoryCombox.reset();
+		            					addIssueApplicationWin.show();	
+		            					buildAppForm.getForm().reset();
+		            					Ext.getCmp('appNeedVm').setDisabled(false);
+		            				}            	   
+		            			},
+		            			{                				   
+		            				xtype : 'button',									
+		        					text: '<font id="editApplication" color="#ffffff" >' + '修改应用' + '</font>',
+		        					listeners: {
+		        						 "mouseout" : function() {
+		        							 document.getElementById("editApplication").style.color = "white";
+		        						 },
+		        						 "mouseover" : function() {
+		        							 document.getElementById("editApplication").style.color = "black";
+		        						 }
+		        					},
+		        					icon : 'images/edit.png',
+		            				handler:function(){
+		            					var rows = issueApplicationGrid.getSelectionModel().getSelection();
+		        						if (rows.length > 0) {
+		        							appId=rows[0].get('id');
+		        							GpayMethod=rows[0].get('payMethod');
+		        							GneedVm=rows[0].get('needVm');
+		        							buildAppliactionTab.setActiveTab(0);
+		        							addIssueApplicationWin.setTitle("修改应用");
+			            					appCategoryCombox.reset();
+			            					addIssueApplicationWin.show();	
+			            					Ext.getCmp('appName').setValue(rows[0].get('appName'));
+			            					//Ext.getCmp('appLogo').setValue(rows[0].get('logoFileName'));
+			            					Ext.getCmp('officialUrl').setValue(rows[0].get('officialUrl'));
+			            					Ext.getCmp('wechatQrcode').setValue(rows[0].get('wechatQrcode'));
+			            					Ext.getCmp('weiboQrcode').setValue(rows[0].get('weiboQrcode'));
+			            					Ext.getCmp('introduction').setValue(rows[0].get('introduction'));
+			            					Ext.getCmp('appCategoryId').setValue(rows[0].get('categoryId'));
+			            					Ext.getCmp('payMethod').setValue(rows[0].get('payMethod'));
+			            					Ext.getCmp('supplierId').setValue(rows[0].get('supplierId'));
+			            					Ext.getCmp('applicationId').setValue(appId);
+			            					Ext.getCmp('applicationDetailId').setValue(rows[0].get('applicationDetailId'));
+			            					Ext.getCmp('appNeedVm').setValue(rows[0].get('needVm'));
+			            					Ext.getCmp('appNeedVm').setDisabled(true);
+			        					}else{
+			        						Ext.MessageBox.show({
+			        							title : i18n._('Prompt'),
+			        							msg : i18n._('selectOne'),
+			        							icon : Ext.MessageBox.INFO,
+			        							buttons : Ext.MessageBox.OK
+			        						});
+			        						return;
+			        					}
+		            				}            	   
+		            			},
+		            			{                				   
+		            				xtype : 'button',									
+		        					text: '<font id="issueApplicationBtn" color="#ffffff" >' + '发布' + '</font>',
+		        					listeners: {
+		        						 "mouseout" : function() {
+		        							 document.getElementById("issueApplicationBtn").style.color = "white";
+		        						 },
+		        						 "mouseover" : function() {
+		        							 document.getElementById("issueApplicationBtn").style.color = "black";
+		        						 }
+		        					},
+		        					icon : 'images/edit.png',
+		            				handler:function(){
+		            					var rows = issueApplicationGrid.getSelectionModel().getSelection();
+		            					
+		        						if (rows.length > 0) {
+		        							var appStatus = rows[0].get('appStatus');
+		        							if(appStatus=='10'){
+		            						Ext.Ajax.request({
+    											url:path+"/../application_mgmt/application!ifPriceSystemInfo.action",
+    											method: 'POST',
+    											params:{
+    												'appId':rows[0].get('id')
+    											},
+    											success: function (response) {
+    												var result=Ext.JSON.decode(response.responseText);
+    												if(result.resultObject){
+    													Ext.MessageBox.show({				                  
+    				        								title: i18n._('notice'),
+    				        								msg:"确定要发布该应用吗？",
+    				        								buttons: Ext.MessageBox.YESNO,
+    				        								icon: Ext.MessageBox.QUESTION,
+    				        								fn:function(e){
+    				        									if(e=='yes'){
+    				        										Ext.Ajax.request({
+    				        											url:path+"/../application_mgmt/application!issueApplicationInfo.action",
+    				        											method: 'POST',
+    				        											params:{
+    				        												'applicationVo.id':rows[0].get('id')
+    				        											},
+    				        											success: function (response) {
+    				        												var result=Ext.JSON.decode(response.responseText);
+    				        												if(result.success==true){
+    				        													Ext.MessageBox.show({
+    				        														title : i18n._('notice'),
+    				        														msg : i18n._('Operating')+i18n._('Successful'),
+    				        														icon : Ext.MessageBox.INFO,
+    				        														buttons : Ext.MessageBox.OK,
+    				        														fn:reLoadIssueAppData 
+    				        													});																							
+    				        												}else{
+    				        													Ext.MessageBox.show({
+    				        														title : i18n._('notice'),
+    				        														msg : result.resultMsg,
+    				        														icon : Ext.MessageBox.INFO,
+    				        														buttons : Ext.MessageBox.OK
+    				        													});
+    				        													return;
+    				        												}
+    				        											}
+    				        										});
+    				        									}
+    				        								}
+    				        				    		});																								
+    												}else{
+    													Ext.MessageBox.show({
+    					        							title : i18n._('Prompt'),
+    					        							msg : '请先给该应用添加价格体系在发布！',
+    					        							icon : Ext.MessageBox.INFO,
+    					        							buttons : Ext.MessageBox.OK
+    					        						});
+    					        						return;
+    												}
+    											}
+    										});
+		        							}else{
+		        								Ext.MessageBox.show({
+				        							title : i18n._('Prompt'),
+				        							//msg : '只有未申请状态的应用才能发布！',
+				        							msg:'请先给应用添加价格体系再发布！',
+				        							icon : Ext.MessageBox.INFO,
+				        							buttons : Ext.MessageBox.OK
+				        						});
+				        						return;
+		        							}
+		        								
+			        					}else{
+			        						Ext.MessageBox.show({
+			        							title : i18n._('Prompt'),
+			        							msg : i18n._('selectOne'),
+			        							icon : Ext.MessageBox.INFO,
+			        							buttons : Ext.MessageBox.OK
+			        						});
+			        						return;
+			        					}
+		            				}            	   
+		            			},
+		            			{                				   
+		            				xtype : 'button',									
+		        					text: '<font id="delIssueApplication" color="#ffffff" >' + '删除应用' + '</font>',//发布公告
+		        					listeners: {
+		        						 "mouseout" : function() {
+		        							 document.getElementById("delIssueApplication").style.color = "white";
+		        						 },
+		        						 "mouseover" : function() {
+		        							 document.getElementById("delIssueApplication").style.color = "black";
+		        						 }
+		        							
+		        					},
+		        					icon : 'images/del.png',
+		            				handler:function(){
+		            					var rows = issueApplicationGrid.getSelectionModel().getSelection();
+		        						var Id;
+		        						if (rows.length > 0) {
+		        							 Id = rows[0].get('id');
+		        							Ext.Ajax.request({
+    											url:path+"/../application_mgmt/application!ifApplicationBuyInfo.action",
+    											method: 'POST',
+    											params:{
+    												'appId':Id
+    											},
+    											success: function (response) {
+    												var result=Ext.JSON.decode(response.responseText);
+    												if(result.resultObject){
+    													Ext.MessageBox.show({
+    					        							title : i18n._('Prompt'),
+    					        							msg : '该应用已经被购买过，不能删除！',
+    					        							icon : Ext.MessageBox.INFO,
+    					        							buttons : Ext.MessageBox.OK
+    					        						});
+    					        						return;																						
+    												}else{
+    													
+    				        								Ext.MessageBox.show({				                  
+    					        								title: i18n._('notice'),
+    					        								msg:"确定要删除该应用吗？",
+    					        								buttons: Ext.MessageBox.YESNO,
+    					        								icon: Ext.MessageBox.QUESTION,
+    					        								fn:function(e){
+    					        									if(e=='yes'){
+    					        										Ext.Ajax.request({
+    					        											url:path+"/../application_mgmt/application!deleteApplication.action",
+    					        											method: 'POST',
+    					        											params:{
+    					        												'applicationVo.id':Id
+    					        											},
+    					        											success: function (response) {
+    					        												var result=Ext.JSON.decode(response.responseText);
+    					        												if(result.success==true){
+    					        													Ext.MessageBox.show({
+    					        														title : i18n._('notice'),
+    					        														msg : i18n._('Operating')+i18n._('Successful'),
+    					        														icon : Ext.MessageBox.INFO,
+    					        														buttons : Ext.MessageBox.OK,
+    					        														fn:reLoadIssueAppData 
+    					        													});																							
+    					        												}else{
+    					        													Ext.MessageBox.show({
+    					        														title : i18n._('notice'),
+    					        														msg : result.resultMsg,
+    					        														icon : Ext.MessageBox.INFO,
+    					        														buttons : Ext.MessageBox.OK
+    					        													});
+    					        													return;
+    					        												}
+    					        											}
+    					        										});
+    					        									}
+    					        								}
+    					        				    		});	
+    													
+    												}
+    											}
+    										});
+		        							   
+		        					}else {
+		        						Ext.MessageBox.show({
+		        							title : i18n._('Prompt'),
+		        							msg : i18n._('selectOne'),
+		        							icon : Ext.MessageBox.INFO,
+		        							buttons : Ext.MessageBox.OK
+		        						});
+		        						return;
+		        					}	
+		            				}            	   
+		            			},
+		            			{                				   
+		            				xtype : 'button',									
+		        					text: '<font id="auditApplication" color="#ffffff" >' + '审核' + '</font>',//发布公告
+		        					listeners: {
+		        						 "mouseout" : function() {
+		        							 document.getElementById("auditApplication").style.color = "white";
+		        						 },
+		        						 "mouseover" : function() {
+		        							 document.getElementById("auditApplication").style.color = "black";
+		        						 }
+		        							
+		        					},
+		        					icon : 'images/toAudit.png',
+		            				handler:function(){
+		            					var rows = issueApplicationGrid.getSelectionModel().getSelection();
+		        						var Id;
+		        						var appStatus;
+		        						if (rows.length > 0) {
+		        							Id = rows[0].get('id');
+		        							appStatus = rows[0].get('appStatus');
+		        							if(appStatus=='20'){
+		        								appDivideForm.getForm().reset();
+		        								Ext.getCmp('applicationDivideProportion').setValue(rows[0].get('appProportion'));
+		        								Ext.getCmp('applicationDivideId').setValue(rows[0].get('appDivideId'));
+		        								Ext.getCmp('applicationDivideAppId').setValue(Id);
+		        								auditApplicationWin.show();
+		        								
+		        							}else{
+		        								Ext.MessageBox.show({
+				        							title : i18n._('Prompt'),
+				        							msg :"只有已申请状态的应用才能审核！",
+				        							icon : Ext.MessageBox.INFO,
+				        							buttons : Ext.MessageBox.OK
+				        						});
+				        						return;
+		        							}
+		        							
+		        					}else {
+		        						Ext.MessageBox.show({
+		        							title : i18n._('Prompt'),
+		        							msg : i18n._('selectOne'),
+		        							icon : Ext.MessageBox.INFO,
+		        							buttons : Ext.MessageBox.OK
+		        						});
+		        						return;
+		        					}		
+		            				}            	   
+		            			},
+		            			{                				   
+		            				xtype : 'button',									
+		        					text: '<font id="refuseApplication" color="#ffffff" >' + '拒绝' + '</font>',//拒绝应用
+		        					listeners: {
+		        						 "mouseout" : function() {
+		        							 document.getElementById("refuseApplication").style.color = "white";
+		        						 },
+		        						 "mouseover" : function() {
+		        							 document.getElementById("refuseApplication").style.color = "black";
+		        						 }
+		        							
+		        					},
+		        					icon : 'images/toAudit.png',
+		            				handler:function(){
+		            					var rows = issueApplicationGrid.getSelectionModel().getSelection();
+		        						var id;
+		        						var appStatus;
+		        						if (rows.length > 0) {
+		        						    id=rows[0].get('id');
+		        							appStatus = rows[0].get('appStatus');
+		        							if(appStatus=='20'){
+		        								appRefuseForm.getForm().reset();
+		        								Ext.getCmp('applicationRefuseAppId').setValue(id);
+		        								refuseApplicationWin.show();
+		        							}else{
+		        								Ext.MessageBox.show({
+				        							title : i18n._('Prompt'),
+				        							msg :"只有已申请状态的应用才能拒绝！",
+				        							icon : Ext.MessageBox.INFO,
+				        							buttons : Ext.MessageBox.OK
+				        						});
+				        						return;
+		        							}
+		        							
+		        					}else {
+		        						Ext.MessageBox.show({
+		        							title : i18n._('Prompt'),
+		        							msg : i18n._('selectOne'),
+		        							icon : Ext.MessageBox.INFO,
+		        							buttons : Ext.MessageBox.OK
+		        						});
+		        						return;
+		        					}		
+		            				}            	   
+		            			},
+		            			{                				   
+		            				xtype : 'button',									
+		        					text: '<font id="downIssueApplication" color="#ffffff" >' + '下架' + '</font>',//发布公告
+		        					listeners: {
+		        						 "mouseout" : function() {
+		        							 document.getElementById("downIssueApplication").style.color = "white";
+		        						 },
+		        						 "mouseover" : function() {
+		        							 document.getElementById("downIssueApplication").style.color = "black";
+		        						 }
+		        							
+		        					},
+		        					icon : 'images/edit.png',
+		            				handler:function(){
+		            					var rows = issueApplicationGrid.getSelectionModel().getSelection();
+		        						var Id;
+		        						var appStatus;
+		        						if (rows.length > 0) {
+		        							Id = rows[0].get('id');
+		        							appStatus = rows[0].get('appStatus');
+		        							if(appStatus=='30'){
+		        								Ext.MessageBox.show({				                  
+			        								title: i18n._('notice'),
+			        								msg:"确定要将该应用下架吗？",
+			        								buttons: Ext.MessageBox.YESNO,
+			        								icon: Ext.MessageBox.QUESTION,
+			        								fn:function(e){
+			        									if(e=='yes'){
+			        										Ext.Ajax.request({
+			        											url:path+"/../application_mgmt/application!downApplication.action",
+			        											method: 'POST',
+			        											params:{
+			        												'applicationVo.id':Id
+			        											},
+			        											success: function (response) {
+			        												var result=Ext.JSON.decode(response.responseText);
+			        												if(result.success==true){
+			        													Ext.MessageBox.show({
+			        														title : i18n._('notice'),
+			        														msg : i18n._('Operating')+i18n._('Successful'),
+			        														icon : Ext.MessageBox.INFO,
+			        														buttons : Ext.MessageBox.OK,
+			        														fn:reLoadIssueAppData 
+			        													});																							
+			        												}else{
+			        													Ext.MessageBox.show({
+			        														title : i18n._('notice'),
+			        														msg : result.resultMsg,
+			        														icon : Ext.MessageBox.INFO,
+			        														buttons : Ext.MessageBox.OK
+			        													});
+			        													return;
+			        												}
+			        											}
+			        										});
+			        									}
+			        								}
+			        				    		});	
+		        							}else{
+		        								Ext.MessageBox.show({
+				        							title : i18n._('Prompt'),
+				        							msg :"只有上架状态的应用才能下架！",
+				        							icon : Ext.MessageBox.INFO,
+				        							buttons : Ext.MessageBox.OK
+				        						});
+				        						return;
+		        							}
+		        							
+		        					}else {
+		        						Ext.MessageBox.show({
+		        							title : i18n._('Prompt'),
+		        							msg : i18n._('selectOne'),
+		        							icon : Ext.MessageBox.INFO,
+		        							buttons : Ext.MessageBox.OK
+		        						});
+		        						return;
+		        					}
+		            				}            	   
+		            			},
+		            			{                				   
+		            				xtype : 'button',									
+		        					text: '<font id="recommendApplication" color="#ffffff" >' + '推荐' + '</font>',
+		        					listeners: {
+		        						 "mouseout" : function() {
+		        							 document.getElementById("recommendApplication").style.color = "white";
+		        						 },
+		        						 "mouseover" : function() {
+		        							 document.getElementById("recommendApplication").style.color = "black";
+		        						 }
+		        							
+		        					},
+		        					icon : 'images/edit.png',
+		            				handler:function(){
+		            					var rows = issueApplicationGrid.getSelectionModel().getSelection();
+		        						var Id;
+		        						var appStatus;
+		        						if (rows.length > 0) {
+		        							Id = rows[0].get('id');
+		        							appStatus = rows[0].get('appStatus');
+		        							if(appStatus=='30'){
+		        								Ext.MessageBox.show({				                  
+			        								title: i18n._('notice'),
+			        								msg:"确定要将该应用作为推荐商品吗？",
+			        								buttons: Ext.MessageBox.YESNO,
+			        								icon: Ext.MessageBox.QUESTION,
+			        								fn:function(e){
+			        									if(e=='yes'){
+			        										Ext.Ajax.request({
+			        											url:path+"/../application_mgmt/application!recommendApplication.action",
+			        											method: 'POST',
+			        											params:{
+			        												'applicationVo.id':Id
+			        											},
+			        											success: function (response) {
+			        												var result=Ext.JSON.decode(response.responseText);
+			        												if(result.success==true){
+			        													Ext.MessageBox.show({
+			        														title : i18n._('notice'),
+			        														msg : i18n._('Operating')+i18n._('Successful'),
+			        														icon : Ext.MessageBox.INFO,
+			        														buttons : Ext.MessageBox.OK,
+			        														fn:reLoadIssueAppData 
+			        													});																							
+			        												}else{
+			        													Ext.MessageBox.show({
+			        														title : i18n._('notice'),
+			        														msg : result.resultMsg,
+			        														icon : Ext.MessageBox.INFO,
+			        														buttons : Ext.MessageBox.OK
+			        													});
+			        													return;
+			        												}
+			        											}
+			        										});
+			        									}
+			        								}
+			        				    		});	
+		        							}else{
+		        								Ext.MessageBox.show({
+				        							title : i18n._('Prompt'),
+				        							msg :"只有上架状态的应用才能作为推荐商品！",
+				        							icon : Ext.MessageBox.INFO,
+				        							buttons : Ext.MessageBox.OK
+				        						});
+				        						return;
+		        							}
+		        							
+		        					}else {
+		        						Ext.MessageBox.show({
+		        							title : i18n._('Prompt'),
+		        							msg : i18n._('selectOne'),
+		        							icon : Ext.MessageBox.INFO,
+		        							buttons : Ext.MessageBox.OK
+		        						});
+		        						return;
+		        					}	
+		            				}            	   
+		            			},
+		            			{
+									xtype:'button',//导出
+								    text:'<font id="exportApplication" color="white">'+i18n._('export')+'</font>',
+								    listeners: {
+										 "mouseout" : function() {
+											 document.getElementById("exportApplication").style.color = "white";
+										 },
+										 "mouseover" : function() {
+											 document.getElementById("exportApplication").style.color = "black";
+										 }
+											
+									},
+								    tooltip:i18n._('export'),
+								    shadow:false,
+								    icon:'images/export.png',
+								    handler:function(){
+                                         var downloadForm = Ext.create('Ext.form.Panel',{
+                                             frame:true,
+                                             standardSubmit:true
+                                         });
+                                         downloadForm.getForm().submit({
+                                             url:path + '../../../../excelExport!excelExportApplication.action',
+                                             method:'post',
+                                             params:{
+                                            	 'appCategoryId':searchType,
+                                            	 'appStatus':searchStatus,
+                                            	 'appName':searchAppName,
+                                            	 'appIsCommend':searchIsCommend
+                                                 } 
+                                         });
+								    	
+									}
+								},
+								{
+									xtype:'button',//预览
+								    text:'<font id="previewApplication" color="white">'+'预览'+'</font>',
+								    listeners: {
+										 "mouseout" : function() {
+											 document.getElementById("previewApplication").style.color = "white";
+										 },
+										 "mouseover" : function() {
+											 document.getElementById("previewApplication").style.color = "black";
+										 }
+											
+									},
+								    tooltip:'预览',
+								    shadow:false,
+								    icon:'images/overAll.png',
+								    handler:function(){
+								    	var rows = issueApplicationGrid.getSelectionModel().getSelection();
+		        						var Id;
+		        						var appStatus;
+		        						if (rows.length > 0){
+		        							Id = rows[0].get('id');
+		        							window.open('http://117.122.193.11/wg-dawn-admin/appInfo/appDetail/'+Id);
+									    }else{
+									    	Ext.MessageBox.show({
+			        							title : i18n._('Prompt'),
+			        							msg : i18n._('selectOne'),
+			        							icon : Ext.MessageBox.INFO,
+			        							buttons : Ext.MessageBox.OK
+			        						});
+			        						return;
+									    }
+								   }
+								   },
+		            			  {xtype:'tbfill'},
+			            			{
+			            				xtype:'button',
+			            				iconAlign:'right',
+			            				text:'<font id="Search" color="white">'+i18n._('Search')+'</font>',//搜索
+			            			    listeners: {
+			            					 "mouseout" : function() {
+			            						 document.getElementById("Search").style.color = "white";
+			            					 },
+			            					 "mouseover" : function() {
+			            						 document.getElementById("Search").style.color = "black";
+			            					 }
+			            						
+			            				},
+		            			    tooltip:i18n._('Search'),//高级搜索
+		            				handler:function(){
+		            					if(count>0){
+		            						return ;
+		            				    }
+		            					var p=this.getPosition(true);
+		            					var xP=p[0]-270;
+		            					var dataSearchWin =Ext.create('Ext.window.Window', {
+		            			    		title : i18n._('Query'),//查询条件
+		            			    		width : 310,
+		            			    		height : 180,
+		            			    		border : false,
+		            			    		bodyPadding : 10,
+		            			    		resizable : false,
+		            			    		closable : false,
+		            			    		collapsible:true,
+		            			    		items:[
+												  {
+														   xtype:'textfield',
+														   id: 'searchAppName',
+														   name: 'searchAppName',
+														   fieldLabel :'应用名称',//按模糊查询
+														   labelAlign:'right',
+														   width : 280,
+														   labelWidth : 70
+														   
+												   },
+			           		            		   {
+			           		    						xtype:'combo',
+			           		    						width : 280,
+			           		        		    	    labelWidth : 70,
+			           		        		    	    labelAlign:'right',
+			           		    						fieldLabel: '应用类别',
+			           		    						name:'应用类别',
+			           		    						id:'searchType',
+			           		    						triggerAction:  'all',
+			           		    						forceSelection: true,
+			           		    						editable: false,
+			           		    						emptyText: i18n._('Please Select'),
+			           		    						displayField: 'name',
+			           		    						valueField: 'id',
+			           		    						queryMode: 'local',
+			           		    						store: states
+			           		    				   },
+		           		            			   {
+			           		    						xtype:'combo',
+			           		    						width : 280,
+			           		        		    	    labelWidth : 70,
+			           		        		    	    labelAlign:'right',
+			           		    						fieldLabel: '状态',
+			           		    						name:'状态',
+			           		    						id:'searchStatus',
+			           		    						triggerAction:  'all',
+			           		    						forceSelection: true,
+			           		    						editable: false,
+			           		    						emptyText: i18n._('Please Select'),
+			           		    						displayField: 'name',
+			           		    						valueField: 'id',
+			           		    						queryMode: 'local',
+			           		    						store:applicationStatusStore
+			           		    				   },
+			           		    				   {
+			           		    						xtype:'combo',
+			           		    						width : 280,
+			           		        		    	    labelWidth : 70,
+			           		        		    	    labelAlign:'right',
+			           		    						fieldLabel: '推荐状态',
+			           		    						name:'推荐状态',
+			           		    						id:'searchIsCommend',
+			           		    						triggerAction:  'all',
+			           		    						forceSelection: true,
+			           		    						editable: false,
+			           		    						emptyText: i18n._('Please Select'),
+			           		    						displayField: 'name',
+			           		    						valueField: 'id',
+			           		    						queryMode: 'local',
+			           		    						store:appIsCommendStore
+			           		    				   },
+		            			    		       {
+		            			    		    	   xtype:'fieldcontainer',
+		            			    		    	   layout : 'hbox',
+		            			    		    	   width : 280,
+		            			    		    	   items:[
+		            			    		    	          {
+		            			    		    	        	  xtype:'button',
+		            			    		    	        	  name: 'search',
+		            			    		    	        	  width:80,
+		            			    		    	        	  margin:'0 44 0 75',
+		            			    		    	        	  text:i18n._('Search'),//搜索
+		            			    		    	        	  handler:function(){
+		            			    		    	        		    searchType = Ext.getCmp('searchType').getValue();
+		            			    		        		        	searchStatus = Ext.getCmp('searchStatus').getValue();
+		            			    		        		        	searchAppName= Ext.getCmp('searchAppName').getValue();
+		            			    		        		            searchIsCommend= Ext.getCmp('searchIsCommend').getValue();
+		            			    		        		        	dataSearchWin.destroy();
+		            			    		    	        		    count = 0;
+		            			    		    	        		    var proxy = issueApplicationStore.getProxy();
+		            			    		    						proxy.setExtraParam('appCategoryId',searchType);
+		            			    		    						proxy.setExtraParam('appStatus',searchStatus);
+		            			    		    						proxy.setExtraParam('appName',searchAppName);
+		            			    		    						proxy.setExtraParam('appIsCommend',searchIsCommend);
+		            			    		    						proxy.extraParams.start = 0;
+		            			    		    						issueApplicationStore.loadPage(1,null);
+		            			    		    	        	  }
+		            			    		    	          },
+		            			    		    	          {
+		            			    		    	        	  xtype:'button',
+		            			    		    	        	  name: 'cancel',
+		            			    		    	        	  width:80,
+		            			    		    	        	  text:i18n._('off'),//取消
+		            			    		    	        	  handler:function(){
+		            			    		    	        		 count = 0;
+		            			    		    	        		 dataSearchWin.destroy();
+		            			    		    	        	  }
+		            			    		    	          }
+		            			    		    	         ]
+		            			    		       }
+		            			    		      ],
+		            			    		listeners : {
+		            			    			collapse:function(p,eOpts ){
+		            			    				count = 0;
+		            			    				dataSearchWin.destroy();
+		            			    			}
+		            			    		}     
+		            			    		
+		            			    	});
+		            					
+		            					dataSearchWin.showAt(xP,50); 
+		            					count = count +1;
+		            				}
+		            			}
+            				]
+            		}]
+            	});
+            	function reLoadIssueAppData(){
+            		issueApplicationStore.load();
+            	}
+            	function vd(text){
+            	    if(ltrim(rtrim(text)) == '') {
+            	        return i18n._('cannotBeNull');
+            	    } else {
+            	        return true;
+            	    }
+            	}
+            	
+            	
+             	var buildAppliactionTab=Ext.create('Ext.tab.Panel', {
+            	    width: '100%',
+            	    height: '100%',
+            	    activeTab: 0,
+            	    items: [   
+					{
+						id:'apptab0',
+					    title:'发布应用',
+					    layout: 'fit',
+					    items : [buildAppPanel]
+					},
+           	        {
+						id:'apptab1',
+           	            title:'价格体系',
+           	            layout: 'fit',
+           	            items : [priceSystemGrid]
+           	        },
+           	        {
+           	        	id:'apptab2',
+           	            title:'优惠政策',
+           	            layout: 'fit',
+           	            items : [couponPolicyGrid]
+           	        },
+           	        {
+           	        	id:'apptab3',
+           	            title:'时长管理',
+           	            layout: 'fit',
+           	            items : [durationManagementGrid]//
+           	        },
+           	        {
+           	        	id:'apptab4',
+           	            title:'上传镜像',
+           	            layout: 'fit',
+           	            items : [uploadMirrorGrid]//
+           	        },
+           	       {
+           	        	id:'apptab5',
+           	            title:'界面截图',
+           	            layout: 'fit',
+           	            items : [uploadPhotosGrid]//
+           	        }
+           	        ],
+           	     listeners:{
+           	     	tabchange: function(tabApp,newCard,oldCard,eOpts){
+           	    		if(tabApp.getActiveTab().getId()=='apptab0'){
+           	    			buildAppPanel.setVisible(true);
+           	    			priceSystemGrid.setVisible(false); 
+           	    			couponPolicyGrid.setVisible(false);
+           	    			durationManagementGrid.setVisible(false);
+           	    			uploadMirrorGrid.setVisible(false);
+           	    			uploadPhotosGrid.setVisible(false);
+           	    		}
+           	    		if(tabApp.getActiveTab().getId()=='apptab1'){
+           	    			buildAppPanel.setVisible(false);
+           	    	        priceSystemGrid.setVisible(true);
+           	    	        couponPolicyGrid.setVisible(false);
+           	    	        uploadMirrorGrid.setVisible(false);
+           	    	        uploadPhotosGrid.setVisible(false);
+           	    	        //if(appId!=''){
+           	    	        	var pssProxy = priceSystemStore.getProxy();
+               	    			pssProxy.setExtraParam('appId',appId);
+        						priceSystemStore.load();
+           	    	       // }
+           	    		} 
+           	    		if(tabApp.getActiveTab().getId()=='apptab2'){
+           	    			buildAppPanel.setVisible(false);
+           	    	        priceSystemGrid.setVisible(false);
+           	    	        couponPolicyGrid.setVisible(true);
+           	    	        durationManagementGrid.setVisible(false);
+           	    	        uploadMirrorGrid.setVisible(false);
+           	    	        uploadPhotosGrid.setVisible(false);
+           	    	       // if(appId!=''){
+	           	    	        var cpsProxy = couponPolicyStore.getProxy();
+	           	    	        cpsProxy.setExtraParam('appId',appId);
+	           	    	        couponPolicyStore.load();
+           	    	        //}
+           	    		} 
+           	    		if(tabApp.getActiveTab().getId()=='apptab3'){
+           	    			buildAppPanel.setVisible(false);
+           	    	        priceSystemGrid.setVisible(false);
+           	    	        couponPolicyGrid.setVisible(false);
+           	    	        durationManagementGrid.setVisible(true);
+           	    	        uploadMirrorGrid.setVisible(false);
+           	    	        uploadPhotosGrid.setVisible(false);
+           	    	       // if(appId!=''){
+	           	    	        var dmsProxy = durationManagementStore.getProxy();
+	           	    	        dmsProxy.setExtraParam('appId',appId);
+	           	    	        durationManagementStore.load();
+           	    	       // }
+           	    		} 
+           	    		if(tabApp.getActiveTab().getId()=='apptab4'){
+           	    			buildAppPanel.setVisible(false);
+           	    	        priceSystemGrid.setVisible(false);
+           	    	        couponPolicyGrid.setVisible(false);
+           	    	        durationManagementGrid.setVisible(false);
+           	    	        uploadMirrorGrid.setVisible(true);
+           	    	        uploadPhotosGrid.setVisible(false);
+           	    	       // if(appId!=''){
+	           	    	        var umsProxy = uploadMirrorStore.getProxy();
+	           	    	        umsProxy.setExtraParam('appId',appId);
+	           	    	        uploadMirrorStore.load();
+           	    	       // }
+           	    		} 
+           	    		if(tabApp.getActiveTab().getId()=='apptab5'){
+           	    			buildAppPanel.setVisible(false);
+           	    	        priceSystemGrid.setVisible(false);
+           	    	        couponPolicyGrid.setVisible(false);
+           	    	        durationManagementGrid.setVisible(false);
+           	    	        uploadMirrorGrid.setVisible(false);
+           	    	        uploadPhotosGrid.setVisible(true);
+           	    	        //if(appId!=''){
+	           	    	        var upsProxy = uploadPhotosStore.getProxy();
+	           	    	        upsProxy.setExtraParam('appId',appId);
+	           	    	        uploadPhotosStore.load();
+           	    	       // }
+           	    		} 
+           	    	},
+           	    	afterrender:function(tabVM,eOpts){            	    		
+        	    	}
+           	     }
+            	});
+            	
+            	//所有弹出窗
+            	var addIssueApplicationWin = Ext.create('Ext.window.Window', {
+            		width : 650,// 400
+            		height : 550,
+            		closable : false,
+            		constrain : true,
+            		modal : true,
+            		tools : [ {
+            			type : 'close',
+            			handler : function() {
+            				issueApplicationStore.load();
+            				addIssueApplicationWin.hide();
+            				appId='';
+            				GpayMethod='';
+            				GneedVm='';
+            			}
+            		} ],
+            		layout : 'fit',
+            		defaults : {
+            			split : false
+            		},
+            		items : [buildAppliactionTab]
+            	});
+            	
+            	
+            	var appDivideForm=Ext.create('Ext.form.FormPanel', {
+            	    width: '440',
+            	    height: '300',
+            	    border:false,
+            	    bodyPadding : 10,
+            	    autoScroll:true,
+            	    fieldDefaults : {
+            			labelAlign : 'right',
+            			labelWidth : 80,
+            			anchor : '100%'
+            		},  
+            	    items: [
+            			{
+            				xtype:'textfield',
+            				fieldLabel:'分账Id',
+            				style:'margin-left:10px;margin-right:70px',
+            				name:'applicationDivideVo.id',
+            				id:'applicationDivideId',
+            				hidden: true,
+            	            hideLabel: true
+            			},
+            			{
+            				xtype:'textfield',
+            				fieldLabel:'应用Id',
+            				style:'margin-left:10px;margin-right:70px',
+            				name:'applicationDivideVo.appId',
+            				id:'applicationDivideAppId',
+            				hidden: true,
+            	            hideLabel: true
+            			},
+            			{
+            				xtype:'textfield',
+            				fieldLabel:'分账比例',
+            				style:'margin-left:10px;margin-right:70px',
+            				name:'applicationDivideVo.proportion',
+            				maxLength: 20,
+            				enforceMaxLength:true,
+            				allowBlank: false,
+            				id:'applicationDivideProportion'
+            			}
+            	       ]
+            	    
+            	});
+            	
+            	//审核按钮弹出框
+            	var auditApplicationWin = Ext.create('Ext.window.Window', {
+            		width : 400,// 400
+            		height : 200,
+            		closable : false,
+            		constrain : true,
+            		modal : true,
+            		tools : [ {
+            			type : 'close',
+            			handler : function() {
+            				auditApplicationWin.hide();
+            			}
+            		} ],
+            		layout : 'fit',
+            		defaults : {
+            			split : false
+            		},
+            		items : [appDivideForm],
+            		buttons: [{  
+            		    text: '审核',  
+            		    handler: function() {
+            		    if(appDivideForm.form.isValid()){
+            		    	appDivideForm.getForm().submit({      
+            		    		    url:path+"/../application_mgmt/application!saveApplicationDivideInfo.action",
+            		          	    method:"POST", 
+            		                success: function(form, action){
+            		                	 Ext.MessageBox.show({				                  
+		        								title: i18n._('notice'),
+		        								msg:"确定要审核该应用吗？",
+		        								buttons: Ext.MessageBox.YESNO,
+		        								icon: Ext.MessageBox.QUESTION,
+		        								fn:function(e){
+		        									if(e=='yes'){
+		        										Ext.Ajax.request({
+		        											url:path+"/../application_mgmt/application!auditApplication.action",
+		        											method: 'POST',
+		        											params:{
+		        												'applicationVo.id':Ext.getCmp('applicationDivideAppId').getValue(),
+		        												'applicationVo.refuseReason':' '
+		        											},
+		        											success: function (response) {
+		        												var result=Ext.JSON.decode(response.responseText);
+		        												if(result.success==true){
+		        													Ext.MessageBox.show({
+		        														title : i18n._('notice'),
+		        														msg : i18n._('Operating')+i18n._('Successful'),
+		        														icon : Ext.MessageBox.INFO,
+		        														buttons : Ext.MessageBox.OK,
+		        														fn:reLoadIssueAppData 
+		        													});	
+		        													auditApplicationWin.hide();
+		        												}else{
+		        													Ext.MessageBox.show({
+		        														title : i18n._('notice'),
+		        														msg : result.resultMsg,
+		        														icon : Ext.MessageBox.INFO,
+		        														buttons : Ext.MessageBox.OK
+		        													});
+		        													return;
+		        												}
+		        											}
+		        										});
+		        									}
+		        								}
+		        				    		});
+            		                   
+            		                },      
+            		                failure: function(form, action){      
+            		                     Ext.Msg.alert('Error', action.result.msg);
+            		                }  
+            		            });
+            		         } 
+            		     }  
+            		  },{  
+            		    text: '取消',  
+            		    handler: function() {
+            		    	auditApplicationWin.hide();
+            		     }  
+            		  }]
+            	});
+            	
+            	var appRefuseForm=Ext.create('Ext.form.FormPanel', {
+            	    width: '440',
+            	    height: '300',
+            	    border:false,
+            	    bodyPadding : 10,
+            	    autoScroll:true,
+            	    fieldDefaults : {
+            			labelAlign : 'right',
+            			labelWidth : 80,
+            			anchor : '100%'
+            		},  
+            	    items: [
+            			{
+            				xtype:'textfield',
+            				fieldLabel:'应用Id',
+            				style:'margin-left:10px;margin-right:70px',
+            				id:'applicationRefuseAppId',
+            				hidden: true,
+            	            hideLabel: true
+            			},
+            			{
+            				xtype:'textarea',
+            				width:300,
+                 	        height:70,
+            				fieldLabel:'拒绝原因',
+            				style:'margin-left:10px;margin-right:70px',
+            				maxLength: 60,
+            				enforceMaxLength:true,
+            				allowBlank: false,
+            				id:'applicationRefuseReason'
+            			}
+            	       ]
+            	    
+            	});
+            	
+            	//拒绝按钮弹出框
+            	var refuseApplicationWin = Ext.create('Ext.window.Window', {
+            		width : 400,// 400
+            		height : 200,
+            		closable : false,
+            		constrain : true,
+            		modal : true,
+            		tools : [ {
+            			type : 'close',
+            			handler : function() {
+            				refuseApplicationWin.hide();
+            			}
+            		} ],
+            		layout : 'fit',
+            		defaults : {
+            			split : false
+            		},
+            		items : [appRefuseForm],
+            		buttons: [{  
+            		    text: '拒绝',  
+            		    handler: function() {
+            		    if(appRefuseForm.form.isValid()){
+            		    	 var id=Ext.getCmp('applicationRefuseAppId').getValue();
+            		    	 var applicationRefuseReason=Ext.getCmp('applicationRefuseReason').getValue();
+            		    	Ext.MessageBox.show({				                  
+								title: i18n._('notice'),
+								msg:"确定要拒绝该应用吗？",
+								buttons: Ext.MessageBox.YESNO,
+								icon: Ext.MessageBox.QUESTION,
+								fn:function(e){
+									if(e=='yes'){
+										Ext.Ajax.request({
+											url:path+"/../application_mgmt/application!refuseApplication.action",
+											method: 'POST',
+											params:{
+												'applicationVo.id':id,
+												'applicationVo.refuseReason':applicationRefuseReason
+											},
+											success: function (response) {
+												var result=Ext.JSON.decode(response.responseText);
+												if(result.success==true){
+													Ext.MessageBox.show({
+														title : i18n._('notice'),
+														msg : i18n._('Operating')+i18n._('Successful'),
+														icon : Ext.MessageBox.INFO,
+														buttons : Ext.MessageBox.OK,
+														fn:reLoadIssueAppData 
+													});		
+													refuseApplicationWin.hide();
+												}else{
+													Ext.MessageBox.show({
+														title : i18n._('notice'),
+														msg : result.resultMsg,
+														icon : Ext.MessageBox.INFO,
+														buttons : Ext.MessageBox.OK
+													});
+													return;
+												}
+											}
+										});
+									}
+								}
+				    		});
+            		         } 
+            		     }  
+            		  },{  
+            		    text: '取消',  
+            		    handler: function() {
+            		    	refuseApplicationWin.hide();
+            		     }  
+            		  }]
+            	});
+            	
+            	Ext.create('Ext.Viewport',{
+                    layout:'border',
+                    width:'100%',                   
+                    items:[
+                        {
+                            region:'center',
+                            xtype:'panel',
+                            id:'panel_one',
+                            title:i18n._('applicationManagement')+'&nbsp;&nbsp;>&nbsp;&nbsp;'+i18n._('issueApplicationList'),
+                            width:'60%',
+                            layout:'fit',
+                            autoScroll:true,
+                            items:[
+                                {
+                                    xtype:'panel',
+                                    layout:'fit',
+                                    autoScroll:true,
+                                    items:issueApplicationGrid
+                                }
+                            ]
+                        }
+                    ]
+                });         
+                
+            }
+        };
+    })();
+
+    MultiLang.init();
+});
+ function getCookie(name){
+         var arr = document.cookie.match(new RegExp("(^| )"+name+"=([^;]*)(;|$)"));
+         if(arr != null) return unescape(arr[2]);
+         return null;
+ };
+ 
+</script>
+
+</head>
+<body>
+</body>
+</html>

@@ -1,0 +1,1479 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+ <head>
+  <title>应用退款管理</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel='stylesheet' type="text/css" href="../../extjs-4.1.0/resources/css/ext-all-gray.css"/>
+<script type="text/javascript" src="../../extjs-4.1.0/ext-all.js"></script>
+<script type="text/javascript" src="../../js/ux/data/PagingMemoryProxy.js"></script>
+<script type="text/javascript" src="../../js/ux/form/SearchField.js"></script>
+<script type="text/javascript" src="../../js/ux/ProgressBarPager.js"></script>
+<script type="text/javascript" src="../../js/ux/RowExpander.js"></script>
+<script src="../../js/jquery-1.7.2.min.js" type="text/javascript"></script>
+<script type="text/javascript" charset="utf-8" src="../../js/i18n.js"></script>
+<script type="text/javascript" src="../../js/head.js"></script>
+<script type="text/javascript" src="../business/common.js"></script>
+<script type="text/javascript">
+Ext.QuickTips.init(true,{dismissDelay:600000,maxWidth: 500});
+params = getCookie("lang");
+i18n.set({
+	  lang: params, 
+	  path: '../../resources'
+});
+Ext.Loader.setConfig({
+    enabled: true
+});
+Ext.require([
+    'Ext.data.*',
+    'Ext.panel.Panel',
+    'Ext.view.View',
+    'Ext.layout.container.Fit',
+    'Ext.toolbar.Paging',
+    'Ext.ux.form.SearchField',
+	'Ext.ux.RowExpander',
+    'Ext.selection.CheckboxModel',
+	'Ext.ux.data.PagingMemoryProxy',
+    'Ext.ux.ProgressBarPager'
+]);
+var params;
+var referenceId =0;//虚拟机配置ID
+var refundReferenceId=0; 
+var v_mask = null;
+var checkFlag=false;
+var refundType='';
+//云主机列表Model
+Ext.define('appRefundLogModel', {
+    extend: 'Ext.data.Model',
+    fields: [//'totalPrice','quantity',
+        'id','uuid','refundType','referenceId','status','ownerEmail','ownerId','orderNo','VmId','appId','orderId',
+		 {name: 'strTotalPrice', mapping: 'strTotalPrice'},
+        {name: 'applyRefundReason', mapping: 'applyRefundReason'},
+        {name: 'rejectRefundReason', mapping: 'rejectRefundReason'},        
+        {name: 'openDate', mapping: 'openDate', type: 'date', dateFormat: 'time'},
+        {name: 'expirationDate', mapping: 'expirationDate', type: 'date', dateFormat: 'time'},
+        {name: 'applyDate', mapping: 'applyDate', type: 'date', dateFormat: 'time'},
+        {name: 'refundDate', mapping: 'refundDate', type: 'date', dateFormat: 'time'},
+        {name: 'operator', mapping: 'operator'},
+        {name:'appName',mapping:'appName'},
+        {name:'refundReasonType',mapping:'refundReasonType'},
+        {name:'strRefundAmountSupplier',mapping:'strRefundAmountSupplier'},
+		{name:'strRefundAmountVM',mapping:'strRefundAmountVM'},
+		{name:'strRefundAmount',mapping:'strRefundAmount'}
+    ],
+    idProperty: 'id'
+});
+var appRefundLogStore = Ext.create('Ext.data.Store', {
+    pageSize: pageSize,
+    autoLoad : false,//true
+    model: 'appRefundLogModel',
+    sorters: [
+              {
+                  property : 'applyDate',
+                  direction: 'DESC'
+              }
+          ],
+    remoteSort: true,
+    listeners : {
+		beforeload : function(appRefundLogStore,operation, eOpts ){							
+			//遮罩层
+			v_mask = new Ext.LoadMask(Ext.getBody(), {
+				msg : i18n._('please wait')
+			});
+			v_mask.show();
+		},
+		load : function(appRefundLogStore, records, successful, eOpts ){
+			v_mask.hide();
+		}
+    },
+    proxy: new Ext.data.proxy.Ajax({
+    	url : path + '/../application_mgmt/applicationRefund!refundFindAppDetailListPage.action',
+		reader: {
+            type: 'json',
+            root: 'resultObject.result',
+            totalProperty: 'resultObject.totalCount'
+      },
+      listeners:{
+			exception:function(reader, response, error, eOpts){
+				ajaxException(reader, response, error, eOpts );
+			}
+		}
+    })
+});
+//退款订单列表
+var appRefundModel = Ext.define('appRefundVo', {
+    extend: 'Ext.data.Model',
+    fields: [
+         'id','uuid','refundType','referenceId','status','ownerEmail','ownerId','orderNo','totalPrice','VmId','appId','orderId',
+       {name: 'applyRefundReason', mapping: 'applyRefundReason'},
+        {name: 'rejectRefundReason', mapping: 'rejectRefundReason'},        
+        {name: 'openDate', mapping: 'openDate', type: 'date', dateFormat: 'time'},
+        {name: 'expirationDate', mapping: 'expirationDate', type: 'date', dateFormat: 'time'},
+        {name: 'applyDate', mapping: 'applyDate', type: 'date', dateFormat: 'time'},
+        {name: 'refundDate', mapping: 'refundDate', type: 'date', dateFormat: 'time'},
+        {name: 'operator', mapping: 'operator'},
+        {name:'appName',mapping:'appName'},
+        {name:'refundReasonType',mapping:'refundReasonType'},
+        {name:'refundAmountSupplier',mapping:'refundAmountSupplier'},
+		{name:'refundAmountVM',mapping:'refundAmountVM'},
+		{name:'refundAmount',mapping:'refundAmount'}
+    ]
+    //idProperty: 'orderId'
+});
+var appRefundStore = Ext.create('Ext.data.Store', {
+    pageSize: pageSize,
+    autoLoad : false,//true
+    remoteSort : true,
+    model: 'appRefundVo',  
+    listeners:{
+    	'load':function(store){
+    		//var totalAmount=0;//store.sum('amount');
+			var refundAmount=0.0;//总计费用
+    		for(var i=0;i<store.getCount();i++){
+    			var recordTemp=store.getAt(i);
+    			refundAmount=floatAdd(refundAmount,recordTemp.get('totalPrice'));
+				//var strReason="云应用["+recordTemp.get('appName')+"]，在"+recordTemp.get('applyDate')+"，执行退款操作，订单号为["+recordTemp.get('orderNo')+"]；";
+				//var rejectRefundReason=(recordTemp.get('rejectRefundReason')==null||recordTemp.get('rejectRefundReason')=='')?strReason:recordTemp.get('rejectRefundReason');
+
+			}
+    		
+		
+			RefundtotalPriceField.setValue(refundAmount.toFixed(2));//总计费用的text框
+			//RefundtotalPriceField.setValue(refundAmount+i18n._('cny'));//总计费用的text框
+			//rejectRefundReasonField.setValue(rejectRefundReason);//拒绝退款原因
+			applyRefundReasonField.setValue(recordTemp.get('applyRefundReason'));
+			
+    		var flag = refundAmount;
+    		if(flag<=0){
+    			Ext.getCmp("agreeRefundButton").disabled =true;
+    		}else{
+    			Ext.getCmp("agreeRefundButton").disabled =false;
+    		}
+    		
+    	}
+    },
+    proxy: new Ext.data.proxy.Ajax({
+		url:path+"/../application_mgmt/applicationRefund!getAppRefundOrderInfoForApply.action",
+		reader: {
+            type: 'json',
+            root: 'resultObject',
+            totalProperty: 'resultObject.totalCount'
+      }
+    })
+});
+
+//退款grid(审核框)
+var appRefundGrid = Ext.create('Ext.grid.Panel', {
+	height:100,
+	//autoHeight:true,
+	store: appRefundStore,//appRefundStore,
+	stateful: true,
+	stateId: 'stateGrid',
+	//forceFit: true,
+	viewConfig: {
+		   stripeRows: true							
+	},
+	columnLines:true,					
+	//border:true,
+	//frame:true,	
+	columns: [{xtype: 'rownumberer',flex:0.1},//Ext.create('Ext.grid.RowNumberer',{flex : .3}),
+		{	
+			text: i18n._('order_id'),//订单编号
+			sortable : false,
+			dataIndex: 'orderNo',
+			field:'textfield',
+			 renderer :function(data, metadata, record, rowIndex, columnIndex, store){
+    			metadata.tdAttr = 'data-qtip="' + data + '"';
+    		    return data;							
+    		},
+			flex:0.25			
+		
+		},{	
+			text: i18n._('ownerId'),//owner
+			sortable : false,
+			dataIndex: 'ownerId',
+			field:'textfield',
+			flex:0.25,
+			hidden:true	
+		},{
+			text: i18n._('VmId'),//owner
+			sortable : false,
+			dataIndex: 'VmId',
+			field:'textfield',
+			flex:0.25,
+			hidden:true	
+			},{
+			text: i18n._('appId'),//owner
+			sortable : false,
+			dataIndex: 'appId',
+			field:'textfield',
+			flex:0.25,
+			hidden:true	
+			},{
+			text: i18n._('orderId'),//owner
+			sortable : false,
+			dataIndex: 'orderId',
+			field:'textfield',
+			flex:0.25,
+			hidden:true	
+			},{
+			text: i18n._('appId'),//owner
+			sortable : false,
+			dataIndex: 'appId',
+			field:'textfield',
+			flex:0.25,
+			hidden:true	
+		},{
+            text: i18n._('applicationName'),
+            dataIndex: 'appName',
+            flex: 0.3, 
+			 renderer :function(data, metadata, record, rowIndex, columnIndex, store){
+    			metadata.tdAttr = 'data-qtip="' + data + '"';
+    		    return data;							
+    		},
+            sortable: false
+		},{
+			text     : i18n._('money')+"("+i18n._('cny')+")",//订单总金额
+			sortable : false,
+			align:'right',
+			format:'0.00',
+			dataIndex: 'totalPrice',
+			 renderer :function(data, metadata, record, rowIndex, columnIndex, store){
+    			metadata.tdAttr = 'data-qtip="' + data + '"';
+    		    return data;							
+    		},
+			renderer:Ext.util.Format.numberRenderer('0.00'),
+			flex:0.2
+		},{
+            text: i18n._('openTime'),
+            dataIndex: 'openDate',
+            renderer: Ext.util.Format.dateRenderer('Y-m-d H:i:s'),
+
+			flex: 0.25,
+            sortable: false
+        },{
+            text: i18n._('expireTime'),
+            dataIndex: 'expirationDate',
+            renderer: Ext.util.Format.dateRenderer('Y-m-d H:i:s'),
+
+			flex: 0.25,
+            sortable: false
+        },{
+            text: i18n._('applayTime'),//申请退款的时间
+            dataIndex: 'applyDate',
+            renderer: Ext.util.Format.dateRenderer('Y-m-d H:i:s'),
+            
+			flex: 0.25,
+            sortable: false
+		
+		}
+	]					
+})
+
+//退款金额出错提示
+var ErrorRefundMoneyDisplayField = Ext.create('Ext.form.field.Display', {	
+	allowBlank : false,
+	labelWidth : 80,
+	width : 250,
+	style: {
+            color : '#C03'
+        }
+});
+
+//云主机退款金额出错提示
+var ErrorRefundMoneyMVDisplayField = Ext.create('Ext.form.field.Display', {	
+	allowBlank : false,
+	labelWidth : 80,
+	width : 250,
+	style: {
+            color : '#C03'
+        }
+});
+
+//云主机退款金额出错提示1
+var ErrorRefundMoneyMVD1isplayField = Ext.create('Ext.form.field.Display', {	
+	allowBlank : false,
+	labelWidth : 80,
+	width : 250,
+	style: {
+            color : '#C03'
+        }
+});
+
+//供应商退款金额出错提示
+var ErrorRefundMoneySupplierDisplayField = Ext.create('Ext.form.field.Display', {	
+	labelWidth : 80,
+	width : 250,
+	style: {
+            color : '#C03'
+        }
+});
+
+//申请退款原因显示lable
+var applyRefundReasonField = Ext.create('Ext.form.field.TextArea', {	
+	fieldLabel : i18n._('applyRefundRemark'),//申请退款原因
+	readOnly : true,
+	labelWidth : 130,
+	margin:'0 60 0 0',
+	width : 600
+});
+//拒绝退款显示lable
+var rejectRefundReasonField = Ext.create('Ext.form.field.TextArea', {	
+	fieldLabel : i18n._('rejectRefundRemark'),//拒绝退款原因
+	labelWidth : 130,
+	margin:'0 60 0 0',
+	maxLength:100,
+	maxLengthText:"输入内容太长了,请最多输入100个字",
+	allowBlank : false,
+	width : 600
+});
+//Total Cost"总计费用",totalPrice
+var RefundtotalPriceField = Ext.create('Ext.form.field.Text', {	
+	fieldLabel : i18n._('Total CostY'),//Total Cost"总计费用",totalPrice
+	allowBlank : false,
+	labelWidth : 130,
+	readOnly:true,
+	format:'0.00',
+	renderer:Ext.util.Format.numberRenderer('0.00'),
+	margin:'0 60 0 0',
+	width : 300
+});
+
+//供应商应退金额
+var RefundRefundAmountSupplierField = Ext.create('Ext.form.field.Text', {	
+	id:'refundRefundAmountSupplierField',
+	fieldLabel : i18n._('refundAmountSupplierY'),
+	allowBlank : false,
+	labelWidth : 130,
+	regex: /^(\d+(?:\.\d{2})?|-1)$/,
+	regexText: '请输入正确的数据类型',
+	margin:'0 60 0 0',
+	width : 300,
+	readOnly : false,
+	listeners: {
+            	'blur': function(textfield,newValue,oldValue) {
+            					var RefundRefundAmountFieldValue=RefundRefundAmountField.getValue();//退款金额
+								var RefundRefundAmountSupplierFieldValue=RefundRefundAmountSupplierField.getValue();//云主机应退金额
+								var RefundRefundAmountVMFieldValue=RefundRefundAmountVMField.getValue();//云主机应退金额					
+								if(RefundRefundAmountFieldValue==''||RefundRefundAmountFieldValue==null)
+								{
+									ErrorRefundMoneyDisplayField.setValue("*退款金额不能为空");//退款金额错误提示
+								}
+								else if((RefundRefundAmountSupplierFieldValue==''||RefundRefundAmountSupplierFieldValue==null)){
+
+								ErrorRefundMoneySupplierDisplayField.setValue("*供应商退款金额不能为空");//退款金额错误提示
+								RefundRefundAmountVMField.setValue("");
+            					}else if(parseFloat(RefundRefundAmountSupplierFieldValue)>parseFloat(RefundRefundAmountFieldValue))
+								{
+								ErrorRefundMoneySupplierDisplayField.setValue("*供应商退款金额不能超过退款款金额");//退款金额错误提示
+								RefundRefundAmountVMField.setValue("");
+								}else{
+								var refundvm=parseFloat(RefundRefundAmountFieldValue)-parseFloat(RefundRefundAmountSupplierFieldValue);
+            					RefundRefundAmountVMField.setValue(refundvm.toFixed(2));
+								RefundRefundAmountSupplierField.setValue(parseFloat(RefundRefundAmountSupplierFieldValue).toFixed(2));
+								ErrorRefundMoneySupplierDisplayField.setValue("");//退款金额错误提示
+								ErrorRefundMoneyMVDisplayField.setValue("");//退款金额错误提示
+            			}}
+            		}
+});
+//云主机应退金额
+var RefundRefundAmountVMField = Ext.create('Ext.form.field.Text', {	
+	id:'refundRefundAmountVMField',
+	fieldLabel : i18n._('refundAmountVMY'),
+	allowBlank : false,
+	labelWidth : 130,
+	readOnly : true,
+	regex: /^(\d+(?:\.\d{2})?|-1)$/,
+	regexText: '请输入正确的数据类型',
+	margin:'0 60 0 0',
+	width : 300,
+	listeners:{
+            	'blur': function(textfield,newValue,oldValue) {
+            					var RefundRefundAmountFieldValue=RefundRefundAmountField.getValue();//退款金额
+								var RefundRefundAmountVMFieldValue=RefundRefundAmountVMField.getValue();//云主机应退金额
+								
+								
+								if(RefundRefundAmountFieldValue==''||RefundRefundAmountFieldValue==null)
+								{
+									ErrorRefundMoneyDisplayField.setValue("*退款金额不能为空");//退款金额错误提示
+								}else if((RefundRefundAmountVMFieldValue==''||RefundRefundAmountVMFieldValue==null)){
+								ErrorRefundMoneyMVDisplayField.setValue("*云主机退款金额不能为空.");//退款金额错误提示
+								
+								RefundRefundAmountSupplierField.setValue("");
+								}else if(parseFloat(RefundRefundAmountVMFieldValue)>parseFloat(RefundRefundAmountFieldValue)){
+								
+								ErrorRefundMoneyMVDisplayField.setValue("*云主机退款金额不能超过退款款金额.");//退款金额错误提示
+								RefundRefundAmountSupplierField.setValue("");
+								}
+								else{
+							var refundsupp=parseFloat(RefundRefundAmountFieldValue)-parseFloat(RefundRefundAmountVMFieldValue);
+            					RefundRefundAmountSupplierField.setValue(refundsupp.toFixed(2));
+							ErrorRefundMoneyMVDisplayField.setValue("");//退款金额错误提示
+								ErrorRefundMoneySupplierDisplayField.setValue("");//退款金额错误提示
+            					}	
+            					
+            			}
+	}
+});
+//退款金额refundAmount
+var RefundRefundAmountField = Ext.create('Ext.form.field.Text', {	
+	xtype:'textfield',
+	fieldLabel : i18n._('refundAmount'),
+	allowBlank : false,
+	labelWidth : 130,
+	margin:'0 60 0 0',
+	width : 300,
+	regex: /^(\d+(?:\.\d{2})?|-1)$/,
+	regexText: '请输入正确的数据类型',
+	validateOnBlur:true,
+	textValid: true,
+	validator: function(){
+	 return this.textValid;
+	},
+	id:'refundRefundAmountFieldId',
+	listeners:{
+            	'blur': function(textfield,newValue,oldValue) {
+            					
+            					var  RefundRefundAmountFieldValue= RefundRefundAmountField.getValue();
+								var RefundtotalPriceFieldValue=RefundtotalPriceField.getValue();
+								if(parseFloat(RefundRefundAmountFieldValue)>parseFloat(RefundtotalPriceFieldValue)){
+
+										ErrorRefundMoneyDisplayField.setValue("*退款金额不能超过总计费用");//退款金额错误提示
+										Ext.getCmp('refundRefundAmountVMField').setDisabled(true);
+										Ext.getCmp('refundRefundAmountSupplierField').setDisabled(true);
+            					}else if(RefundRefundAmountFieldValue==''||RefundRefundAmountFieldValue==null){
+            						ErrorRefundMoneyDisplayField.setValue("*退款金额不能为空");//退款金额错误提示
+            						Ext.getCmp('refundRefundAmountVMField').setDisabled(true);
+									Ext.getCmp('refundRefundAmountSupplierField').setDisabled(true);
+										
+            					}else {
+
+            						Ext.getCmp('refundRefundAmountVMField').setDisabled(false);
+									Ext.getCmp('refundRefundAmountSupplierField').setDisabled(false);
+									ErrorRefundMoneyDisplayField.setValue("");//退款金额错误提示
+									
+									RefundRefundAmountField.setValue(parseFloat(RefundRefundAmountFieldValue).toFixed(2));
+									
+            					}	
+            					
+            			}
+            		}
+});
+//退款提交框
+var appRefundForm =Ext.create('Ext.form.Panel', {
+	frame : true,
+	items : [appRefundGrid,
+	         //部分退款
+	         {
+	        	 xtype: 'fieldcontainer',
+	        	 margin:'20 10 0 30',
+	        	 layout: 'hbox',
+	        	 items: [
+							RefundtotalPriceField,//总计费用
+	        	         ]
+	         },
+			  {
+	        	 xtype: 'fieldcontainer',
+	        	 margin:'20 10 0 30',
+	        	 layout: 'hbox',
+	        	 items: [
+							RefundRefundAmountField,//退款金额
+							ErrorRefundMoneyDisplayField
+							
+						 ]
+	         },
+			  {
+	        	 xtype: 'fieldcontainer',
+	        	 margin:'20 10 0 30',
+	        	 layout: 'hbox',
+	        	 items: [
+							RefundRefundAmountSupplierField,//退款金额
+							ErrorRefundMoneySupplierDisplayField
+						 ]
+	         },
+			 {
+	        	 xtype: 'fieldcontainer',
+	        	 margin:'20 10 0 30',
+	        	 layout: 'hbox',
+	        	 items: [
+        	        
+							RefundRefundAmountVMField,//云主机应退金额
+							ErrorRefundMoneyMVDisplayField
+							
+						 ]
+	         },
+			 
+			  {
+	        	 xtype: 'fieldcontainer',
+	        	 margin:'20 10 0 30',
+	        	 layout: 'hbox',
+	        	 items: [
+							applyRefundReasonField,//申请退款原因显示lable
+							{
+								xtype:'button',
+								id:"agreeRefundButton",
+								text : i18n._('agreeRefund'),
+								style:{
+									marginLeft:"40px"
+								},
+								handler : function() {
+									if(RefundRefundAmountField.isValid()&&RefundRefundAmountSupplierField.isValid()&&RefundRefundAmountVMField.isValid()){
+									//appRefundForm.getForm().reset();			
+									appRefundWin.hide();
+									refundConfirm();//调用同意退款的请求
+								}else
+									return false;
+								}
+							}
+						 ]
+	         },
+	        {
+	        	 xtype: 'fieldcontainer',
+	        	 margin:'20 10 0 30',
+	        	 layout: 'hbox',
+				 style:{
+					borderTop:"#000 solid",
+					paddingTop:"100px"
+								},
+	        	 items: [
+							rejectRefundReasonField,//拒绝退款显示lable
+							{
+								xtype:'button',
+								id:"allRefundButton1",
+								style:{
+									marginLeft:"40px"
+								},
+								text : i18n._('拒绝退款'),
+								handler : function() {
+								
+									if(!rejectRefund()){
+										return;
+									}
+									appRefundForm.getForm().reset();			
+									appRefundWin.hide();
+								}
+							}
+	        	         ]
+	         }
+
+	]
+});
+//退款弹出框（审核框）
+var appRefundWin = Ext.create('Ext.window.Window', {
+	title:i18n._('refundDetail'), // 退款详情
+	width : 850,// 400
+	height : 500,
+	autoDestroy : false,
+	closable : false,
+	constrain : true,
+	modal : true,
+	tools : [ {
+		type : 'close',
+		handler : function() {
+			appRefundForm.getForm().reset();			
+			appRefundWin.hide();
+		}
+	} ],
+	layout : 'fit',
+	defaults : {
+		split : false
+	},
+	items : [
+	         appRefundForm
+	         ]
+});
+//列表
+var sm = Ext.create('Ext.selection.RowModel');
+var pluginExpanded = true;
+var grid = Ext.create('Ext.grid.Panel', {
+    id:'button-grid',
+    store: appRefundLogStore,
+    title:i18n._('applicationManagement')+'&nbsp;&nbsp;>&nbsp;&nbsp;'+i18n._('applicationRefundManagement'),
+	layout:'fit',
+	sortableColumns:false,
+	margin:'0 0 0 0',
+    width:'100%',
+	height:'100%',
+    frame: true,
+	border:false,
+	simpleSelect :true,
+ 	selModel:sm,
+    iconCls: 'icon-grid',
+	//自适应
+    viewConfig: {
+        stripeRows: true,
+		forceFit: true
+    },
+    columns:[
+	{xtype: 'rownumberer',flex:0.1},
+       {
+            text: i18n._('id'),
+            dataIndex: 'id',
+            flex: 0.35, 
+			hidden: true,
+            sortable: false
+        },
+	   {
+            text: i18n._('machineNum'),
+            dataIndex: 'uuid',
+            flex: 0.35,
+            sortable: false,
+			hidden: true,
+            renderer :function(data, metadata, record, rowIndex, columnIndex, store){
+    			metadata.tdAttr = 'data-qtip="' + data + '"';
+    		    return data;							
+    		}
+        },{
+            text: i18n._('applicationName'),
+            dataIndex: 'appName',
+            flex: 0.25, 
+			renderer :function(data, metadata, record, rowIndex, columnIndex, store){
+    			metadata.tdAttr = 'data-qtip="' + data + '"';
+    		    return data;							
+    		},
+            sortable: false
+		},{
+            text: i18n._('ownerId'),
+            dataIndex: 'ownerId',
+            flex: 0.25, 
+            sortable: false,
+			renderer :function(data, metadata, record, rowIndex, columnIndex, store){
+    			metadata.tdAttr = 'data-qtip="' + data + '"';
+    		    return data;							
+    		},
+			hidden: true
+		},{
+            text: i18n._('VmId'),
+            dataIndex: 'VmId',
+            flex: 0.25, 
+            sortable: false,
+			renderer :function(data, metadata, record, rowIndex, columnIndex, store){
+    			metadata.tdAttr = 'data-qtip="' + data + '"';
+    		    return data;							
+    		},
+			hidden: true
+        },{
+           text: i18n._('order_id'),
+            dataIndex: 'orderNo',
+            flex:0.25,            
+            renderer :function(data, metadata, record, rowIndex, columnIndex, store){
+    			metadata.tdAttr = 'data-qtip="' + data + '"';
+    		    return data;							
+    		},
+            sortable: false
+        },{
+            text: i18n._('openTime'),
+            dataIndex: 'openDate',
+            renderer: Ext.util.Format.dateRenderer('Y-m-d H:i:s'),
+		   
+            flex: 0.25,
+            sortable: false
+        },{
+            text: i18n._('expireTime'),
+            dataIndex: 'expirationDate',
+            renderer: Ext.util.Format.dateRenderer('Y-m-d H:i:s'),
+            flex: 0.25,
+            sortable: false
+        },{
+            text: i18n._('applayTime'),//申请退款的时间
+            dataIndex: 'applyDate',
+            renderer: Ext.util.Format.dateRenderer('Y-m-d H:i:s'),
+            flex: 0.25,
+            sortable: false
+       
+        },{
+            text: i18n._('status'),
+            dataIndex: 'status',
+            flex: 0.13,
+            renderer :function(data, metadata, record, rowIndex, columnIndex, store){
+            	var result="";
+    		    switch(data){
+    		    case 1:{
+    		       result=i18n._("applying"); break;
+    		    }
+    		    case 2:{
+    		    	result=i18n._("audited"); break;
+    		    }
+    		    case 3:{
+    		    	result=i18n._("refused");break;
+    		    }
+    		    case 4:{
+    		    	result=i18n._("user canceled");break;
+    		    }
+    		    default:{
+    		    	result=i18n._("Unknown");
+    		    }
+    		    }
+    		    return result;							
+    		},
+            sortable: false
+		},{
+            text: i18n._('Owner'),
+            dataIndex: 'ownerEmail',
+            flex: 0.25,
+			renderer :function(data, metadata, record, rowIndex, columnIndex, store){
+    			metadata.tdAttr = 'data-qtip="' + data + '"';
+    		    return data;							
+    		},
+            sortable: false
+		},{
+            text: i18n._('refundAmount'),
+            dataIndex: 'strRefundAmount',
+            flex: 0.25,
+			//renderer: 'usMoney',
+			//renderer:Ext.util.Format.numberRenderer('0.00'),
+			//format:'0.00',
+			renderer :function(data, metadata, record, rowIndex, columnIndex, store){
+    			if(data==null){
+					date="";
+				}else
+				metadata.tdAttr = 'data-qtip="' + data + '"';
+    		    return data;							
+    		},
+            sortable: false
+		},{
+            text: i18n._('refundAmountSupplierY'),
+            dataIndex: 'strRefundAmountSupplier',
+            flex: 0.3,
+			//format:'0.00',
+			//renderer: 'usMoney',
+			//renderer:Ext.util.Format.numberRenderer('0.00'),
+			renderer :function(data, metadata, record, rowIndex, columnIndex, store){
+    			if(data==null){
+					date="";
+				}else
+				metadata.tdAttr = 'data-qtip="' + data + '"';
+    		    return data;						
+    		},
+            sortable: false
+		},{
+            text: i18n._('refundAmountVMY'),
+            dataIndex: 'strRefundAmountVM',
+			//format:'0.00',
+			//renderer: 'usMoney',
+			//renderer:Ext.util.Format.numberRenderer('0.00'),
+            flex: 0.3,
+			renderer :function(data, metadata, record, rowIndex, columnIndex, store){
+    			if(data==null){
+					date="";
+				}else
+				metadata.tdAttr = 'data-qtip="' + data + '"';
+    		    return data;							
+    		},
+            sortable: false
+        },{
+			
+                text: i18n._("refundRemark"),
+                dataIndex: 'applyRefundReason',
+                flex: 0.25,
+				renderer :function(data, metadata, record, rowIndex, columnIndex, store){
+    			if(data==null){
+					date="";
+				}else
+				metadata.tdAttr = 'data-qtip="' + data + '"';
+    		    return data;								
+    		},
+				hidden: true,
+                sortable: false
+		  },{
+			
+                text: i18n._("rejectRemark"),
+                dataIndex: 'rejectRefundReason',
+                flex: 0.25,
+				renderer :function(data, metadata, record, rowIndex, columnIndex, store){
+    			if(data==null){
+					date="";
+				}else
+				metadata.tdAttr = 'data-qtip="' + data + '"';
+    		    return data;								
+    		},
+                sortable: false
+        }],
+    columnLines: true,
+    bbar: Ext.create('Ext.PagingToolbar', {
+        store: appRefundLogStore,
+		pageSize: 0,
+		displayInfo: true,
+		beforePageText:i18n._('beforePageText'),//"第"
+		firstText: i18n._('firstText'),//"第一页"
+        prevText: i18n._('prevText'),//"上一页"
+        nextText: i18n._('nextText'),//"下一页"
+        lastText: i18n._('lastText'),//"最后页"
+        refreshText: i18n._('refreshText')//"刷新"
+    }),    
+    listeners:{
+    	"itemdblclick":{
+    		fn:function(){
+    			viewDetail();
+    		}
+    	}
+    },
+    dockedItems: [ {
+        xtype: 'toolbar',
+        cls: 'toolbarCSS',
+        items: [
+		{
+			xtype:'button',//退款
+		    text:'<font id="appRefund" color="white">'+i18n._('toAudit')+'</font>',
+		    listeners: {
+				 "mouseout" : function() {
+					 document.getElementById("appRefund").style.color = "white";
+				 },
+				 "mouseover" : function() {
+					 document.getElementById("appRefund").style.color = "black";
+				 }
+					
+			},
+		    tooltip:i18n._('Refund'),
+		    shadow:false,
+		    icon:'images/refund.png',
+		    handler:function(){
+		    	getSessionUser();
+		    	if(!checkAdminType()){
+		    		Ext.MessageBox.show({
+						title : i18n._('notice'),
+						msg : i18n._('refundNoPrivilege'),
+						icon : Ext.MessageBox.INFO,
+						buttons : Ext.MessageBox.OK
+					});
+					return;
+		    	}
+		    	var row = grid.getSelectionModel().getSelection();
+				if (row.length == 0) {
+					Ext.MessageBox.show({
+						title : i18n._('notice'),
+						msg : i18n._('selectOne'),
+						icon : Ext.MessageBox.INFO,
+						buttons : Ext.MessageBox.OK
+					});
+					return;
+				}
+				var status=row[0].get('status');
+				if(status!=1){
+					Ext.MessageBox.show({
+						title : i18n._('notice'),
+						msg : i18n._('对不起，只能审核申请中的记录。'),
+						icon : Ext.MessageBox.INFO,
+						buttons : Ext.MessageBox.OK
+					});
+					return;
+				}
+				var referenceIdTemp = row[0].get('referenceId');
+				var appRefundId=row[0].get('id');//获取退款ID
+				refundReferenceId=referenceIdTemp;
+				var proxy=appRefundStore.getProxy();
+				proxy.setExtraParam('referenceId',referenceIdTemp) ;
+				proxy.setExtraParam('appStatus',status) ;
+				proxy.setExtraParam('appRefundVO.id',appRefundId) ;
+				appRefundStore.load();					
+				appRefundWin.show();
+			}
+		},
+		{
+        	xtype:'button',
+            text:'<font id="orderDetail" color="white">'+i18n._('Details')+'</font>',
+            listeners: {
+				 "mouseout" : function() {
+					 document.getElementById("orderDetail").style.color = "white";
+				 },
+				 "mouseover" : function() {
+					 document.getElementById("orderDetail").style.color = "black";
+				 }
+					
+			},
+            tooltip:i18n._('Details'),
+            shadow:false,
+            icon:'../../images/detail.png',
+            handler:function(){
+            	viewDetail();//详情框
+				
+        	}
+		},
+        {xtype:'tbfill'},
+        {
+            xtype:'splitbutton',
+            id:'VmSearchSplitbutton',
+            text:'<font color="#ffffff" id="VMSearchSplit">' + i18n._('Filtered')+':' + '</font>', 
+            listeners: {
+				 "mouseout" : function() {
+					 document.getElementById("VMSearchSplit").style.color = "white";
+				 },
+				 "mouseover" : function() {
+					 document.getElementById("VMSearchSplit").style.color = "black";
+				 }
+					
+			},
+            menu: new Ext.menu.Menu({
+                items: [
+						{
+						    text: i18n._('All'),
+						    handler: function(){
+						        Ext.getCmp('VmSearchSplitbutton').setText('<font color="#ffffff" id="VMSearchSplit">' + i18n._('All') + '</font>');
+						        var instanceStoreProxy=appRefundLogStore.getProxy();
+						        instanceStoreProxy.setExtraParam('appStatus','0');
+						        appRefundLogStore.loadPage(1,null);
+						    }
+						},
+                        {
+                                text: i18n._("applying"),
+                                handler: function(){
+                                    Ext.getCmp('VmSearchSplitbutton').setText('<font color="#ffffff" id="VMSearchSplit">' + i18n._("applying") + '</font>');
+                                    var instanceStoreProxy=appRefundLogStore.getProxy();
+                                    instanceStoreProxy.setExtraParam('appStatus','1');
+                                    appRefundLogStore.loadPage(1,null);
+                                }
+                         },
+ 					    {
+                             text: i18n._("audited"),
+                             handler: function(){
+                                 Ext.getCmp('VmSearchSplitbutton').setText('<font color="#ffffff" id="VMSearchSplit">' + i18n._("audited") + '</font>');
+                                 var instanceStoreProxy=appRefundLogStore.getProxy();
+                                 instanceStoreProxy.setExtraParam('appStatus','2');
+                                 appRefundLogStore.loadPage(1,null);
+                             }
+	                      },
+	                      {
+                          text: i18n._("refused"),//
+                          handler: function(){
+                          	Ext.getCmp('VmSearchSplitbutton').setText('<font color="#ffffff" id="VMSearchSplit">' + i18n._("refused") + '</font>');
+                          	var instanceStoreProxy=appRefundLogStore.getProxy();
+                          	instanceStoreProxy.setExtraParam('appStatus','3');  
+                          	appRefundLogStore.loadPage(1,null);
+                          	}
+                          	
+                          },
+                          {
+                              text: i18n._("user canceled"),//appStatus
+                              handler: function(){
+                              	Ext.getCmp('VmSearchSplitbutton').setText('<font color="#ffffff" id="VMSearchSplit">' + i18n._("user canceled") + '</font>');
+                              	var instanceStoreProxy=appRefundLogStore.getProxy();
+                              	instanceStoreProxy.setExtraParam('appStatus','4');  
+                              	appRefundLogStore.loadPage(1,null);
+                              	}
+                              	
+                           }
+                 ]
+            })
+        },
+        {
+        	 xtype: 'searchfield',
+             hideLabel:true,
+			 hasSearch:true,
+			 width:180,
+			 emptyText:i18n._('应用名称'),
+             store: appRefundLogStore
+		 }
+        ]
+    }]
+});
+
+Ext.onReady(function() {	
+    MultiLang = (function() {
+        return {
+            init: function() {
+                // load ExtJS locale
+               /* params = getCookie("lang");
+                i18n.set({
+  				  lang: params, 
+  				  path: '../../resources'
+  				});*/
+                if (params) {
+                    var url = Ext.util.Format.format('../../extjs-4.1.0/locale/ext-lang-{0}.js', params);
+                    Ext.Ajax.request({
+                        url: url,
+                        success: this.onLoadExtLocaleSuccess,
+                        failure: this.onLoadExtLocaleFailure,
+                        scope: this
+                    });
+                } else {
+                    // no language found, locale of ExtJS will be english as default
+                    //this.loadmyprojectLocale();
+                	this.setup();
+                }
+            },
+            onLoadExtLocaleSuccess: function(response) {
+                try {
+                    eval(response.responseText);
+                } catch (e) {
+                    //Ext.Msg.alert('Failure', e.toString());
+                }
+                //this.loadmyprojectLocale();
+                this.setup();
+            },
+            onLoadExtLocaleFailure: function() {
+                //Ext.Msg.alert('Failure', 'Failed to load locale file.');
+                this.setup();
+                //this.loadmyprojectLocale();
+            },
+            setup: function() {  
+				Ext.create('Ext.Viewport',{
+					layout:'fit',
+					items: grid
+				});
+				var new_params={vmType:1};//正式云主机
+				Ext.apply(appRefundLogStore.proxy.extraParams,new_params);
+				appRefundLogStore.load();
+            }
+        };
+    })();
+    MultiLang.init();    
+});
+
+function checkAdminType(){
+	var operationPermission=false;
+	$.ajax({
+		url:path+'/../order/order!checkAdminType.action',
+		async:false,
+		dataType:'json',
+		type:'POST',
+		success:function(adminObj){
+			if(adminObj.success){
+				operationPermission=adminObj.resultObject;
+			}
+		}
+	});
+	return operationPermission;
+}
+
+//详情框
+function viewDetail(){
+			var rows = grid.getSelectionModel().getSelection();
+			if(rows.length > 0){
+				var id = rows[0].get('id');
+				var record = appRefundLogStore.getById(id);
+			
+			//	var refundAmount = record.get('refundAmount')==null?"":record.get('refundAmount')+"元";
+			var refundAmount = record.get('strRefundAmount')==null?"":record.get('strRefundAmount')+"元";
+				var refundAmountSupplier=record.get('strRefundAmountSupplier')==null?"":record.get('strRefundAmountSupplier')+"元";
+				var refundAmountVM=record.get('strRefundAmountVM')==null?"":record.get('strRefundAmountVM')+"元";
+				
+				var info =Ext.create('Ext.window.Window', {
+					title: i18n._('details'),
+					height: 530,
+					layout:'fit',
+				    width: 550,
+				    border: false,
+					closable:false,
+					resizable : false,
+					constrain : true,
+					modal:true,
+					tools:[{
+					  type:'close',
+					  handler:function(){
+					  info.destroy();
+					  }
+					}],
+				    items: [
+										{
+						xtype: 'form',
+						height:'100%',
+						id:'infoForm',
+						width:540,
+						autoScroll:true,
+						border: false,
+						  items: [
+					{
+					xtype: 'fieldset',
+					title: i18n._("Basic information"),
+					width:510,
+					style:'margin-left:10px;',
+					items:[
+							{
+							xtype: 'displayfield',
+							fieldLabel: i18n._("machineNum"),
+							value: record.get('uuid'),
+							hidden:true,
+							style:'marginLeft:50px;'
+							},
+							{
+								xtype:'displayfield',
+								fieldLabel:i18n._("applicationName"),
+								style:'margin-left:50px',
+								value: record.get('appName')			
+							},
+							
+				            {
+								xtype:'displayfield',
+								fieldLabel:i18n._("order_id"),
+								style:'margin-left:50px;',
+								value: record.get('orderNo'),
+								editable:false,
+								readOnly:true
+							},
+							{
+								xtype:'displayfield',
+								fieldLabel:i18n._("openTime"),
+								style:'margin-left:50px',
+								value: record.get('openDate'),
+								renderer: Ext.util.Format.dateRenderer('Y-m-d H:i:s')
+							},
+							{
+								xtype:'displayfield',
+								fieldLabel:i18n._("expireTime"),
+								style:'margin-left:50px',
+								value:record.get('expirationDate'),
+								renderer: Ext.util.Format.dateRenderer('Y-m-d H:i:s')
+							},
+							{
+								xtype:'displayfield',
+								fieldLabel:i18n._("applayTime"),
+								style:'margin-left:50px',
+								value:record.get('applyDate'),
+								renderer: Ext.util.Format.dateRenderer('Y-m-d H:i:s')
+							},{
+								xtype:'displayfield',
+								fieldLabel:i18n._("refundDate"),
+								style:'margin-left:50px',
+								value:record.get('refundDate'),
+								renderer: Ext.util.Format.dateRenderer('Y-m-d H:i:s')
+							},{
+								xtype:'displayfield',
+								fieldLabel:i18n._("serviceStatus"),
+								style:'margin-left:50px',
+								value:record.get('status'),
+								renderer: function(value){
+									var result="";
+					    		    switch(value){
+					    		    case '1':{
+					    		       result="申请中"; break;
+					    		    }
+					    		    case '2':{
+					    		    	result="已审核"; break;
+					    		    }
+					    		    case '3':{
+					    		    	result="拒绝";break;
+					    		    }
+					    		    case '4':{
+					    		    	result="用户取消";break;
+					    		    }
+					    		    default:{
+					    		    	result='';
+					    		    }
+					    		    }
+					    		    return result;		
+								}
+							},
+							{
+								xtype:'displayfield',
+								fieldLabel:i18n._("refundAmountN"),
+								style:'margin-left:50px',
+								value: refundAmount
+							},{
+								xtype:'displayfield',
+								fieldLabel:i18n._("refundAmountSupplier"),
+								style:'margin-left:50px',
+								value: refundAmountSupplier
+							},{
+								xtype:'displayfield',
+								fieldLabel:i18n._("refundAmountVM"),
+								style:'margin-left:50px',
+								value: refundAmountVM
+							},{
+								xtype:'displayfield',
+								fieldLabel:i18n._("operator"),
+								style:'margin-left:50px',
+								value: record.get('operator')
+							},							{
+								xtype:'displayfield',
+								fieldLabel:i18n._("Owner"),
+								style:'margin-left:50px',
+								value: record.get('ownerEmail')
+							},{
+							
+								    xtype:'displayfield',
+									fieldLabel:i18n._('退款原因类型'),
+									style:'margin-left:50px;',
+									value: record.get('refundReasonType'),
+									renderer:refundReasonTypeRenderer
+							},
+							{
+								xtype:'textarea',
+								fieldLabel:i18n._('applyReason'),
+								style:'margin-left:50px;',
+								editable:false,
+								width:350,
+								readOnly:true,
+								value: record.get('applyRefundReason')
+							},	
+							{
+								xtype:'textarea',
+								fieldLabel:i18n._('拒绝原因'),
+								style:'margin-left:50px;',
+								editable:false,
+								width:350,
+								value: record.get('rejectRefundReason')
+							}
+					]
+				}
+				]
+				}
+				]
+
+				});
+				info.show();
+			}else{
+				 
+			    	Ext.MessageBox.show({
+					   title:i18n._('notice'),
+				       msg:i18n._('selectOne'),
+			           icon:Ext.MessageBox.INFO,
+			           buttons: Ext.MessageBox.OK
+			           
+			       }); 
+				return;
+			
+			}
+			
+}
+
+
+
+function refundReasonTypeRenderer(value){
+	if(typeof value=='string'){
+		value=parseInt(value);
+	}
+	switch(value){
+	case 1:return '带宽不足';
+	case 2:return '网络问题';
+	case 3:return '服务器使用卡';
+	case 4:return '经常无法远程';
+	case 5:return '主机开通问题';
+	case 6:return '主机问题';
+	case 7:return '网络安全';
+	case 8:return '云主机配置升级';
+	case 9:return '接口测试';
+	case 10:return '其它';
+	default:{
+	  return '';
+	}
+	}
+
+}
+function splitExtDisk(addDisk){
+	if(addDisk){
+		var extDiskNameArr=addDisk.split(",");
+		for(var i in extDiskNameArr){
+			extDiskNameArr[i]=extDiskNameArr[i]+'G';
+		}
+		return extDiskNameArr.join(',');
+		}else{
+			return '';
+		}
+};
+function getCookie(name){
+         var arr = document.cookie.match(new RegExp("(^| )"+name+"=([^;]*)(;|$)"));
+         if(arr != null) return unescape(arr[2]);
+		 return null;
+ };
+//将秒级的时间戳转换成天、小时、分钟
+ function getUseFreeLong(second){
+ 	var d = 0;
+ 	var h = 0;
+ 	var m = 0;
+ 	var remainder = 0;
+ 	d = parseInt(second / (60 * 60 * 24));
+ 	remainder = second % (60 * 60 * 24);
+ 	h = parseInt(remainder / (60 * 60));
+ 	remainder = remainder % (60 * 60);
+ 	m = Math.round(remainder/60);
+ 	return d+i18n._('Day')+h+i18n._('Hour')+m+i18n._('minute');
+ };  
+ function setUrl(rightUrl, url) {
+ 	if(rightUrl == '') {
+ 		rightUrl = url;
+ 	}
+ 	return rightUrl;
+ };
+//操作完成后点确认刷新数据操作
+ function reLoadData(btn){
+ 	appRefundLogStore.load();
+ };
+ //同意退款
+ function appRefundOperation(){
+	//拒绝退款显示lable
+	
+			 var rows = grid.getSelectionModel().getSelection();
+			 var referenceId=rows[0].get('referenceId');
+			 var uuid=rows[0].get('uuid');
+			 var ownerId=rows[0].get('ownerId');
+			 var appRefundId=rows[0].get("id");
+			 var VmId=rows[0].get("VmId");
+			 var appId=rows[0].get("appId");
+			 var orderId=rows[0].get("orderId");
+			 var orderNo=rows[0].get("orderNo");
+			 var refundAmount=rows[0].get("refundAmount");
+			 var RefundRefundAmountFieldValue=Ext.getCmp("refundRefundAmountFieldId").getValue();//退款金额
+			 var RefundRefundAmountSupplierFieldValue=RefundRefundAmountSupplierField.getValue();//云主机应退金额
+			 var RefundRefundAmountVMFieldValue=RefundRefundAmountVMField.getValue();//云主机应退金额	
+				 Ext.Ajax.request({
+						url : path + '/../application_mgmt/applicationRefund!appRefundApplicationForApply.action',
+						timeout: 9999999,
+						method : 'POST',
+						params : {
+							'appRefundVO.referenceId' : referenceId,
+							'appRefundVO.orderNo':orderNo,
+							'appRefundVO.refundtotal':RefundRefundAmountFieldValue,
+							'appRefundVO.refundappPrice':RefundRefundAmountSupplierFieldValue,
+							'appRefundVO.refundvmPrice':RefundRefundAmountVMFieldValue,
+							'appRefundVO.ownerId':ownerId,
+							'appRefundVO.id':appRefundId,
+							'appRefundVO.VmId':VmId,
+							'appRefundVO.orderId':orderId,
+							'applicationVo.id':appId
+						},				
+						success : function(form, action) {
+							var obj = Ext.decode(form.responseText);					
+							if (!obj.success) {
+								Ext.MessageBox.show({
+									title : i18n._('errorNotice'),
+									msg : obj.resultMsg,
+									buttons : Ext.MessageBox.OK,
+									icon : Ext.MessageBox.WARNING
+								});
+								appRefundForm.getForm().reset();	
+								return;
+							}
+							appRefundForm.getForm().reset();
+							Ext.MessageBox.show({
+								title : i18n._('notice'),
+								msg : i18n._('refundSuccessful'),
+								icon : Ext.MessageBox.INFO,
+								buttons : Ext.MessageBox.OK,
+								fn: reLoadData
+							});					
+						},
+						failure : function(form, action) {
+							Ext.MessageBox.show({
+								title : i18n._('errorNotice'),
+								msg : i18n._('operateFail'),
+								buttons : Ext.MessageBox.OK,
+								icon : Ext.MessageBox.WARNING
+							});
+							appRefundForm.getForm().reset();
+						}
+					}); 
+			 
+			
+ }
+ 
+ function refundConfirm(){
+	
+	Ext.MessageBox.show({
+			title: i18n._('notice'),
+			msg:i18n._('refundConfirm'),
+			buttons: Ext.MessageBox.YESNO,
+			icon: Ext.MessageBox.QUESTION,
+			fn:function(e){
+			                if(e=="no"){
+			                   return;
+			                }else if(e=='yes'){
+			                	appRefundOperation();	
+			                }
+			                	 
+			}
+	   });	
+	
+}
+ 
+function rejectRefund(){
+	var row = grid.getSelectionModel().getSelection();
+	var appRefundId=row[0].get("id");
+	if(rejectRefundReasonField.isValid()){//拒绝退款显示lable
+		var rejectRefundReason=rejectRefundReasonField.getValue();
+		 Ext.Ajax.request({
+				url : path + '/../application_mgmt/applicationRefund!appRejectApplicationForApply.action',
+				timeout: 9999999,
+				method : 'POST',
+				params : {
+					'appRefundVO.rejectRefundReason':rejectRefundReason,
+					'appRefundVO.id':appRefundId
+				},				
+				success : function(form, action) {
+					var obj = Ext.decode(form.responseText);					
+					if (!obj.success) {
+						Ext.MessageBox.show({
+							title : i18n._('errorNotice'),
+							msg : obj.resultMsg,
+							buttons : Ext.MessageBox.OK,
+							icon : Ext.MessageBox.WARNING
+						});
+						return;
+					}
+					Ext.MessageBox.show({
+						title : i18n._('notice'),
+						msg : i18n._('操作成功！'),
+						icon : Ext.MessageBox.INFO,
+						buttons : Ext.MessageBox.OK,
+						fn: reLoadData
+					});					
+				},
+				failure : function(form, action) {
+					Ext.MessageBox.show({
+						title : i18n._('errorNotice'),
+						msg : i18n._('operateFail')+",退款原因不能为空。",
+						buttons : Ext.MessageBox.OK,
+						icon : Ext.MessageBox.WARNING
+					});
+				}
+			});
+		 return true;
+	}else{
+		return false;
+	}
+}
+ 
+ 
+
+//乘法
+function floatMulti(arg1,arg2){
+  var precision1=getPrecision(arg1);
+  var precision2=getPrecision(arg2);
+  var tempPrecision=0;
+  
+  tempPrecision+=precision1;
+  tempPrecision+=precision2;
+  var int1=getIntFromFloat(arg1);
+  var int2=getIntFromFloat(arg2);
+  return (int1*int2)*Math.pow(10,-tempPrecision);
+  
+}
+//加法
+ function floatAdd(arg1,arg2){
+  var precision1=getPrecision(arg1);
+  var precision2=getPrecision(arg2);
+  var temp=Math.pow(10,Math.max(precision1,precision2));
+  return (floatMulti(arg1,temp)+floatMulti(arg2,temp))/temp;
+
+}
+//减法
+function floatSubtract(arg1,arg2){
+  var precision1=getPrecision(arg1);
+  var precision2=getPrecision(arg2);
+  var temp=Math.pow(10,Math.max(precision1,precision2));
+  return (floatMulti(arg1,temp)-floatMulti(arg2,temp))/temp;
+
+}
+
+function getPrecision(arg){
+  if(arg.toString().indexOf(".")==-1){
+     return 0;
+  }else{
+     return arg.toString().split(".")[1].length;
+  }
+  
+}
+
+function getIntFromFloat(arg){
+  if(arg.toString().indexOf(".")==-1){
+     return arg;
+  }else{
+     return Number(arg.toString().replace(".",""));
+  }
+  
+}
+</script>
+ </head>
+
+ <body>
+  
+ </body>
+</html>

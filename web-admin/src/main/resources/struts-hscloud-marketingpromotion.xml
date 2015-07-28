@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE struts PUBLIC
+    "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+    "http://struts.apache.org/dtds/struts-2.0.dtd">
+
+<struts>
+	<constant name="struts.objectFactory" value="spring" />
+	<package name="hscloud-marketing" extends="hscloud-default"
+		namespace="/marketing">
+		<interceptors>
+            <interceptor name="authorInterceptor" class="com.hisoft.hscloud.web.interceptor.AuthorInterceptor"/>
+            <interceptor-stack name="authorStack">
+                <interceptor-ref name="authorInterceptor"/>
+                <interceptor-ref name="hscloudStack"/>
+            </interceptor-stack>
+        </interceptors>
+        <action name="marketingpromotion" class="com.hisoft.hscloud.web.action.MarketingPromotionAction">
+        	<interceptor-ref name="authorStack"/>
+        </action>
+	</package>
+	
+</struts>

@@ -1,0 +1,648 @@
+<html>
+<head>
+<title>hc_admin_sms_message</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel='stylesheet' type='text/css'
+    href='../../extjs-4.1.0/resources/css/ext-all-gray.css' />
+<script type='text/javascript' src='../../extjs-4.1.0/ext-all.js'></script>
+<script type="text/javascript" src="../../js/head.js"></script>
+<!--  <script src="../resources/myproject-lang.js"></script>-->
+<!--  <script src="../ext-4.0.7-gpl/ext-all-debug.js"></script>-->
+<script type="text/javascript" src="../../js/ux/data/PagingMemoryProxy.js"></script>
+<script type="text/javascript" src="../../js/ux/form/SearchField.js"></script>
+<script src="../../js/jquery-1.7.2.min.js" type="text/javascript"></script>
+<script type="text/javascript" charset="utf-8" src="../../js/i18n.js"></script>
+<script type="text/javascript" src="../systemmanagement/common.js"></script>
+
+<script>
+Ext.Loader.setConfig({enabled: true});
+//Ext.Loader.setPath('Ext.ux', '../ext-4.0.7-gpl/examples/ux');
+Ext.require([       
+    'Ext.data.*',
+    'Ext.form.*',
+    'Ext.panel.Panel',
+    'Ext.view.View',
+    'Ext.layout.container.Fit',
+    'Ext.toolbar.Paging',
+    'Ext.selection.CheckboxModel',
+    'Ext.tip.QuickTipManager',
+    'Ext.ux.data.PagingMemoryProxy',
+    'Ext.ux.form.SearchField'
+]);
+
+var domainIdList=[];
+var domainSelectValue='';
+
+//去掉字符串左边的空格 
+function ltrim(s) {
+    if (s == null) return "";
+    var whitespace = new String(" \t\n\r");
+    var str = new String(s);
+    if (whitespace.indexOf(str.charAt(0)) != -1) {
+        var j = 0, i = str.length;
+        while (j < i && whitespace.indexOf(str.charAt(j)) != -1) {
+            j++;
+        }
+        str = str.substring(j, i);
+    }
+    return str;
+}
+
+//去掉字符串右边的空格 
+function rtrim(s) {
+    if (s == null) return "";
+    var whitespace = new String(" \t\n\r");
+    var str = new String(s);
+    if (whitespace.indexOf(str.charAt(str.length - 1)) != -1) {
+        var i = str.length - 1;
+        while (i >= 0 && whitespace.indexOf(str.charAt(i)) != -1) {
+            i--;
+        }
+        str = str.substring(0, i + 1);
+    }
+    return str;
+} 
+
+
+Ext.onReady(function() {    
+    Ext.QuickTips.init();
+    MultiLang = (function() {
+        return {
+            init: function() {
+                // load ExtJS locale
+                params = getCookie("lang");
+                i18n.set({
+                  lang: params, 
+                  path: '../../resources'
+                });
+                if (params) {
+                    var url = Ext.util.Format.format('../../extjs-4.1.0/locale/ext-lang-{0}.js', params);
+                    Ext.Ajax.request({
+                        url: url,
+                        success: this.onLoadExtLocaleSuccess,
+                        failure: this.onLoadExtLocaleFailure,
+                        scope: this
+                    });
+                } else {
+                    this.setup();
+                }
+            },
+            onLoadExtLocaleSuccess: function(response) {
+                try {
+                    eval(response.responseText);
+                } catch (e) {
+                    //Ext.Msg.alert('Failure', e.toString());
+                }
+                //this.loadmyprojectLocale();
+                this.setup();
+            },
+            onLoadExtLocaleFailure: function() {
+                //Ext.Msg.alert('Failure', 'Failed to load locale file.');
+                this.setup();
+            },
+            setup: function() { 
+            	var v_mask = null;
+                //消息列表显示
+            	var smsMessageModel = Ext.define('smsMessageModel', {
+            		extend : 'Ext.data.Model',
+            		fields : [
+            		          'id','creater','content',{name:'createDate',type: 'date', dateFormat: 'time'}
+            		          ]
+            	});
+            	//公告列表Store
+            	var smsMessageStore = Ext.create('Ext.data.Store', {
+            		model : 'smsMessageModel',
+            		autoLoad : true,//true
+            		pageSize : pageSize,//每页显示16条数据
+            		sorters : [ {
+            			property : 'id',
+            			direction : 'DESC'
+            		} ],
+            		//remoteSort : true,
+            		proxy : new Ext.data.proxy.Ajax({
+            			//type : 'ajax',
+            			url : path + '/../message/smsMessage!findSmsMessagePage.action',
+            			reader : {
+            				type : 'json',
+            				root : 'resultObject.result',
+            				totalProperty : 'resultObject.totalCount'
+            			},
+            			listeners:{
+            				exception:function(reader, response, error, eOpts){
+            					ajaxException(reader, response, error, eOpts );
+            				}
+            			}
+            		}),	
+            		listeners : {
+            			beforeload : function(store,operation, eOpts ){	
+            				//遮罩层
+            				v_mask = new Ext.LoadMask(Ext.getBody(), {
+            					msg : i18n._('please wait'),
+            					removeMask : true			
+            				});
+            				v_mask.show();
+            			},
+            			load : function(store, records, successful, eOpts ){
+            				v_mask.hide();
+            			}
+            		}
+            	});
+            	//分页序号
+            	Ext.grid.PageRowNumberer = Ext.extend(Ext.grid.RowNumberer, { 
+            		baseCls:Ext.baseCSSPrefix + 'column-header ' + Ext.baseCSSPrefix + 'unselectable',
+            		cls:Ext.baseCSSPrefix + 'row-numberer',
+            		tdCls:Ext.baseCSSPrefix+"grid-cell-special",
+            	    renderer:function(value, cellmeta, record, rowIndex, columnIndex, store){   
+            	        return (store.currentPage - 1) * store.pageSize + rowIndex + 1;  
+            	    }       
+            	});
+            	
+            	//删除后刷新页面
+            	function afterDelete() {
+            	    var count = smsMessageStore.data.length;
+            	    var total = smsMessageStore.getTotalCount();
+            	    if(total != 1 && count == 1) {
+            	    	smsMessageStore.previousPage();
+            	    } else {
+            	    	smsMessageStore.load();
+            	    }
+            	}
+            	
+
+            	
+            	var smsMessageGrid=Ext.create('Ext.grid.Panel', {
+            	    layout:'fit',            		
+            	    store:smsMessageStore,
+            		simpleSelect:true,
+            		selModel: Ext.create('Ext.selection.RowModel'),
+            	    columns: [
+								Ext.create('Ext.grid.PageRowNumberer',{flex : 0.1}),
+								{
+									header: i18n._('Id'),
+									dataIndex:'id',
+									flex:0.1,
+									hidden:true
+								},
+								{
+		            	        	header: i18n._('createTime'),
+		            	        	dataIndex: 'createDate',
+		            	        	flex:0.4,
+		            	        	renderer: Ext.util.Format.dateRenderer("Y-m-d H:i:s")
+		            	        },
+								{
+									header: i18n._('creater'),
+									dataIndex: 'creater',
+									flex:0.5
+								},
+								{
+									header: i18n._('content'),
+									dataIndex: 'content',
+									flex:0.8
+								}
+            		],
+            		bbar: Ext.create('Ext.toolbar.Paging', {
+            	          store:smsMessageStore,
+            	          displayInfo: true,
+            	          beforePageText:i18n._('beforePageText'),//"第"
+            	          firstText: i18n._('firstText'),//"第一页"
+            	          prevText: i18n._('prevText'),//"上一页"
+            	          nextText: i18n._('nextText'),//"下一页"
+            	          lastText: i18n._('lastText'),//"最后页"
+            	          refreshText: i18n._('refreshText')//"刷新"
+            	    }),           	
+            	    viewConfig: {
+            	    	stripeRows: true
+            	    },            		
+            		dockedItems:[
+            		{
+            			xtype:'toolbar',
+            			cls: 'toolbarCSS',
+            			dock: 'top',			
+            			items:[			
+		            			{                				   
+		            				xtype : 'button',									
+		        					text: '<font id="addsmsMessage" color="#ffffff" >' + i18n._('smsMessage') + '</font>',//发布公告
+		        					listeners: {
+		        						 "mouseout" : function() {
+		        							 document.getElementById("addsmsMessage").style.color = "white";
+		        						 },
+		        						 "mouseover" : function() {
+		        							 document.getElementById("addsmsMessage").style.color = "black";
+		        						 }
+		        							
+		        					},
+		        					icon : 'images/add.png',
+		            				handler:function(){
+		            					smsMessageWin.setTitle(i18n._('smsMessage'));
+		            					smsMessageWin.show();			
+		            				}            	   
+		            			},
+		            			{
+	                				   
+		            				xtype : 'button',									
+		        					text: '<font id="addsmsMessageArr" color="#ffffff" >' + i18n._('smsMessageArr') + '</font>',//发布公告
+		        					listeners: {
+		        						 "mouseout" : function() {
+		        							 document.getElementById("addsmsMessageArr").style.color = "white";
+		        						 },
+		        						 "mouseover" : function() {
+		        							 document.getElementById("addsmsMessageArr").style.color = "black";
+		        						 }
+		        							
+		        					},
+		        					icon : 'images/add.png',
+		            				handler:function(){
+		            					smsMessageArrWin.setTitle(i18n._('addsmsMessageArr'));
+		            					smsMessageArrWin.show();			
+		            				}            	   
+		            			
+		            			},
+		            			{                				   
+		            				xtype : 'button',									
+		        					text: '<font id="delSmsMessage" color="#ffffff" >' + i18n._('delSmsMessage') + '</font>',//发布公告
+		        					listeners: {
+		        						 "mouseout" : function() {
+		        							 document.getElementById("delSmsMessage").style.color = "white";
+		        						 },
+		        						 "mouseover" : function() {
+		        							 document.getElementById("delSmsMessage").style.color = "black";
+		        						 }
+		        							
+		        					},
+		        					icon : 'images/del.png',
+		            				handler:function(){
+		            					getSessionUser();
+		            					// 删除公告
+		        						var rows = smsMessageGrid.getSelectionModel().getSelection();
+		        						var Id;
+		        						if (rows.length > 0) {
+		        							Id = rows[0].get('id');
+		        							Ext.MessageBox.show({				                  
+		        								title: i18n._('notice'),
+		        								msg:i18n._('Are you sure to delete'),
+		        								buttons: Ext.MessageBox.YESNO,
+		        								icon: Ext.MessageBox.QUESTION,
+		        								fn:function(e){
+		        									if(e=='yes'){
+		        										Ext.Ajax.request({
+		        											url: path+'/../message/smsMessage!delSmsMessage.action',
+		        											method: 'POST',
+		        											params:{
+		        												'smsId':Id
+		        											},
+		        											success: function (response) {
+		        												var result=Ext.JSON.decode(response.responseText);
+		        												if(result.success==true){　　　　　　　
+		        													Ext.MessageBox.show({
+		        														title : i18n._('notice'),
+		        														msg : i18n._('Operating')+i18n._('Successful'),
+		        														icon : Ext.MessageBox.INFO,
+		        														buttons : Ext.MessageBox.OK,
+		        														fn: afterDelete
+		        													});																							
+		        												}else{
+		        													Ext.MessageBox.show({
+		        														title : i18n._('notice'),
+		        														msg : result.resultMsg,
+		        														icon : Ext.MessageBox.INFO,
+		        														buttons : Ext.MessageBox.OK
+		        													});
+		        													return;
+		        												}
+		        											//	announcementStore.load();
+		        											}
+		        										});
+		        									}
+		        								}
+		        				    		});	
+		        						} else {
+		        							Ext.MessageBox.show({
+		        								title : i18n._('Prompt'),
+		        								msg : i18n._('selectOne'),
+		        								icon : Ext.MessageBox.INFO,
+		        								buttons : Ext.MessageBox.OK
+		        							});
+		        							return;
+		        						}		
+		            				}            	   
+		            			},
+            					{xtype:'tbfill'},
+            					{
+									xtype : 'label',
+            						text : i18n._('QuickSearch')+':',
+            						style: 'color:#ffffff'
+								},
+            					{
+            						labelWidth : 50,
+            						xtype : 'searchfield',
+            						tooltip:i18n._('creater')+'/'+i18n._('content'),
+            						emptyText:i18n._('creater')+'/'+i18n._('content'),
+            						store : smsMessageStore,
+            						id : 'vmSearchfield',
+            						onTrigger1Click : function() {
+            							var proxy = smsMessageStore.getProxy();
+            							if (me.hasSearch) {
+            								me.setValue('');
+            								proxy.extraParams[me.paramName] = '';
+            								proxy.extraParams.start = 0;
+            								smsMessageStore.loadPage(1,null);
+            								me.hasSearch = false;
+            								me.triggerEl.item(0).setDisplayed('none');
+            								me.doComponentLayout();
+            							}
+            						},
+            						onTrigger2Click : function() {// 点击查询按钮或回车调用该方法
+            							var proxy = smsMessageStore.getProxy(), value = this.getValue();
+            							
+            							proxy = smsMessageStore.getProxy();
+            							proxy.extraParams['query'] = value;										
+            							proxy.extraParams.start = 0;
+            							smsMessageStore.loadPage(1,null);
+            							this.hasSearch = true;
+            							me.triggerEl.item(0).setDisplayed('block');
+            							me.doComponentLayout();
+            						}
+            					}
+            				]
+            		}]
+            	});
+            	function reLoadData(){
+            		smsMessageStore.load();
+            	}
+            	function vd(text){
+            	    if(ltrim(rtrim(text)) == '') {
+            	        return i18n._('cannotBeNull');
+            	    } else {
+            	        return true;
+            	    }
+            	}
+            	
+            	function resetMethod() {
+            		smsMessageForm.getForm().reset();
+            	}
+            	function resetMethodArr() {
+            		smsMessageArrForm.getForm().reset();
+            	}
+            	
+            	function clickSubmit() {
+            	    var mobile = Ext.getCmp('smsMessageMoblie').getValue();
+            	    var content = Ext.getCmp('smsMessageContent').getValue();
+            	    if(!Ext.getCmp('smsMessageMoblie').isValid() || !Ext.getCmp('smsMessageContent').isValid()){
+                        return;
+                    }
+            	    var progress=Ext.Ajax.request({
+            	        url:path+'/../message/smsMessage!saveSmsMessage.action',
+            	        method:'POST',
+            	        params:{
+            	        	'smsMessage.mobile': mobile,
+            	            'smsMessage.content': content
+            	        },
+            	        success:function(form,action){
+            	            var obj = Ext.decode(form.responseText);
+            	                if(obj==null || obj.success==null){
+            	                    Ext.MessageBox.show({
+            	                       title: i18n._('errorNotice'),
+            	                       msg: i18n._('returnNull'),
+            	                       buttons: Ext.MessageBox.OK,
+            	                       icon: Ext.MessageBox.ERROR
+            	                    });//INFO,QUESTION,WARNING,ERROR
+            	                    return;
+            	                }
+            	                if(!obj.success){
+            	                    Ext.MessageBox.show({
+            	                       title: i18n._('errorNotice'),
+            	                       msg: obj.resultMsg,
+            	                       buttons: Ext.MessageBox.OK,
+            	                       icon: Ext.MessageBox.ERROR
+            	                    });
+            	                    return;
+            	                }
+            	                Ext.MessageBox.show({
+            	                	title: i18n._('notice'),
+            	                    msg: i18n._('smsMessageSuccess'),
+            	                    buttons: Ext.MessageBox.OK,
+            	                    icon: Ext.MessageBox.INFO,
+            	                    fn: reLoadData
+            	                });
+            	                smsMessageForm.getForm().reset();
+            	                smsMessageWin.hide();
+            	              //  announcementStore.load();
+            	        },   
+            	        failure:function(form,action){   
+            	            Ext.MessageBox.show({
+            	                title: i18n._('errorNotice'),
+            	                msg: i18n._('operateFail'),
+            	                buttons: Ext.MessageBox.OK,
+            	                icon: Ext.MessageBox.ERROR
+            	            });  
+            	        }
+            	    });
+            	}
+            	
+            	//短信群发提交按钮
+            	function clickSubmitArr() {
+            	    var content = Ext.getCmp('contentArr').getValue();
+            	    if(!Ext.getCmp('contentArr').isValid()){
+                        return;
+                    }
+            	    var progress=Ext.Ajax.request({
+            	        url:path+'/../message/smsMessage!saveSmsMessage.action',
+            	        method:'POST',
+            	        params:{
+            	            'smsMessage.content': content,
+            	            'smsMessage.type':1,
+            	        },
+            	        success:function(form,action){
+            	            var obj = Ext.decode(form.responseText);
+            	                if(obj==null || obj.success==null){
+            	                    Ext.MessageBox.show({
+            	                       title: i18n._('errorNotice'),
+            	                       msg: i18n._('returnNull'),
+            	                       buttons: Ext.MessageBox.OK,
+            	                       icon: Ext.MessageBox.ERROR
+            	                    });//INFO,QUESTION,WARNING,ERROR
+            	                    return;
+            	                }
+            	                if(!obj.success){
+            	                    Ext.MessageBox.show({
+            	                       title: i18n._('errorNotice'),
+            	                       msg: obj.resultMsg,
+            	                       buttons: Ext.MessageBox.OK,
+            	                       icon: Ext.MessageBox.ERROR
+            	                    });
+            	                    return;
+            	                }
+            	                Ext.MessageBox.show({
+            	                	title: i18n._('notice'),
+            	                    msg: i18n._('announceSuccess'),
+            	                    buttons: Ext.MessageBox.OK,
+            	                    icon: Ext.MessageBox.INFO
+            	                });
+            	                smsMessageArrForm.getForm().reset();
+            	                smsMessageArrWin.hide();
+            	                smsMessageStore.load();
+            	        },   
+            	        failure:function(form,action){   
+            	            Ext.MessageBox.show({
+            	                title: i18n._('errorNotice'),
+            	                msg: i18n._('operateFail'),
+            	                buttons: Ext.MessageBox.OK,
+            	                icon: Ext.MessageBox.ERROR
+            	            });  
+            	        }
+            	    });
+            	}
+            	
+            	//短信发送form
+            	var smsMessageForm=Ext.create('Ext.form.FormPanel', {
+            	    width: '440',
+            	    height: '300',
+            	    border:false,
+            	    bodyPadding : 2,
+            	    autoScroll:true,
+             	    fieldDefaults : {
+            			labelAlign : 'right',
+            			labelWidth : 70,
+            			anchor : '96%'
+            		},   
+            	    items: [
+            	    {
+            	    	xtype:'textfield',
+                        fieldLabel:i18n._('smsMessageMoblie'),
+                        id:'smsMessageMoblie',
+                        name:'smsMessageMoblie',
+						regex:/^[1-9]+$/,
+						regexText : i18n._('InvalidNumber'),
+						validator : vd
+            	     },
+                     {
+            	        fieldLabel:i18n._('smsMessageContent'),
+            	        id:'smsMessageContent',
+            	        name:"smsMessageContent",
+            	        width:400,
+            	        height:150,
+            	        xtype:"textarea",
+            	        validator : vd,
+            	        maxLength:512,
+            	        enforceMaxLength:true
+            	    }],
+            	    buttons:[
+            	        {text:i18n._('smsSend'), handler:clickSubmit},
+            	        {text:i18n._('reset'), handler:resetMethod}
+            	    ]
+            	    
+            	});
+            	//短信群发form
+            	var smsMessageArrForm=Ext.create('Ext.form.FormPanel', {
+            	    width: '440',
+            	    height: '300',
+            	    border:false,
+            	    bodyPadding : 2,
+            	    autoScroll:true,
+             	    fieldDefaults : {
+            			labelAlign : 'right',
+            			labelWidth : 70,
+            			anchor : '96%'
+            		}, 
+            	    items: [
+                     {
+            	        fieldLabel:i18n._('smsMessageContent'),
+            	        id:'contentArr',
+            	        name:"contentArr",
+            	        width:400,
+            	        height:150,
+            	        xtype:"textarea",
+            	        validator : vd,
+            	        maxLength:512,
+            	        enforceMaxLength:true
+            	    }],
+            	    buttons:[
+            	        {text:i18n._('smsSend'), handler:clickSubmitArr},
+            	        {text:i18n._('reset'), handler:resetMethodArr}
+            	    ]
+            	    
+            	});
+            	
+            	//短信信息发送窗口
+            	var smsMessageWin = Ext.create('Ext.window.Window', {
+            		width : 440,// 400
+            		height : 300,
+            		closable : false,
+            		constrain : true,
+            		modal : true,
+            		tools : [ {
+            			type : 'close',
+            			handler : function() {
+            				smsMessageForm.getForm().reset();
+            				smsMessageWin.hide();
+            			}
+            		} ],
+            		layout : 'fit',
+            		defaults : {
+            			split : false
+            		},
+            		items : [smsMessageForm]
+            	});
+            	
+            	//短信群发窗口
+            	var smsMessageArrWin = Ext.create('Ext.window.Window', {
+            		width : 440,
+            		height : 300,
+            		closable : false,
+            		constrain : true,
+            		modal : true,
+            		tools : [ {
+            			type : 'close',
+            			handler : function() {
+            				smsMessageArrForm.getForm().reset();
+            				smsMessageArrWin.hide();
+            			}
+            		} ],
+            		layout : 'fit',
+            		defaults : {
+            			split : false
+            		},
+            		items : [smsMessageArrForm]
+            	});            	
+            	
+            	Ext.create('Ext.Viewport',{//Ext.Viewport
+                    layout:'border',
+                    width:'100%',                   
+                    items:[
+                        {
+                            region:'center',
+                            xtype:'panel',
+                            id:'panel_one',
+                            title:i18n._('systemManagement')+'&nbsp;&nbsp;>&nbsp;&nbsp;'+i18n._('noticeTemplate')+'&nbsp;&nbsp;>&nbsp;&nbsp;'+i18n._('smsMessage'),
+                            width:'60%',
+                            layout:'fit',
+                            autoScroll:true,
+                            items:[
+                                {
+                                    xtype:'panel',
+                                    layout:'fit',
+                                    autoScroll:true,
+                                    items:smsMessageGrid
+                                }
+                            ]
+                        }
+                    ]//panel
+                });         
+                
+            }
+        };
+    })();
+
+    MultiLang.init();
+});
+ function getCookie(name){
+         var arr = document.cookie.match(new RegExp("(^| )"+name+"=([^;]*)(;|$)"));
+         if(arr != null) return unescape(arr[2]);
+         return null;
+ };
+ 
+</script>
+</head>
+<body>
+</body>
+</html>

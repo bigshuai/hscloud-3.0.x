@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE struts PUBLIC
+    "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+    "http://struts.apache.org/dtds/struts-2.0.dtd">
+<struts>
+	<constant name="struts.objectFactory" value="spring" />
+	<constant name="struts.i18n.encoding" value="UTF-8" />
+	<package namespace="/controlpanel" name="hicloud-controlpanel" extends="hscloud-default">
+	
+		<interceptors>
+			<interceptor-stack name="controlpanelStack">
+				<interceptor-ref name="hscloudStack" />
+				<interceptor-ref name="author">
+			         <param name="excludeMethods">login,logout,getImageCode</param>
+				</interceptor-ref>
+			</interceptor-stack>
+		</interceptors>
+		<global-results>
+			<result name="login" type="redirect">/index.html</result>
+		</global-results>
+		<global-exception-mappings>
+			<exception-mapping result="input" exception="java.lang.Exception"></exception-mapping>
+		</global-exception-mappings>
+		<action name="login" class="com.hisoft.hscloud.web.action.LoginAction">
+		     <interceptor-ref name="controlpanelStack"/>
+		</action>
+		<action name="urlLogin" class="com.hisoft.hscloud.web.action.UrlLoginAction">
+		   <result name="success" type="redirect">/console/index.html</result>
+		   <result name="error" type="redirect">/console/error.html</result>
+		   <result name="url_expiration" type="redirect">/console/expiration.html</result>
+		</action>
+	</package>
+</struts>

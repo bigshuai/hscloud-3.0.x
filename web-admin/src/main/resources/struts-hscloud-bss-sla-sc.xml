@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE struts PUBLIC
+    "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+    "http://struts.apache.org/dtds/struts-2.0.dtd">
+
+<struts>
+	<constant name="struts.objectFactory" value="spring" />
+	<package name="hicloud-serviceCatalog" extends="hscloud-default"
+		namespace="/sc">
+		<interceptors>
+            <interceptor name="authorInterceptor" class="com.hisoft.hscloud.web.interceptor.AuthorInterceptor"/>
+            <interceptor-stack name="authorStack">
+                <interceptor-ref name="authorInterceptor"/>
+                <interceptor-ref name="hscloudStack"/>
+            </interceptor-stack>
+        </interceptors>
+		
+		<action name="sc" class="com.hisoft.hscloud.web.action.ServiceCatalogAction">
+			<interceptor-ref name="authorStack"/>
+		</action>
+		<action name="node" class="com.hisoft.hscloud.web.action.NodeAction">
+			<!-- <interceptor-ref name="authorStack"/> -->
+		</action>
+		<action name="serviceItem" class="com.hisoft.hscloud.web.action.ServiceItemAction">
+			<interceptor-ref name="authorStack"/>
+		</action>
+		<action name="upload" class="com.hisoft.hscloud.web.action.FileUploadAction">
+			<interceptor-ref name="authorStack"/>
+		</action>
+		<action name="zone" class="com.hisoft.hscloud.web.action.ZoneAction">
+			<!-- <interceptor-ref name="authorStack"/> -->
+		</action>
+		<action name="zoneGroup" class="com.hisoft.hscloud.web.action.ZoneGroupAction">
+			<interceptor-ref name="authorStack"/>
+		</action>
+	</package>
+	
+</struts>

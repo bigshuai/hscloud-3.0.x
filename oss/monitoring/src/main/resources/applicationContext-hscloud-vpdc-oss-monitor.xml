@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+		http://www.springframework.org/schema/context 
+		http://www.springframework.org/schema/context/spring-context-3.0.xsd
+		http://www.springframework.org/schema/tx
+		http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+		http://www.springframework.org/schema/aop
+		http://www.springframework.org/schema/aop/spring-aop-3.0.xsd"
+	default-lazy-init="false">
+
+	<context:annotation-config />
+	<context:component-scan base-package="com.hisoft.hscloud.vpdc.oss.monitoring" />
+
+	<!-- <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer"> 
+		<property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE" 
+		/> <property name="ignoreResourceNotFound" value="true" /> <property name="locations"> 
+		<list> <value>classpath:/jdbc.properties</value> <value>classpath:/loginOpst.properties</value> 
+		<value>classpath:/rabbitmq.properties</value> </list> </property> </bean> 
+		<bean id="myDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close"> 
+		<property name="driverClassName" value="${jdbc.driver}" /> <property name="url" 
+		value="${jdbc.url}" /> <property name="username" value="${jdbc.username}" 
+		/> <property name="password" value="${jdbc.password}" /> <property name="validationQuery" 
+		value="select 1" /> <property name="testWhileIdle" value="true" /> <property 
+		name="timeBetweenEvictionRunsMillis" value="3600000" /> <property name="minEvictableIdleTimeMillis" 
+		value="18000000" /> </bean> <bean id="sessionFactory" class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean"> 
+		<property name="dataSource" ref="myDataSource" /> <property name="hibernateProperties"> 
+		<props> <prop key="hibernate.dialect">${hibernate.dialect}</prop> <prop key="hibernate.show_sql">${hibernate.show_sql}</prop> 
+		<prop key="hibernate.hbm2ddl.auto">${hibernate.hbm2ddl.auto}</prop> </props> 
+		</property> <property name="packagesToScan"> <list> <value>com.hisoft.hscloud.vpdc.oss.monitoring.entity</value> 
+		</list> </property> </bean> -->
+
+	<!-- <bean id="qFactory" class="com.rabbitmq.client.ConnectionFactory">
+		<property name="username" value="${rabbitmq.username}" />
+		<property name="password" value="${rabbitmq.password}" />
+		<property name="virtualHost" value="${rabbitmq.virtualHost}" />
+		<property name="host" value="${rabbitmq.host}" />192.168.5.69 
+			/192.168.27.56
+		<property name="port" value="${rabbitmq.port}" />
+	</bean> -->
+
+	<!-- <bean id="hibernateTemplate" class="org.springframework.orm.hibernate3.HibernateTemplate">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+	<bean id="transactionManager"
+		class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+		<property name="sessionFactory" ref="sessionFactory" />
+	</bean>
+	 -->
+
+	
+	<!--  
+	 <bean id="clientFactory" class="com.hisoft.hscloud.vpdc.opts.api.impl.ClientFactory">
+		<property name="auth_url" value="${login.auth_url}"></property>
+		<property name="userName" value="${login.userName}"></property>
+		<property name="password" value="${login.password}"></property>
+		<property name="tenantName" value="${login.tenant}"></property>
+	</bean> 
+	  -->
+	<!-- <bean id="monitorMsgProcesser"
+		class="com.hisoft.hscloud.vpdc.oss.monitoring.msgprocess.MonitorMsgProcesser">
+	</bean> -->
+	
+	<!-- <bean id="dispatchPolicy"
+		class="com.hisoft.hscloud.vpdc.oss.monitoring.msgprocess.MsgDispatchPolicy">
+		<property name="policies">
+			<map>
+				<entry key="monitor" value-ref="monitorMsgProcesser">
+				</entry>
+				<entry key="metering" value-ref="meteringMsgProcesser"></entry>
+			</map>
+		</property>
+	</bean> -->
+	
+<!--  
+	<bean id="queue" class="com.hisoft.hscloud.vpdc.oss.monitoring.msgprocess.Queue"
+		init-method="subscribe">
+		<property name="qFactory" ref="qFactory"></property>
+		<property name="dispatchPolicy" ref="dispatchPolicy"></property>
+		<property name="queneName" value="hs_Q_app_monitor"></property>
+	</bean>
+	-->
+	<!--   
+	<bean name="vMOfHostMsgQueue" class="com.hisoft.hscloud.vpdc.oss.monitoring.util.VMOfHostMsgQueue">
+		<property name="exchangeSend" value="hs_exc_fanout" />
+		<property name="exchangeReceive" value="hs_exc_direct" />
+		<property name="queueName" value="hs_Q_app_maintain" />
+		<property name="routingKey" value="hs_R_K_app_maintain" />
+	</bean>
+--> 
+	<aop:aspectj-autoproxy />
+</beans>

@@ -1,0 +1,653 @@
+<html>
+<head>
+<title>hc_application_evaluate_list</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel='stylesheet' type='text/css' href='../../extjs-4.1.0/resources/css/ext-all-gray.css' />
+<script type='text/javascript' src='../../extjs-4.1.0/ext-all.js'></script>
+<script type="text/javascript" src="../../js/head.js"></script>
+<script type="text/javascript" src="../../js/ux/data/PagingMemoryProxy.js"></script>
+<script type="text/javascript" src="../../js/ux/form/SearchField.js"></script>
+<script src="../../js/jquery-1.7.2.min.js" type="text/javascript"></script>
+<script type="text/javascript" charset="utf-8" src="../../js/i18n.js"></script>
+<script type="text/javascript" src="../systemmanagement/common.js"></script>
+<script>
+Ext.Loader.setConfig({enabled: true});
+Ext.require([       
+    'Ext.data.*',
+    'Ext.form.*',
+    'Ext.panel.Panel',
+    'Ext.view.View',
+    'Ext.layout.container.Fit',
+    'Ext.toolbar.Paging',
+    'Ext.selection.CheckboxModel',
+    'Ext.tip.QuickTipManager',
+    'Ext.ux.data.PagingMemoryProxy',
+    'Ext.ux.form.SearchField'
+]);
+var appWorkOrderSelectValue='';
+//去掉字符串左边的空格 
+function ltrim(s) {
+    if (s == null) return "";
+    var whitespace = new String(" \t\n\r");
+    var str = new String(s);
+    if (whitespace.indexOf(str.charAt(0)) != -1) {
+        var j = 0, i = str.length;
+        while (j < i && whitespace.indexOf(str.charAt(j)) != -1) {
+            j++;
+        }
+        str = str.substring(j, i);
+    }
+    return str;
+}
+
+//去掉字符串右边的空格 
+function rtrim(s) {
+    if (s == null) return "";
+    var whitespace = new String(" \t\n\r");
+    var str = new String(s);
+    if (whitespace.indexOf(str.charAt(str.length - 1)) != -1) {
+        var i = str.length - 1;
+        while (i >= 0 && whitespace.indexOf(str.charAt(i)) != -1) {
+            i--;
+        }
+        str = str.substring(0, i + 1);
+    }
+    return str;
+} 
+
+
+Ext.onReady(function() {    
+    Ext.QuickTips.init();
+    MultiLang = (function() {
+        return {
+            init: function() {
+                // load ExtJS locale
+                params = getCookie("lang");
+                i18n.set({
+                  lang: params, 
+                  path: '../../resources'
+                });
+                if (params) {
+                    var url = Ext.util.Format.format('../../extjs-4.1.0/locale/ext-lang-{0}.js', params);
+                    Ext.Ajax.request({
+                        url: url,
+                        success: this.onLoadExtLocaleSuccess,
+                        failure: this.onLoadExtLocaleFailure,
+                        scope: this
+                    });
+                } else {
+                    this.setup();
+                }
+            },
+            onLoadExtLocaleSuccess: function(response) {
+                try {
+                    eval(response.responseText);
+                } catch (e) {
+                }
+                this.setup();
+            },
+            onLoadExtLocaleFailure: function() {
+                this.setup();
+            },
+            setup: function() { 
+            	var v_mask = null;
+            	//应用评价列表Model
+            	var applicationEvaluateModel = Ext.define('applicationEvaluateModel', {
+            		extend : 'Ext.data.Model',
+            		fields : [
+            		          'id','score','comment','appName','userName','replyComment','replyCount',{name:'createTime',type: 'date', dateFormat: 'time'}
+            		          ]
+            	});
+            	//应用评价列表Store
+            	var applicationEvaluateStore = Ext.create('Ext.data.Store', {
+            		model : 'applicationEvaluateModel',
+            		autoLoad : true,//true
+            		pageSize : pageSize,//每页显示16条数据
+            		sorters : [ {
+            			property : 'createTime',
+            			direction : 'DESC'
+            		} ],
+            		//remoteSort : true,
+            		proxy : new Ext.data.proxy.Ajax({
+            			//type : 'ajax',
+            			url : path + '/../application_mgmt/applicationEvaluate!findAppEvaluateListPage.action',
+            			reader : {
+            				type : 'json',
+            				root : 'resultObject.result',
+            				totalProperty : 'resultObject.totalCount'
+            			},
+            			listeners:{
+            				exception:function(reader, response, error, eOpts){
+            					ajaxException(reader, response, error, eOpts );
+            				}
+            			}
+            		}),	
+            		listeners : {
+            			beforeload : function(store,operation, eOpts ){	
+            				//遮罩层
+            				v_mask = new Ext.LoadMask(Ext.getBody(), {
+            					msg : i18n._('please wait'),
+            					removeMask : true			
+            				});
+            				v_mask.show();
+            			},
+            			load : function(store, records, successful, eOpts ){
+            				v_mask.hide();
+            			}
+            		}
+            	});
+            	
+            	
+            	var appEvaluateScoreStore = new Ext.data.JsonStore( {  
+                     fields : [ 'id', 'name' ],  
+                     data : [ {  
+                         id : '1',  
+                         name : '1'  
+                     }, {  
+                         id : '2',  
+                         name : '2'  
+                     },{
+                    	 id:'3',
+                    	 name:'3'
+                     },{
+                    	 id:'4',
+                    	 name:'4'
+                     },{
+                    	 id:'5',
+                    	 name:'5'
+                     }]  
+                 }); 
+            	
+            	var appEvaluateStatusStore = new Ext.data.JsonStore( {  
+                    fields : [ 'id', 'name' ],  
+                    data : [ {  
+                        id : '0',  
+                        name : '未回复'  
+                    },{  
+                        id : '1',  
+                        name : '已回复'  
+                    }]  
+                }); 
+            	
+            	var imgb = new Ext.Button({  
+    		        text: '<font color="#ee7700">'+i18n._('Search')+'</font>',
+    		        icon: "images/search.png",
+    		        handler :function(btn) { 
+    		        	var proxy = applicationEvaluateStore.getProxy();
+    		        	var appName = Ext.getCmp('searchAppName').getValue();
+    		        	var appScore = Ext.getCmp('searchAppScore').getValue();
+    		        	var appStatus = Ext.getCmp('searchAppStatus').getValue();
+						proxy.setExtraParam('appName',appName);
+						proxy.setExtraParam('appScore',appScore);
+						proxy.setExtraParam('appStatus',appStatus);
+						proxy.extraParams.start = 0;
+						applicationEvaluateStore.loadPage(1,null);
+    	            }
+    		    }); 
+            	//分页序号
+            	Ext.grid.PageRowNumberer = Ext.extend(Ext.grid.RowNumberer, { 
+            		baseCls:Ext.baseCSSPrefix + 'column-header ' + Ext.baseCSSPrefix + 'unselectable',
+            		cls:Ext.baseCSSPrefix + 'row-numberer',
+            		tdCls:Ext.baseCSSPrefix+"grid-cell-special",
+            	    renderer:function(value, cellmeta, record, rowIndex, columnIndex, store){   
+            	        return (store.currentPage - 1) * store.pageSize + rowIndex + 1;  
+            	    }       
+            	});
+            	
+            	//删除后刷新页面
+            	function afterDelete() {
+            	    var count = applicationEvaluateStore.data.length;
+            	    var total = applicationEvaluateStore.getTotalCount();
+            	    if(total != 1 && count == 1) {
+            	    	applicationEvaluateStore.previousPage();
+            	    } else {
+            	    	applicationEvaluateStore.load();
+            	    }
+            	}
+            	var appEvaluateGrid=Ext.create('Ext.grid.Panel', {
+            	    layout:'fit',            		
+            	    store:applicationEvaluateStore,
+            		simpleSelect:true,
+            		selModel: Ext.create('Ext.selection.RowModel'),
+            	    columns: [
+								Ext.create('Ext.grid.PageRowNumberer',{flex : 0.1}),
+								{
+									header: i18n._('Id'),
+									dataIndex:'id',
+									flex:0.1,
+									hidden:true
+								},
+								{
+									header:'应用名称', 
+									dataIndex: 'appName',
+									flex:0.5
+								},
+								{
+									header:'分数',
+									dataIndex: 'score',
+									flex:0.3
+								},
+								{
+									header:'评论',
+									dataIndex: 'comment',
+									flex:0.2,
+								
+								},
+								{
+									header:'回复内容', //内容	
+									dataIndex: 'replyComment',
+									flex:0.8
+								},
+								{
+									header:'评论人',
+									dataIndex: 'userName',
+									flex:0.8
+								},
+								{
+									header:'评论时间',
+									dataIndex: 'createTime',
+									flex:0.5,
+									renderer: Ext.util.Format.dateRenderer("Y-m-d H:i:s")
+								},
+								{
+		            	        	header: '状态', //发布时间
+		            	        	dataIndex: 'replyCount',
+		            	        	flex:0.4,
+		            	        	renderer:function(value){
+										if(value>0){
+											return "已回复";
+										}else{
+											return "未回复";
+										}
+									}
+		            	        	
+		            	        }
+		            	       
+            		],
+            		bbar: Ext.create('Ext.toolbar.Paging', {
+            	          store:applicationEvaluateStore,
+            	          displayInfo: true,
+            	          beforePageText:i18n._('beforePageText'),//"第"
+            	          firstText: i18n._('firstText'),//"第一页"
+            	          prevText: i18n._('prevText'),//"上一页"
+            	          nextText: i18n._('nextText'),//"下一页"
+            	          lastText: i18n._('lastText'),//"最后页"
+            	          refreshText: i18n._('refreshText')//"刷新"
+            	    }),           	
+            	    viewConfig: {
+            	    	stripeRows: true
+            	    },            		
+            		dockedItems:[
+            		{
+            			xtype:'toolbar',
+            			cls: 'toolbarCSS',
+            			dock: 'top',			
+            			items:[			
+		            			{                				   
+		            				xtype : 'button',									
+		        					text: '<font id="delAppEvaluate" color="#ffffff" >' + '删除' + '</font>',//发布公告
+		        					listeners: {
+		        						 "mouseout" : function() {
+		        							 document.getElementById("delAppWorkOrder").style.color = "white";
+		        						 },
+		        						 "mouseover" : function() {
+		        							 document.getElementById("delAppWorkOrder").style.color = "black";
+		        						 }
+		        							
+		        					},
+		        					icon : 'images/del.png',
+		            				handler:function(){
+		            					getSessionUser();
+		        						var rows = appEvaluateGrid.getSelectionModel().getSelection();
+		        						var Id;
+		        						if (rows.length > 0) {
+		        							Id = rows[0].get('id');
+		        							Ext.MessageBox.show({				                  
+		        								title: i18n._('notice'),
+		        								msg:i18n._('Are you sure to delete'),
+		        								buttons: Ext.MessageBox.YESNO,
+		        								icon: Ext.MessageBox.QUESTION,
+		        								fn:function(e){
+		        									if(e=='yes'){
+		        										Ext.Ajax.request({
+		        											url:path + '/../application_mgmt/applicationEvaluate!delAppEvaluate.action',
+		        											method: 'POST',
+		        											params:{
+		        												'appProductReview.id':Id
+		        											},
+		        											success: function (response) {
+		        												var result=Ext.JSON.decode(response.responseText);
+		        												if(result.success==true){　　　　　　　
+		        													Ext.MessageBox.show({
+		        														title : i18n._('notice'),
+		        														msg : i18n._('Operating')+i18n._('Successful'),
+		        														icon : Ext.MessageBox.INFO,
+		        														buttons : Ext.MessageBox.OK,
+		        														fn: afterDelete
+		        													});																							
+		        												}else{
+		        													Ext.MessageBox.show({
+		        														title : i18n._('notice'),
+		        														msg : result.resultMsg,
+		        														icon : Ext.MessageBox.INFO,
+		        														buttons : Ext.MessageBox.OK
+		        													});
+		        													return;
+		        												}
+		        										
+		        											}
+		        										});
+		        									}
+		        								}
+		        				    		});	
+		        						} else {
+		        							Ext.MessageBox.show({
+		        								title : i18n._('Prompt'),
+		        								msg : i18n._('selectOne'),
+		        								icon : Ext.MessageBox.INFO,
+		        								buttons : Ext.MessageBox.OK
+		        							});
+		        							return;
+		        						}		
+		            				}            	   
+		            			},
+		            			{
+		            				xtype:'button',//回复
+		            			    text:'<font id="replyAppEvaluate" color="white">'+"回复"+'</font>',
+		            			    listeners: {
+		            					 "mouseout" : function() {
+		            						 document.getElementById("replyAppEvaluate").style.color = "white";
+		            					 },
+		            					 "mouseover" : function() {
+		            						 document.getElementById("replyAppEvaluate").style.color = "black";
+		            					 }						
+		            				},
+		            			    icon:'images/toAudit.png',
+		            			    handler:function(){
+		            			    	getSessionUser();
+		        						var rows = appEvaluateGrid.getSelectionModel().getSelection();
+		        						var Id;
+		        						if (rows.length > 0) {
+		        							Id = rows[0].get('id');
+		        						} else {
+		        							Ext.MessageBox.show({
+		        								title : i18n._('Prompt'),
+		        								msg : i18n._('selectOne'),
+		        								icon : Ext.MessageBox.INFO,
+		        								buttons : Ext.MessageBox.OK
+		        							});
+		        							return;
+		        						}
+		        						
+		        						var replyCount=rows[0].get('replyCount');
+		        						if(replyCount>0){
+		        							Ext.MessageBox.show({
+		        								title : i18n._('Prompt'),
+		        								msg : "该应用已经回复！",
+		        								icon : Ext.MessageBox.INFO,
+		        								buttons : Ext.MessageBox.OK
+		        							});
+		        							return;
+		        						}else{
+		        							Ext.getCmp('reviewId').setValue(rows[0].get('id'));
+		        							appEvaluateReplyWin.setTitle("应用评价回复");
+		        							appEvaluateReplyWin.show();
+		        						}
+		        						
+		            				}
+		            			},
+		            			{
+									xtype:'button',//导出
+								    text:'<font id="exportAppEvaluate" color="white">'+i18n._('export')+'</font>',
+								    listeners: {
+										 "mouseout" : function() {
+											 document.getElementById("exportAppEvaluate").style.color = "white";
+										 },
+										 "mouseover" : function() {
+											 document.getElementById("exportAppEvaluate").style.color = "black";
+										 }
+											
+									},
+								    tooltip:i18n._('export'),
+								    shadow:false,
+								    icon:'images/export.png',
+								    handler:function(){
+                                         var downloadForm = Ext.create('Ext.form.Panel',{
+                                             frame:true,
+                                             standardSubmit:true
+                                         });
+                                         downloadForm.getForm().submit({
+                                        	 url:path + '../../../../excelExport!excelExportAppEvaluate.action',
+                                             method:'post',
+                                             params:{
+                                            	 'appName':Ext.getCmp('searchAppName').getValue(),
+                                            	 'appScore':Ext.getCmp('searchAppScore').getValue(),
+                                            	 'appStatus':Ext.getCmp('searchAppStatus').getValue()
+                                                 }
+                                         });
+								    	
+									}
+								},
+		            			{xtype:'tbfill'},
+		            			{
+									xtype:'displayfield',
+									hideLabel:true,
+									value:'<span style="bottom:3px;position:relative;"><font color="white">'+"应用名称"+':'+'</font></span>'
+								},
+								{
+									xtype:'textfield',
+									fieldLabel:'应用名称',
+									name:'searchAppName',
+									id:'searchAppName',
+									hideLabel:true
+								},
+		            			{
+									xtype:'displayfield',
+									hideLabel:true,
+									value:'<span style="bottom:3px;position:relative;"><font color="white">'+"分数"+':'+'</font></span>'
+								},
+								{ 
+		            				xtype:'combobox',                    
+		            				name:'searchAppScore', 
+		            				id:'searchAppScore', 
+		            				store: appEvaluateScoreStore,         //       这里的store为combox的数据源                   
+		            				queryMode: 'local',                    
+		            				displayField: 'name',   // 显示在前台的名字                    
+		            				valueField: 'id',                // 具体的值                   
+		            				emptyText:'全部',                //为空的状态下显示的内容                    
+		            				fieldLabel:'分数',
+		            				hideLabel:true,
+		            			},
+		            			{
+									xtype:'displayfield',
+									hideLabel:true,
+									value:'<span style="bottom:3px;position:relative;"><font color="white">'+"状态"+':'+'</font></span>'
+								},
+		            			{ 
+		            				xtype:'combobox',                    
+		            				name:'searchAppStatus', 
+		            				id:'searchAppStatus', 
+		            				store: appEvaluateStatusStore,         //       这里的store为combox的数据源                   
+		            				queryMode: 'local',                    
+		            				displayField: 'name',   // 显示在前台的名字                    
+		            				valueField: 'id',                // 具体的值                   
+		            				emptyText:'全部',                //为空的状态下显示的内容                    
+		            				fieldLabel:'分数',
+		            				hideLabel:true,
+		            			},imgb
+            				]
+            		}]
+            	});
+            	function reLoadData(){
+            		applicationEvaluateStore.load();
+            	}
+            	function vd(text){
+            	    if(ltrim(rtrim(text)) == '') {
+            	        return i18n._('cannotBeNull');
+            	    } else {
+            	        return true;
+            	    }
+            	}
+            	
+            	
+            	
+            	function resetReplyMethod() {
+            		appEvaluateReplyForm.getForm().reset();
+            	}
+            	
+            	
+            	//保存回复 
+            	function saveAppEvaluateReply() {
+            	    var replycontent = Ext.getCmp('replycontent').getValue();
+            	    var id = Ext.getCmp('reviewId').getValue();
+            	    if(!Ext.getCmp('replycontent').isValid()){
+                        return;
+                    }
+            	    var progress=Ext.Ajax.request({
+            	        url:path + '/../application_mgmt/applicationEvaluate!replyAppEvaluate.action',
+            	        method:'POST',
+            	        params:{
+            	        	'appProductReview.id':id,
+            	        	'replyComment': replycontent
+            	        },
+            	        success:function(form,action){
+            	            var obj = Ext.decode(form.responseText);
+            	                if(obj==null || obj.success==null){
+            	                    Ext.MessageBox.show({
+            	                       title: i18n._('errorNotice'),
+            	                       msg: i18n._('returnNull'),
+            	                       buttons: Ext.MessageBox.OK,
+            	                       icon: Ext.MessageBox.ERROR
+            	                    });
+            	                    return;
+            	                }
+            	                if(!obj.success){
+            	                    Ext.MessageBox.show({
+            	                       title: i18n._('errorNotice'),
+            	                       msg: obj.resultMsg,
+            	                       buttons: Ext.MessageBox.OK,
+            	                       icon: Ext.MessageBox.ERROR
+            	                    });
+            	                    return;
+            	                }
+            	                Ext.MessageBox.show({
+            	                	title: i18n._('notice'),
+            	                    msg: '回复成功！',
+            	                    buttons: Ext.MessageBox.OK,
+            	                    icon: Ext.MessageBox.INFO,
+            	                    fn: reLoadData
+            	                });
+            	                appEvaluateReplyForm.getForm().reset();
+            	                appEvaluateReplyWin.hide();
+            	        },   
+            	        failure:function(form,action){   
+            	            Ext.MessageBox.show({
+            	                title: i18n._('errorNotice'),
+            	                msg: i18n._('operateFail'),
+            	                buttons: Ext.MessageBox.OK,
+            	                icon: Ext.MessageBox.ERROR
+            	            });  
+            	        }
+            	    });
+            	}
+          
+            	
+            	var appEvaluateReplyForm=Ext.create('Ext.form.FormPanel', {
+            	    width: '440',
+            	    height: '300',
+            	    border:false,
+            	    bodyPadding : 10,
+            	    autoScroll:true,
+            	    fieldDefaults : {
+            			labelAlign : 'right',
+            			labelWidth : 80,
+            			anchor : '100%'
+            		},  
+            	    items: [
+           	           {
+            	        fieldLabel:"回复内容",
+            	        id:'replycontent',
+            	        name:"replycontent",
+            	        width:400,
+            	        height:150,
+            	        xtype:"textarea",
+            	        maxLength:300,
+            	        allowBlank: false,
+            	        enforceMaxLength:true
+            	       },
+            	       {
+               	    	   xtype:'textfield',
+                           fieldLabel:'reviewId',
+                           style:'margin-left:30px;word-break: break-all; word-wrap:break-word;',
+                           id:'reviewId',
+                           hidden: true,
+                           hideLabel: true
+                       }],
+            	    buttons:[
+            	        {text:"回复", handler:saveAppEvaluateReply},
+            	        {text:i18n._('reset'), handler:resetReplyMethod}
+            	    ]
+            	    
+            	});
+            	var appEvaluateReplyWin = Ext.create('Ext.window.Window', {
+            		width : 440,// 400
+            		height : 300,
+            		closable : false,
+            		constrain : true,
+            		modal : true,
+            		tools : [ {
+            			type : 'close',
+            			handler : function() {
+            				appEvaluateReplyForm.getForm().reset();
+            				appEvaluateReplyWin.hide();
+            			}
+            		} ],
+            		layout : 'fit',
+            		defaults : {
+            			split : false
+            		},
+            		items : [appEvaluateReplyForm]
+            	});
+            	
+            	
+            	Ext.create('Ext.Viewport',{
+                    layout:'border',
+                    width:'100%',                   
+                    items:[
+                        {
+                            region:'center',
+                            xtype:'panel',
+                            id:'panel_one',
+                            title:i18n._('applicationManagement')+'&nbsp;&nbsp;>&nbsp;&nbsp;'+i18n._('applicationEvaluateManagement'),
+                            width:'60%',
+                            layout:'fit',
+                            autoScroll:true,
+                            items:[
+                                {
+                                    xtype:'panel',
+                                    layout:'fit',
+                                    autoScroll:true,
+                                    items:appEvaluateGrid
+                                }
+                            ]
+                        }
+                    ]//panel
+                });         
+                
+            }
+        };
+    })();
+
+    MultiLang.init();
+});
+ function getCookie(name){
+         var arr = document.cookie.match(new RegExp("(^| )"+name+"=([^;]*)(;|$)"));
+         if(arr != null) return unescape(arr[2]);
+         return null;
+ };
+ 
+</script>
+</head>
+<body>
+</body>
+</html>

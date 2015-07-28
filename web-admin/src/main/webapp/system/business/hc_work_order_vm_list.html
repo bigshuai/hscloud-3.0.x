@@ -1,0 +1,897 @@
+<html>
+<head>
+<title>hc_admin_modelmanagementPage</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel='stylesheet' type='text/css'
+    href='../../extjs-4.1.0/resources/css/ext-all-gray.css' />
+<script type='text/javascript' src='../../extjs-4.1.0/ext-all.js'></script>
+<script type="text/javascript" src="../../js/head.js"></script>
+<!--  <script src="../resources/myproject-lang.js"></script>-->
+<!--  <script src="../ext-4.0.7-gpl/ext-all-debug.js"></script>-->
+<script type="text/javascript" src="../../js/ux/data/PagingMemoryProxy.js"></script>
+<script type="text/javascript" src="../../js/ux/form/SearchField.js"></script>
+<script src="../../js/jquery-1.7.2.min.js" type="text/javascript"></script>
+<script type="text/javascript" charset="utf-8" src="../../js/i18n.js"></script>
+<script type="text/javascript" src="../systemmanagement/common.js"></script>
+
+<script>
+Ext.Loader.setConfig({enabled: true});
+//Ext.Loader.setPath('Ext.ux', '../ext-4.0.7-gpl/examples/ux');
+Ext.require([       
+    'Ext.data.*',
+    'Ext.form.*',
+    'Ext.panel.Panel',
+    'Ext.view.View',
+    'Ext.layout.container.Fit',
+    'Ext.toolbar.Paging',
+    'Ext.selection.CheckboxModel',
+    'Ext.tip.QuickTipManager',
+    'Ext.ux.data.PagingMemoryProxy',
+    'Ext.ux.form.SearchField'
+]);
+
+//var domainIdList=[];
+//var workOrderSelectValue='';
+
+//去掉字符串左边的空格 
+function ltrim(s) {
+    if (s == null) return "";
+    var whitespace = new String(" \t\n\r");
+    var str = new String(s);
+    if (whitespace.indexOf(str.charAt(0)) != -1) {
+        var j = 0, i = str.length;
+        while (j < i && whitespace.indexOf(str.charAt(j)) != -1) {
+            j++;
+        }
+        str = str.substring(j, i);
+    }
+    return str;
+}
+
+//去掉字符串右边的空格 
+function rtrim(s) {
+    if (s == null) return "";
+    var whitespace = new String(" \t\n\r");
+    var str = new String(s);
+    if (whitespace.indexOf(str.charAt(str.length - 1)) != -1) {
+        var i = str.length - 1;
+        while (i >= 0 && whitespace.indexOf(str.charAt(i)) != -1) {
+            i--;
+        }
+        str = str.substring(0, i + 1);
+    }
+    return str;
+} 
+
+
+Ext.onReady(function() {    
+    Ext.QuickTips.init();
+    MultiLang = (function() {
+        return {
+            init: function() {
+                // load ExtJS locale
+                params = getCookie("lang");
+                i18n.set({
+                  lang: params, 
+                  path: '../../resources'
+                });
+                if (params) {
+                    var url = Ext.util.Format.format('../../extjs-4.1.0/locale/ext-lang-{0}.js', params);
+                    Ext.Ajax.request({
+                        url: url,
+                        success: this.onLoadExtLocaleSuccess,
+                        failure: this.onLoadExtLocaleFailure,
+                        scope: this
+                    });
+                } else {
+                    this.setup();
+                }
+            },
+            onLoadExtLocaleSuccess: function(response) {
+                try {
+                    eval(response.responseText);
+                } catch (e) {
+                }
+                this.setup();
+            },
+            onLoadExtLocaleFailure: function() {
+                this.setup();
+            },
+            setup: function() { 
+            	var v_mask = null;
+            	//工单列表Model
+            	var workOrderModel = Ext.define('workOrderModel', {
+            		extend : 'Ext.data.Model',
+            		fields : [
+            		          'id','userid','atuomanual',{name:'createdate',type: 'date', dateFormat: 'time'},
+            		          'appornot','type','typeString','content','status','replystaffid','replystaffName','replycontent','userName'
+            		          ]
+            	});
+            	//工单列表Store
+            	var workOrderStore = Ext.create('Ext.data.Store', {
+            		model : 'workOrderModel',
+            		autoLoad : true,//true
+            		pageSize : pageSize,//每页显示16条数据
+            		sorters : [ {
+            			property : 'id',
+            			direction : 'DESC'
+            		} ],
+            		//remoteSort : true,
+            		proxy : new Ext.data.proxy.Ajax({
+            			//type : 'ajax',
+            			url : path + '/../workOrder_mgmt/workOrder!findWorkOrderPage.action',
+            			reader : {
+            				type : 'json',
+            				root : 'resultObject.result',
+            				totalProperty : 'resultObject.totalCount'
+            			},
+            			listeners:{
+            				exception:function(reader, response, error, eOpts){
+            					ajaxException(reader, response, error, eOpts );
+            				}
+            			}
+            		}),	
+            		listeners : {
+            			beforeload : function(store,operation, eOpts ){	
+            				//遮罩层
+            				v_mask = new Ext.LoadMask(Ext.getBody(), {
+            					msg : i18n._('please wait'),
+            					removeMask : true			
+            				});
+            				v_mask.show();
+            			},
+            			load : function(store, records, successful, eOpts ){
+            				v_mask.hide();
+            			}
+            		}
+            	});
+            	
+            	var imgb = new Ext.Button({  
+    		        text: '<font color="#ee7700">'+i18n._('Search')+'</font>',
+    		        icon: "images/search.png",
+    		        handler :function(btn) { 
+    		        	var proxy = workOrderStore.getProxy();
+    		        	var searchType = Ext.getCmp('searchType').getValue();
+    		        	var searchStatus = Ext.getCmp('searchStatus').getValue();
+						proxy.setExtraParam('workOrderType',searchType);
+						proxy.setExtraParam('workOrderStatus',searchStatus)
+						proxy.extraParams.start = 0;
+						workOrderStore.loadPage(1,null);
+    	            }
+    		    }); 
+            	//分页序号
+            	Ext.grid.PageRowNumberer = Ext.extend(Ext.grid.RowNumberer, { 
+            		baseCls:Ext.baseCSSPrefix + 'column-header ' + Ext.baseCSSPrefix + 'unselectable',
+            		cls:Ext.baseCSSPrefix + 'row-numberer',
+            		tdCls:Ext.baseCSSPrefix+"grid-cell-special",
+            	    renderer:function(value, cellmeta, record, rowIndex, columnIndex, store){   
+            	        return (store.currentPage - 1) * store.pageSize + rowIndex + 1;  
+            	    }       
+            	});
+            	
+            	//删除后刷新页面
+            	function afterDelete() {
+            	    var count = workOrderStore.data.length;
+            	    var total = workOrderStore.getTotalCount();
+            	    if(total != 1 && count == 1) {
+            	    	workOrderStore.previousPage();
+            	    } else {
+            	    	workOrderStore.load();
+            	    }
+            	}
+            	
+            	var states = Ext.create('Ext.data.Store', {
+            	    fields: ['id', 'name'],
+            	    proxy : new Ext.data.proxy.Ajax(
+            				{
+            					url:path+"/../workOrder_mgmt/workOrder!getWorkOrderTypes.action",
+            					reader : {
+            						type : 'json',
+            						root : 'resultObject'									
+            					},
+            					listeners:{
+            						exception:function(reader, response, error, eOpts){
+            							v_mask.hide();
+            							ajaxException(reader, response, error, eOpts );										
+            						}
+            					}							
+            				})
+            	    
+            	    
+            	});
+            	states.load();
+            	
+            	 var workOrderStatusStore = new Ext.data.JsonStore( {  
+                     fields : [ 'id', 'name' ],  
+                     data : [ {  
+                         id : '1',  
+                         name : '未回复'  
+                     }, {  
+                         id : '2',  
+                         name : '已回复'  
+                     },{
+                    	 id:'0',
+                    	 name:'已撤销'
+                     } ]  
+                 }); 
+            	/* var workOrderCombox = Ext.create('Ext.form.field.ComboBox',{
+            		multiSelect: false,
+            		fieldLabel:'工单类型',
+           		    displayField: 'name',
+           			valueField:'id',
+           		    width: 230,
+           		    editable:false,
+           		    labelWidth: 80,
+           		    store: states,
+           		 listeners:{
+           		    	select:function( combo, records, eOpts ){
+           		    		if(combo != null || combo != ""){
+           		    			workOrderSelectValue="";
+           		    			workOrderSelectValue = workOrderCombox.getValue();
+           		    		}
+           		    	}
+           		    }
+            	}); */
+            	
+            	
+            	var workOrderGrid=Ext.create('Ext.grid.Panel', {
+            	    layout:'fit',            		
+            	    store:workOrderStore,
+            		simpleSelect:true,
+            		selModel: Ext.create('Ext.selection.RowModel'),
+            	    columns: [
+								Ext.create('Ext.grid.PageRowNumberer',{flex : 0.1}),
+								{
+									header: i18n._('Id'),
+									dataIndex:'id',
+									flex:0.1,
+									hidden:true
+								},
+								{
+									header:'提交时间', //提交时间	
+									dataIndex: 'createdate',
+									flex:0.5,
+									renderer: Ext.util.Format.dateRenderer("Y-m-d H:i:s")
+								},
+								{
+									header:'工单内容', //工单内容	
+									dataIndex: 'content',
+									flex:0.3,
+									renderer :function(data, metadata, record, rowIndex, columnIndex, store){
+						    			metadata.tdAttr = 'data-qtip="' + data + '"';
+						    		    return data;							
+						    		}
+								},
+								{
+									header:'工单类型ID',//工单类型
+									dataIndex: 'type',
+									flex:0.2,
+									hidden:true
+								},
+								{
+									header:'工单类型',//工单类型
+									dataIndex: 'typeString',
+									flex:0.2,
+								
+								},
+								{
+									header:'申请人',//申请人
+									dataIndex: 'userName',
+									flex:0.3,
+								},
+								{
+									header:'回复人员ID', //内容	
+									dataIndex: 'replystaffid',
+									flex:0.8,
+									hidden:true
+								},
+								{
+									header:'回复人员名称', //内容	
+									dataIndex: 'replystaffName',
+									flex:0.8
+								},
+								{
+		            	        	header: '状态', //发布时间
+		            	        	dataIndex: 'status',
+		            	        	flex:0.4,
+		            	        	renderer:function(value){
+										if(value== '1'){
+											return "未回复";
+										}else if(value== '2'){
+											return "已回复";
+										}else{
+											return "已撤销";
+										}
+									}
+		            	        	
+		            	        },
+		            	        {
+		            	        	header: '回复信息', //修改时间
+		            	        	dataIndex: 'replycontent',
+		            	        	flex:0.4,
+		            	        	renderer :function(data, metadata, record, rowIndex, columnIndex, store){
+						    			metadata.tdAttr = 'data-qtip="' + data + '"';
+						    		    return data;							
+						    		}
+		            	        }
+            		],
+            		bbar: Ext.create('Ext.toolbar.Paging', {
+            	          store:workOrderStore,
+            	          displayInfo: true,
+            	          beforePageText:i18n._('beforePageText'),//"第"
+            	          firstText: i18n._('firstText'),//"第一页"
+            	          prevText: i18n._('prevText'),//"上一页"
+            	          nextText: i18n._('nextText'),//"下一页"
+            	          lastText: i18n._('lastText'),//"最后页"
+            	          refreshText: i18n._('refreshText')//"刷新"
+            	    }),           	
+            	    viewConfig: {
+            	    	stripeRows: true
+            	    },            		
+            		dockedItems:[
+            		{
+            			xtype:'toolbar',
+            			cls: 'toolbarCSS',
+            			dock: 'top',			
+            			items:[			
+		            			{                				   
+		            				xtype : 'button',									
+		        					text: '<font id="addWorkOrder" color="#ffffff" >' + '添加工单' + '</font>',
+		        					listeners: {
+		        						 "mouseout" : function() {
+		        							 document.getElementById("addWorkOrder").style.color = "white";
+		        						 },
+		        						 "mouseover" : function() {
+		        							 document.getElementById("addWorkOrder").style.color = "black";
+		        						 }
+		        							
+		        					},
+		        					icon : 'images/add.png',
+		            				handler:function(){
+		            					getSessionUser();
+		            					workOrderWin.setTitle("新建工单");
+		            					//workOrderCombox.reset();
+		            					workOrderWin.show();			
+		            				}            	   
+		            			},
+		            			{                				   
+		            				xtype : 'button',									
+		        					text: '<font id="modifyWorkOrder" color="#ffffff" >' + '修改工单' + '</font>',//编辑公告
+		        					listeners: {
+		        						 "mouseout" : function() {
+		        							 document.getElementById("modifyWorkOrder").style.color = "white";
+		        						 },
+		        						 "mouseover" : function() {
+		        							 document.getElementById("modifyWorkOrder").style.color = "black";
+		        						 }
+		        							
+		        					},
+		        					icon : 'images/edit.png',
+		            				handler:function(){
+		            					getSessionUser();
+		            					// 修改公告
+		        						var rows = workOrderGrid.getSelectionModel().getSelection();
+		        						var Id;
+		        						if (rows.length > 0) {
+		        							Id = rows[0].get('id');
+		        						} else {
+		        							Ext.MessageBox.show({
+		        								title : i18n._('Prompt'),
+		        								msg : i18n._('selectOne'),
+		        								icon : Ext.MessageBox.INFO,
+		        								buttons : Ext.MessageBox.OK
+		        							});
+		        							return;
+		        						}
+		        						Ext.getCmp('id').setValue(rows[0].get('id'));
+		        	            	    Ext.getCmp('content').setValue(rows[0].get('content'));
+		        	            	    //workOrderCombox.setValue(rows[0].get('type'));
+		        	            	    //workOrderSelectValue=rows[0].get('type');
+		        	            	    Ext.getCmp('workOrderTypeId').setValue(rows[0].get('type'))
+		        	            	    workOrderWin.setTitle("修改工单");
+		        	            	   // workOrderCombox.reset();
+		        	            	    workOrderWin.show();			
+		            				}            	   
+		            			},
+		            			{                				   
+		            				xtype : 'button',									
+		        					text: '<font id="delWorkOrder" color="#ffffff" >' + '删除工单' + '</font>',//发布公告
+		        					listeners: {
+		        						 "mouseout" : function() {
+		        							 document.getElementById("delWorkOrder").style.color = "white";
+		        						 },
+		        						 "mouseover" : function() {
+		        							 document.getElementById("delWorkOrder").style.color = "black";
+		        						 }
+		        							
+		        					},
+		        					icon : 'images/del.png',
+		            				handler:function(){
+		            					getSessionUser();
+		            					// 删除公告
+		        						var rows = workOrderGrid.getSelectionModel().getSelection();
+		        						var Id;
+		        						if (rows.length > 0) {
+		        							Id = rows[0].get('id');
+		        							Ext.MessageBox.show({				                  
+		        								title: i18n._('notice'),
+		        								msg:i18n._('Are you sure to delete'),
+		        								buttons: Ext.MessageBox.YESNO,
+		        								icon: Ext.MessageBox.QUESTION,
+		        								fn:function(e){
+		        									if(e=='yes'){
+		        										Ext.Ajax.request({
+		        											url: path+'/../workOrder_mgmt/workOrder!delWorkOrder.action',
+		        											method: 'POST',
+		        											params:{
+		        												'appWorkOrderVO.id':Id
+		        											},
+		        											success: function (response) {
+		        												var result=Ext.JSON.decode(response.responseText);
+		        												if(result.success==true){　　　　　　　
+		        													Ext.MessageBox.show({
+		        														title : i18n._('notice'),
+		        														msg : i18n._('Operating')+i18n._('Successful'),
+		        														icon : Ext.MessageBox.INFO,
+		        														buttons : Ext.MessageBox.OK,
+		        														fn: afterDelete
+		        													});																							
+		        												}else{
+		        													Ext.MessageBox.show({
+		        														title : i18n._('notice'),
+		        														msg : result.resultMsg,
+		        														icon : Ext.MessageBox.INFO,
+		        														buttons : Ext.MessageBox.OK
+		        													});
+		        													return;
+		        												}
+		        											//	announcementStore.load();
+		        											}
+		        										});
+		        									}
+		        								}
+		        				    		});	
+		        						} else {
+		        							Ext.MessageBox.show({
+		        								title : i18n._('Prompt'),
+		        								msg : i18n._('selectOne'),
+		        								icon : Ext.MessageBox.INFO,
+		        								buttons : Ext.MessageBox.OK
+		        							});
+		        							return;
+		        						}		
+		            				}            	   
+		            			},
+		            			{
+		            				xtype:'button',//回复
+		            			    text:'<font id="replyWorkOrder" color="white">'+"回复"+'</font>',
+		            			    listeners: {
+		            					 "mouseout" : function() {
+		            						 document.getElementById("replyWorkOrder").style.color = "white";
+		            					 },
+		            					 "mouseover" : function() {
+		            						 document.getElementById("replyWorkOrder").style.color = "black";
+		            					 }						
+		            				},
+		            			    icon:'images/toAudit.png',
+		            			    handler:function(){
+		            			    	getSessionUser();
+		            			    	// 修改公告
+		        						var rows = workOrderGrid.getSelectionModel().getSelection();
+		        						var Id;
+		        						if (rows.length > 0) {
+		        							Id = rows[0].get('id');
+		        						} else {
+		        							Ext.MessageBox.show({
+		        								title : i18n._('Prompt'),
+		        								msg : i18n._('selectOne'),
+		        								icon : Ext.MessageBox.INFO,
+		        								buttons : Ext.MessageBox.OK
+		        							});
+		        							return;
+		        						}
+		        						
+		        						 var replyStatus=rows[0].get('status');
+		        						if(replyStatus==0){
+		        							Ext.MessageBox.show({
+		        								title : i18n._('Prompt'),
+		        								msg : "该工单已经撤销，不能回复！",
+		        								icon : Ext.MessageBox.INFO,
+		        								buttons : Ext.MessageBox.OK
+		        							});
+		        							return;
+		        						}else if(replyStatus==2){
+		        							Ext.MessageBox.show({
+		        								title : i18n._('Prompt'),
+		        								msg : "该工单已经回复！",
+		        								icon : Ext.MessageBox.INFO,
+		        								buttons : Ext.MessageBox.OK
+		        							});
+		        							return;
+		        						}else{
+		        							Ext.getCmp('replyId').setValue(rows[0].get('id'));
+			        						//Ext.getCmp('replycontent').setValue(rows[0].get('replycontent'));
+			            					workOrderReplyWin.setTitle("工单回复");
+			            					workOrderReplyWin.show();
+		        						}
+		        						
+		            				}
+		            			},
+		            			{xtype:'tbfill'},
+		            			{
+									xtype:'displayfield',
+									hideLabel:true,
+									value:'<span style="bottom:3px;position:relative;"><font color="white">'+"工单类型"+':'+'</font></span>'
+								},
+		            			{ 
+		            				xtype:'combobox',                    
+		            				name:'searchType', 
+		            				id:'searchType',
+		            				store: states,         //       这里的store为combox的数据源                   
+		            				queryMode: 'local',                    
+		            				displayField: 'name',   // 显示在前台的名字                    
+		            				valueField: 'id',                // 具体的值                   
+		            				emptyText:'全部',                //为空的状态下显示的内容                    
+		            				fieldLabel:'工单类型',
+		            				hideLabel:true,
+		            			},
+		            			{
+									xtype:'displayfield',
+									hideLabel:true,
+									value:'<span style="bottom:3px;position:relative;"><font color="white">'+"工单状态"+':'+'</font></span>'
+								},
+		            			{ 
+		            				xtype:'combobox',                    
+		            				name:'searchStatus', 
+		            				id:'searchStatus', 
+		            				store: workOrderStatusStore,         //       这里的store为combox的数据源                   
+		            				queryMode: 'local',                    
+		            				displayField: 'name',   // 显示在前台的名字                    
+		            				valueField: 'id',                // 具体的值                   
+		            				emptyText:'全部',                //为空的状态下显示的内容                    
+		            				fieldLabel:'回复状态',
+		            				hideLabel:true,
+		            			},imgb
+            				]
+            		}]
+            	});
+            	function reLoadData(){
+            		workOrderStore.load();
+            	}
+            	function vd(text){
+            	    if(ltrim(rtrim(text)) == '') {
+            	        return i18n._('cannotBeNull');
+            	    } else {
+            	        return true;
+            	    }
+            	}
+            	
+            	function resetMethod() {
+            		workOrderForm.getForm().reset();
+            	}
+            	
+            	function resetReplyMethod() {
+            		workOrderReplyForm.getForm().reset();
+            	}
+            	
+            	function clickSubmit() {
+            		//var type = workOrderForm.getForm().getValues()["type"];
+            	    //var title = Ext.getCmp('title').getValue();
+            		 if(!workOrderForm.form.isValid()){
+             	    	return;
+             	    }
+            	    
+            	    var content = Ext.getCmp('content').getValue();
+            	    var id = Ext.getCmp('id').getValue();
+            	    var workOrderTypeId=Ext.getCmp('workOrderTypeId').getValue();
+            	  /*   if(!Ext.getCmp('content').isValid()){
+                        return;
+                    } */
+            	    
+            	    /* if(workOrderSelectValue == null || workOrderSelectValue == "" ){
+//             	    	alert('domainSelectValue'+domainSelectValue);
+            	    	Ext.MessageBox.show({
+            	    		titile:i18n._('errorNotice'),
+            	    		msg:"工单类型能为空！",
+            	    		buttons: Ext.MessageBox.OK,
+ 	                        icon: Ext.MessageBox.ERROR
+            	    	});
+            	    	return;
+            	    } */
+            	    
+            	    var progress=Ext.Ajax.request({
+            	        url:path+'/../workOrder_mgmt/workOrder!saveWorkOrder.action',
+            	        method:'POST',
+            	        params:{
+            	        	'appWorkOrderVO.id':id,
+            	        	'appWorkOrderVO.type': workOrderTypeId,
+            	            'appWorkOrderVO.content': content
+            	        },
+            	        success:function(form,action){
+            	            var obj = Ext.decode(form.responseText);
+            	                if(obj==null || obj.success==null){
+            	                    Ext.MessageBox.show({
+            	                       title: i18n._('errorNotice'),
+            	                       msg: i18n._('returnNull'),
+            	                       buttons: Ext.MessageBox.OK,
+            	                       icon: Ext.MessageBox.ERROR
+            	                    });//INFO,QUESTION,WARNING,ERROR
+            	                    return;
+            	                }
+            	                if(!obj.success){
+            	                    Ext.MessageBox.show({
+            	                       title: i18n._('errorNotice'),
+            	                       msg: obj.resultMsg,
+            	                       buttons: Ext.MessageBox.OK,
+            	                       icon: Ext.MessageBox.ERROR
+            	                    });
+            	                    return;
+            	                }
+            	                Ext.MessageBox.show({
+            	                	title: i18n._('notice'),
+            	                    msg: '保存工单成功！',
+            	                    buttons: Ext.MessageBox.OK,
+            	                    icon: Ext.MessageBox.INFO,
+            	                    fn: reLoadData
+            	                });
+            	                workOrderForm.getForm().reset();
+            	                workOrderWin.hide();
+            	             
+            	        },   
+            	        failure:function(form,action){   
+            	            Ext.MessageBox.show({
+            	                title: i18n._('errorNotice'),
+            	                msg: i18n._('operateFail'),
+            	                buttons: Ext.MessageBox.OK,
+            	                icon: Ext.MessageBox.ERROR
+            	            });  
+            	        }
+            	    });
+            	}
+            	
+            	//保存回复 
+            	function saveWorkOrderReply() {
+            	    var replycontent = Ext.getCmp('replycontent').getValue();
+            	    var id = Ext.getCmp('replyId').getValue();
+            	    if(!Ext.getCmp('replycontent').isValid()){
+                        return;
+                    }
+            	    var progress=Ext.Ajax.request({
+            	        url:path+'/../workOrder_mgmt/workOrder!saveWorkOrder.action',
+            	        method:'POST',
+            	        params:{
+            	        	'appWorkOrderVO.id':id,
+            	        	'appWorkOrderVO.replyContent': replycontent,
+            	            'appWorkOrderVO.status': 2,
+            	            'replyFlag':'1'
+            	        },
+            	        success:function(form,action){
+            	            var obj = Ext.decode(form.responseText);
+            	                if(obj==null || obj.success==null){
+            	                    Ext.MessageBox.show({
+            	                       title: i18n._('errorNotice'),
+            	                       msg: i18n._('returnNull'),
+            	                       buttons: Ext.MessageBox.OK,
+            	                       icon: Ext.MessageBox.ERROR
+            	                    });//INFO,QUESTION,WARNING,ERROR
+            	                    return;
+            	                }
+            	                if(!obj.success){
+            	                    Ext.MessageBox.show({
+            	                       title: i18n._('errorNotice'),
+            	                       msg: obj.resultMsg,
+            	                       buttons: Ext.MessageBox.OK,
+            	                       icon: Ext.MessageBox.ERROR
+            	                    });
+            	                    return;
+            	                }
+            	                Ext.MessageBox.show({
+            	                	title: i18n._('notice'),
+            	                    msg: '回复成功！',
+            	                    buttons: Ext.MessageBox.OK,
+            	                    icon: Ext.MessageBox.INFO,
+            	                    fn: reLoadData
+            	                });
+            	                workOrderReplyForm.getForm().reset();
+            	                workOrderReplyWin.hide();
+            	              //  announcementStore.load();
+            	        },   
+            	        failure:function(form,action){   
+            	            Ext.MessageBox.show({
+            	                title: i18n._('errorNotice'),
+            	                msg: i18n._('operateFail'),
+            	                buttons: Ext.MessageBox.OK,
+            	                icon: Ext.MessageBox.ERROR
+            	            });  
+            	        }
+            	    });
+            	}
+//             	for(var i=0;i<states.getCount();i++){
+//             		var plantformIdlist += states.getAt(i).get('value');
+//             		alert("plantformIdlist"+plantformIdlist);
+//             	}
+            	
+            	var workOrderForm=Ext.create('Ext.form.FormPanel', {
+            	    width: '440',
+            	    height: '400',
+            	    border:false,
+            	    bodyPadding : 10,
+            	    autoScroll:true,
+            	    fieldDefaults : {
+            			labelAlign : 'right',
+            			labelWidth : 80,
+            			anchor : '100%'
+            		},  
+            	    items: [
+           	          /*   {
+            	    	xtype:'panel',
+            	    	margin:'10 0 0 0',
+            	    	border:false,
+            	    	fieldLabel:'工单类型',
+            	    	width:300,
+            	    	height:30,
+            	    	layout:'hbox',
+            	    	validator : vd,
+            	    	items:[workOrderCombox]
+            	        }, */
+            	        {
+ 	           	     	   
+	           	  			fieldLabel:'工单类型',
+	           	  			name:'工单类型',
+	           	  			xtype:'combo',
+	           	  			id:'workOrderTypeId',
+	           	  			mode: 'local',
+	           	  			editable: false,
+	           	  			emptyText:'请选择',
+	           	  			displayField: 'name',
+	           	  			valueField: 'id',
+	           	  			queryMode: 'local',
+	           	  			allowBlank: false,
+	           	  			store:states
+           	  	         },
+            	        {
+            	        fieldLabel:i18n._('content'),
+            	        id:'content',
+            	        name:"content",
+            	        width:400,
+            	        height:150,
+            	        xtype:"textarea",
+            	        validator : vd,
+            	        allowBlank: false,
+            	        maxLength:300,
+            	        enforceMaxLength:true
+            	       },
+            	       {
+               	    	xtype:'textfield',
+                           fieldLabel:'id',
+                           style:'margin-left:30px;word-break: break-all; word-wrap:break-word;',
+                           id:'id',
+                           hidden: true,
+                           hideLabel: true
+                       }],
+            	    buttons:[
+            	        {text:"保存", handler:clickSubmit},
+            	        {text:i18n._('reset'), handler:resetMethod}
+            	    ]
+            	    
+            	});
+            	//所有弹出窗
+            	var workOrderWin = Ext.create('Ext.window.Window', {
+            		width : 440,// 400
+            		height : 400,
+            		closable : false,
+            		constrain : true,
+            		modal : true,
+            		tools : [ {
+            			type : 'close',
+            			handler : function() {
+            				workOrderForm.getForm().reset();
+            				workOrderWin.hide();
+            			}
+            		} ],
+            		layout : 'fit',
+            		defaults : {
+            			split : false
+            		},
+            		items : [workOrderForm]
+            	});
+            	var workOrderReplyForm=Ext.create('Ext.form.FormPanel', {
+            	    width: '440',
+            	    height: '300',
+            	    border:false,
+            	    bodyPadding : 10,
+            	    autoScroll:true,
+            	    fieldDefaults : {
+            			labelAlign : 'right',
+            			labelWidth : 80,
+            			anchor : '100%'
+            		},  
+            	    items: [
+           	           {
+            	        fieldLabel:"回复内容",
+            	        id:'replycontent',
+            	        name:"replycontent",
+            	        width:400,
+            	        height:150,
+            	        xtype:"textarea",
+            	       // validator : vd,
+            	        allowBlank: false,
+            	        maxLength:300,
+            	        enforceMaxLength:true
+            	       },
+            	       {
+               	    	xtype:'textfield',
+                           fieldLabel:'replyId',
+                           style:'margin-left:30px;word-break: break-all; word-wrap:break-word;',
+                           id:'replyId',
+                           hidden: true,
+                           hideLabel: true
+                       }],
+            	    buttons:[
+            	        {text:"回复", handler:saveWorkOrderReply},
+            	        {text:i18n._('reset'), handler:resetReplyMethod}
+            	    ]
+            	    
+            	});
+            	var workOrderReplyWin = Ext.create('Ext.window.Window', {
+            		width : 440,// 400
+            		height : 300,
+            		closable : false,
+            		constrain : true,
+            		modal : true,
+            		tools : [ {
+            			type : 'close',
+            			handler : function() {
+            				workOrderReplyForm.getForm().reset();
+            				workOrderReplyWin.hide();
+            			}
+            		} ],
+            		layout : 'fit',
+            		defaults : {
+            			split : false
+            		},
+            		items : [workOrderReplyForm]
+            	});
+            	
+            	
+            	Ext.create('Ext.Viewport',{//Ext.Viewport
+                    layout:'border',
+                    width:'100%',                   
+                    items:[
+                        {
+                            region:'center',
+                            xtype:'panel',
+                            id:'panel_one',
+                            title:i18n._('BusinessManagement')+'&nbsp;&nbsp;>&nbsp;&nbsp;'+i18n._('WorkOrderManagement'),
+                            width:'60%',
+                            layout:'fit',
+                            autoScroll:true,
+                            items:[
+                                {
+                                    xtype:'panel',
+                                    layout:'fit',
+                                    autoScroll:true,
+                                    items:workOrderGrid
+                                }
+                            ]
+                        }
+                    ]//panel
+                });         
+                
+            }
+        };
+    })();
+
+    MultiLang.init();
+});
+ function getCookie(name){
+         var arr = document.cookie.match(new RegExp("(^| )"+name+"=([^;]*)(;|$)"));
+         if(arr != null) return unescape(arr[2]);
+         return null;
+ };
+ 
+</script>
+</head>
+<body>
+</body>
+</html>

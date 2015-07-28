@@ -1,0 +1,411 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link rel="shortcut icon" href="../images/favicon.ico" >
+<link rel="stylesheet" href="icp.css" type="text/css" />
+<link rel="stylesheet" href="../css/shared.css" type="text/css" />
+<link rel="stylesheet" href="../css/ui-lightness/jquery-ui-1.8.23.custom.css">
+<script type="text/javascript"  src="../js/jquery.js"></script>
+<script type="text/javascript"  src="../js/jquery.cookie.js"></script>
+<script type="text/javascript"  src="../js/pagination.js"></script>
+<script type="text/javascript"  src="../js/shared.js"></script>
+<script type="text/javascript"  src="../js/jquery-ui-1.8.23.custom.min.js"></script>
+<script type="text/javascript"  src="../js/config.js"></script>
+<script type="text/javascript" >
+    document.write("<" + "script " + "language=\"javaScript\" src=\"../resources/" + i18n.checkLocale() + ".js\" " + ">" + "<" + "/" + "script" + ">");
+</script>
+<script type="text/javascript"  src="icp.js"></script>
+<style type="text/css">
+.formTableId1{
+    border-top:1px #d7d7d7 solid;
+    border-left:1px #d7d7d7 solid;
+    border-right:1px #d7d7d7 solid;
+    width: 100%;
+    font-family: "宋体";
+	font-size: 12px;
+}
+.formTableId2{
+    border-left:1px #d7d7d7 solid;
+    border-right:1px #d7d7d7 solid;
+    width: 100%;
+	font-family: "宋体";
+	font-size: 12px;
+}
+.formTableId1 td{
+    border-bottom:1px #d7d7d7 solid;
+    height: 36px; 
+    padding: 0px 20px 0px 0px; 
+}
+.formTableId2 td{
+    border-bottom:1px #d7d7d7 solid;
+    height: 36px; 
+    padding: 0px 20px 0px 0px; 
+}
+</style>
+
+</head>
+<body>
+<form>
+	<table id="textEditTable" >		
+		<tr>
+			<td colspan="2" align="right" bgcolor="#f6f6f6" scope="row" id="icpTdId">
+				<table  class="formTableId1">
+					<tr >
+						<td width="240px"
+							align="right" bgcolor="#F6F6F6" scope="col">
+							<font color="red">*</font>
+							<font color="#646464">域名：</font>
+						</td>
+						<td width="220px" style="padding: 0px 0px 0px 20px;" width="30" bgcolor="#FFFFFF"
+							align="left" valign="middle" scope="col">
+								<input type="text" name="domain" id="domain" onblur="checkDomain();"/>
+						</td>
+						<td bgcolor="#FFFFFF" colspan="2">
+						  <img alt="" src="../images/error.png" id="domainMsg" title="" style="display:none;">&nbsp;
+						</td>	
+					</tr>
+					<tr>
+                        <td align="right" bgcolor="#F6F6F6" scope="col">
+                            <font color="red">*</font>
+                            <font color="#646464">IP地址：</font>
+                        </td>
+                        <td style="padding: 0px 0px 0px 20px;" bgcolor="#FFFFFF"
+                            align="left" valign="middle" scope="col">
+                                <select name="ip" id="ip" style="width: 180px" onblur="checkIp();">
+                                </select>
+                        </td>
+                        <td bgcolor="#FFFFFF" colspan="2">
+                          <img alt="" src="" id="ipMsg" title="" style="display:none;">&nbsp;
+                        </td>  
+                    </tr>
+                    <tr>
+                        <td align="right" bgcolor="#F6F6F6" scope="col">
+                            <font color="red">*</font>
+                            <font color="#646464">是否注册过备案用户：</font>
+                        </td>
+                        <td style="padding: 0px 0px 0px 20px;" bgcolor="#FFFFFF"
+                            align="left" valign="middle" scope="col">
+                                <input type="radio" name="registered" value="1" onclick="registeredClick();" checked>是
+                                <input type="radio" name="registered" value="0" onclick="registeredClick();">否
+                        </td>
+                        <td bgcolor="#FFFFFF" width="25px">
+                            &nbsp;
+                        </td>
+                        <td bgcolor="#FFFFFF">
+                            <div id="registeredMsgDivId">
+此选项为已与息壤合作并有登陆账户的代理商勾选。<br/>选择此项目后需回到会员中心xrnet.cn登录提交备案，但终端用户无法查看备案信息。
+                            </div>
+                            <div id="unRegisteredMsgDivId" style="display:none">
+此选项为终端用户填写备案信息使用。<br/>选择此项并填写相关信息后，会在备案中心icp.xrnet.cn中自动注册，登陆后可提交备案信息，但代理商后台不显示备案信息。
+                            </div>
+                        </td>  
+                    </tr>
+                    <tr>
+                        <td
+                            align="right" bgcolor="#F6F6F6" scope="col">
+                            <font color="red">*</font>
+                            <font color="#646464">登录邮箱：</font>
+                        </td>
+                        <td style="padding: 0px 0px 0px 20px;" bgcolor="#FFFFFF"
+                            align="left" valign="middle" scope="col">
+                                <input type="text" name="memberLogin" id="memberLogin" onblur="checkMemberLogin();"/>
+                        </td>
+                        <td bgcolor="#FFFFFF" colspan="2">
+                          <img alt="" src="" id="memberLoginMsg" title="" style="display:none;">&nbsp;
+                        </td>  
+                    </tr>
+                    <tr>
+                        <td
+                            align="right" bgcolor="#F6F6F6" scope="col">
+                            <font color="red">*</font>
+                            <font color="#646464">登录密码：</font>
+                        </td>
+                        <td style="padding: 0px 0px 0px 20px;" bgcolor="#FFFFFF"
+                            align="left" valign="middle" scope="col">
+                                <input type="password" name="memberPwd" id="memberPwd" onblur="checkMemberPwd();"/>
+                        </td>
+                        <td bgcolor="#FFFFFF" colspan="2">
+                          <img alt="" src="" id="memberPwdMsg" title="" style="display:none;">&nbsp;
+                        </td> 
+                    </tr>
+                    <tr id="confirmTrId">
+                        <td
+                            align="right" bgcolor="#F6F6F6" scope="col">
+                            <font color="red">*</font>
+                            <font color="#646464">确认密码：</font>
+                        </td>
+                        <td style="padding: 0px 0px 0px 20px;" bgcolor="#FFFFFF"
+                            align="left" valign="middle" scope="col">
+                                <input type="password" name="rePwd" id="rePwd" onblur="checkRePwd();"/>
+                        </td>
+                        <td bgcolor="#FFFFFF" colspan="2">
+                          <img alt="" src="" id="rePwdMsg" title="" style="display:none;">&nbsp;
+                        </td>  
+                    </tr>
+                    <tr>
+                        <td
+                            align="right" bgcolor="#F6F6F6" scope="col">
+                            <font color="red">*</font>
+                            <font color="#646464">会员类别：</font>
+                        </td>
+                        <td style="padding: 0px 0px 0px 20px;" bgcolor="#FFFFFF"
+                            align="left" valign="middle" scope="col">
+                                <input type="radio" name="memberType" value="1" checked>企业
+                                <input type="radio" name="memberType" value="2">个人
+                        </td>
+                        <td bgcolor="#FFFFFF" colspan="2">
+                            &nbsp;
+                        </td>  
+                    </tr>
+                </table>
+                <table  class="formTableId2" >
+                    <tr>
+                        <td width="240px"
+                            align="right" bgcolor="#F6F6F6" scope="col">
+                            <font color="red">*</font>
+                            <font color="#646464">公司名称/姓名：</font>
+                        </td>
+                        <td width="220px" style="padding: 0px 0px 0px 20px;" bgcolor="#FFFFFF"
+                            align="left" valign="middle" scope="col">
+                                <input type="text" name="name" id="name" onblur="checkName();"/>
+                        </td>
+                        <td bgcolor="#FFFFFF" colspan="2">
+                            <img alt="" src="" id="nameMsg" title="" style="display:none;">&nbsp;
+                        </td> 
+                    </tr>
+                    <tr>
+                        <td
+                            align="right" bgcolor="#F6F6F6" scope="col">
+                            <font color="#646464">组织机构代码证：</font>
+                        </td>
+                        <td style="padding: 0px 0px 0px 20px;" bgcolor="#FFFFFF"
+                            align="left" valign="middle" scope="col">
+                                <input type="text" name="orgcertId" id="orgcertId" onblur="checkOrgcertId();"/>
+                        </td>
+                        <td bgcolor="#FFFFFF" colspan="2">
+                            <img alt="" src="" id="orgcertIdMsg" title="" style="display:none;">&nbsp;
+                        </td> 
+                    </tr>
+                    <tr>
+                        <td
+                            align="right" bgcolor="#F6F6F6" scope="col">
+                            <font color="#646464">ICP证号：</font>
+                        </td>
+                        <td style="padding: 0px 0px 0px 20px;" bgcolor="#FFFFFF"
+                            align="left" valign="middle" scope="col">
+                                <input type="text" name="icpcertId" id="icpcertId" onblur="checkIcpcertId();"/>
+                        </td>
+                        <td bgcolor="#FFFFFF" width="25px">
+                            <img alt="" src="" id="icpcertIdMsg" title="" style="display:none;">&nbsp;
+                        </td> 
+                        <td bgcolor="#FFFFFF">
+                            ICP证号在没有备案的情况下请随意填写。
+                        </td> 
+                    </tr>
+                    <tr>
+                        <td
+                            align="right" bgcolor="#F6F6F6" scope="col">
+                            <font color="#646464">（ICP）网址：</font>
+                        </td>
+                        <td style="padding: 0px 0px 0px 20px;" bgcolor="#FFFFFF"
+                            align="left" valign="middle" scope="col">
+                                <input type="text" name="icpUrl" id="icpUrl" onblur="checkIcpUrl();"/>
+                        </td>
+                        <td bgcolor="#FFFFFF" colspan="2">
+                            <img alt="" src="" id="icpUrlMsg" title="" style="display:none;">&nbsp;
+                        </td>
+                    </tr>
+                    <tr>
+                        <td
+                            align="right" bgcolor="#F6F6F6" scope="col">
+                            <font color="#646464">（ICP）网站名称：</font>
+                        </td>
+                        <td style="padding: 0px 0px 0px 20px;" bgcolor="#FFFFFF"
+                            align="left" valign="middle" scope="col">
+                                <input type="text" name="icpwebTitle" id="icpwebTitle" onblur="checkIcpwebTitle();"/>
+                        </td>
+                        <td bgcolor="#FFFFFF" colspan="2">
+                            <img alt="" src="" id="icpwebTitleMsg" title="" style="display:none;">&nbsp;
+                        </td>
+                    </tr>
+                    <tr>
+                        <td
+                            align="right" bgcolor="#F6F6F6" scope="col">
+                            <font color="red">*</font>
+                            <font color="#646464">联系人姓名：</font>
+                        </td>
+                        <td style="padding: 0px 0px 0px 20px;" bgcolor="#FFFFFF"
+                            align="left" valign="middle" scope="col">
+                                <input type="text" name="contactName" id="contactName" onblur="checkContactName();"/>
+                        </td>
+                        <td bgcolor="#FFFFFF" colspan="2">
+                            <img alt="" src="" id="contactNameMsg" title="" style="display:none;">&nbsp;
+                        </td>  
+                    </tr>
+                    <tr>
+                        <td
+                            align="right" bgcolor="#F6F6F6" scope="col">
+                            <font color="red">*</font>
+                            <font color="#646464">身份证件类型：</font>
+                        </td>
+                        <td style="padding: 0px 0px 0px 20px;" bgcolor="#FFFFFF"
+                            align="left" valign="middle" scope="col">
+                                <select id="idType" name="idType" style="width: 180px">
+                                    <option value="1">身份证</option>
+                                    <option value="2">护照</option>
+                                    <option value="3">学生证</option>
+                                    <option value="4">军官证</option>
+                                </select>
+                        </td>
+                        <td bgcolor="#FFFFFF" colspan="2">
+                            &nbsp;
+                        </td>  
+                    </tr>
+                    <tr>
+                        <td
+                            align="right" bgcolor="#F6F6F6" scope="col">
+                            <font color="red">*</font>
+                            <font color="#646464">身份证件号码：</font>
+                        </td>
+                        <td style="padding: 0px 0px 0px 20px;" bgcolor="#FFFFFF"
+                            align="left" valign="middle" scope="col">
+                                <input type="text" name="idNumber" id="idNumber" onblur="checkIdNumber();"/>
+                        </td>
+                        <td bgcolor="#FFFFFF" colspan="2">
+                            <img alt="" src="" id="idNumberMsg" title="" style="display:none;">&nbsp;
+                        </td> 
+                    </tr>
+                    <tr>
+                        <td
+                            align="right" bgcolor="#F6F6F6" scope="col">
+                            <font color="#646464">国家：</font>
+                        </td>
+                        <td style="padding: 0px 0px 0px 20px;" bgcolor="#FFFFFF"
+                            align="left" valign="middle" scope="col">
+                                <select id="country" name="country" style="width: 180px">
+                                    <option value="CN">中国</option>
+                                </select>
+                        </td>
+                        <td bgcolor="#FFFFFF" colspan="2">
+                            &nbsp;
+                        </td>  
+                    </tr>
+                    
+                    <tr>
+                        <td
+                            align="right" bgcolor="#F6F6F6" scope="col">
+                            <font color="#646464">省份：</font>
+                        </td>
+                        <td style="padding: 0px 0px 0px 20px;" bgcolor="#FFFFFF"
+                            align="left" valign="middle" scope="col">
+                                <select id="province" name="province" style="width: 180px" onchange="changeProvince(this);"></select>
+                        </td>
+                        <td bgcolor="#FFFFFF" colspan="2">
+                            <img alt="" src="" id="provinceMsg" title="" style="display:none;">&nbsp;
+                        </td> 
+                    </tr>
+                    <tr>
+                        <td
+                            align="right" bgcolor="#F6F6F6" scope="col">
+                            <font color="#646464">详细城市：</font>
+                        </td>
+                        <td style="padding: 0px 0px 0px 20px;" bgcolor="#FFFFFF"
+                            align="left" valign="middle" scope="col">
+                                <select id="city" name="city" style="width: 180px"></select>
+                        </td>
+                        <td bgcolor="#FFFFFF" colspan="2">
+                            <img alt="" src="" id="cityMsg" title="" style="display:none;">&nbsp;
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align="right" bgcolor="#F6F6F6" scope="col">
+                            <font color="red">*</font>
+                            <font color="#646464">地址：</font>
+                        </td>
+                        <td style="padding: 0px 0px 0px 20px;" bgcolor="#FFFFFF"
+                            align="left" valign="middle" scope="col">
+                                <input type="text" name="address" id="address" onblur="checkAddress();"/>
+                        </td>
+                        <td bgcolor="#FFFFFF" colspan="2">
+                            <img alt="" src="" id="addressMsg" title="" style="display:none;">&nbsp;
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align="right" bgcolor="#F6F6F6" scope="col">
+                            <font color="red">*</font>
+                            <font color="#646464">邮政编码：</font>
+                        </td>
+                        <td style="padding: 0px 0px 0px 20px;" bgcolor="#FFFFFF"
+                            align="left" valign="middle" scope="col">
+                                <input type="text" name="postcode" id="postcode" onblur="checkPostcode();"/>
+                        </td>
+                        <td bgcolor="#FFFFFF" colspan="2">
+                            <img alt="" src="" id="postcodeMsg" title="" style="display:none;">&nbsp;
+                        </td> 
+                    </tr>
+                    <tr>
+                        <td align="right" bgcolor="#F6F6F6" scope="col">
+                            <font color="red">*</font>
+                            <font color="#646464">电话：</font>
+                        </td>
+                        <td style="padding: 0px 0px 0px 20px;" bgcolor="#FFFFFF"
+                            align="left" valign="middle" scope="col">
+                                <input type="text" name="telno" id="telno" onblur="checkTelno();"/>
+                        </td>
+                        <td bgcolor="#FFFFFF" colspan="2">
+                            <img alt="" src="" id="telnoMsg" title="" style="display:none;">&nbsp;
+                        </td>
+                    </tr>
+                    <tr>
+                        <td
+                            align="right" bgcolor="#F6F6F6" scope="col">
+                            <font color="red">*</font>
+                            <font color="#646464">手机号：</font>
+                        </td>
+                        <td style="padding: 0px 0px 0px 20px; " bgcolor="#FFFFFF"
+                            align="left" valign="middle" scope="col">
+                                <input type="text" name="mobile" id="mobile" onblur="checkMobile();"/>
+                        </td>
+                        <td bgcolor="#FFFFFF" colspan="2">
+                            <img alt="" src="" id="mobileMsg" title="" style="display:none;">&nbsp;
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align="right" bgcolor="#F6F6F6" scope="col">
+                            <font color="#646464">Email地址：</font>
+                        </td>
+                        <td style="padding: 0px 0px 0px 20px;" bgcolor="#FFFFFF"
+                            align="left" valign="middle" scope="col">
+                                <input type="text" name="email" id="email" onblur="checkEmail();"/>
+                        </td>
+                        <td bgcolor="#FFFFFF" colspan="2">
+                            <img alt="" src="" id="emailMsg" title="" style="display:none;">&nbsp;
+                        </td>
+                    </tr>
+				</table>
+			</td>
+		</tr>
+		<tr>
+		  <td id="noIP" style="display:none">
+		      当前虚拟机为试用虚拟机或无公网IP，无法备案！
+		  </td>
+		</tr>
+	</table>
+	<div id="buttonDivId" style="height: 30px;margin-left:200px;padding-bottom:10px;">
+		<div class="button_b" onclick="submitClick();">提交</div>
+		<div class="button_b" onclick="resetForm();">重置</div>
+	   <!-- <img style="cursor:pointer " src="../images/submit.png" width="111" height="32" onclick="submitClick();"/> -->
+	   <!-- &nbsp;&nbsp; -->
+	   <!-- <img style="cursor:pointer " src="../images/reset.png" width="111" height="32" onclick="resetForm();"/> -->
+	</div>
+	<!-- jquery统一alert提示框所需 -->
+    <div id="dialog-alert" style="display: none">
+        <p>
+            <span class="ui-icon ui-icon-alert"
+                style="float: left; margin: 0 7px 20px 0;"></span>
+            <span id="dialog-message-alert"></span> 
+        </p>
+    </div>
+</form>
+</body>
+</html>

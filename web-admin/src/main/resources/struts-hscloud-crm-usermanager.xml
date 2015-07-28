@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE struts PUBLIC
+    "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+    "http://struts.apache.org/dtds/struts-2.0.dtd">
+
+<struts>
+	<package name="hicloud-adminmanager" extends="hscloud-default"
+		namespace="/admin_mgmt">
+
+		<interceptors>
+			<interceptor-stack name="usermanagerStack">
+				<interceptor-ref name="hscloudStack" />
+				<interceptor-ref name="author">
+			         <param name="excludeMethods">adminLoginByEmail,getSessionUser,logout</param>
+				</interceptor-ref>
+			</interceptor-stack>
+		</interceptors>
+		<global-results>
+			<result name="login" type="redirect">/index.html</result>
+		</global-results>
+	    <action name="userManagement" class="com.hisoft.hscloud.web.action.UserManagementAction">
+	    </action>
+	    <action name="adminManagement" class="com.hisoft.hscloud.web.action.AdminManagementAction">
+	    </action>
+	    <action name="basicData" class="com.hisoft.hscloud.web.action.BasicDataAction">
+	    </action>	
+        <!-- 角色action -->
+        <action name="role" class="com.hisoft.hscloud.web.action.RoleAction">
+        </action>
+        <action name="domain" class="com.hisoft.hscloud.web.action.DomainAction">
+        </action>
+        <!-- 菜单action -->
+        <action name="menu" class="com.hisoft.hscloud.web.action.RoleAction">
+            <interceptor-ref name="usermanagerStack"/>
+        </action>
+        <action name="accessAccount" class="com.hisoft.hscloud.web.action.AccessAccountAction">
+        </action>
+	</package>
+</struts>

@@ -1,0 +1,74 @@
+body {
+	background: #ffffff;
+	color: #444;
+}
+
+a {
+	color: #09d;
+	text-decoration: none;
+	border: 0;
+	background-color: transparent;
+}
+
+body,div,q,iframe,form,h5 {
+	margin: 0;
+	padding: 0;
+}
+
+img,fieldset {
+	border: none 0;
+}
+
+body,td,textarea {
+	word-break: break-all;
+	word-wrap: break-word;
+	line-height: 1.5;
+}
+
+body,input,textarea,select,button {
+	margin: 0;
+	font-size: 12px;
+	font-family: Tahoma, SimSun, sans-serif;
+}
+
+div,p,table,th,td {
+	font-size: 1em;
+	font-family: inherit;
+	line-height: inherit;
+}
+
+h5 {
+	font-size: 12px;
+}
+
+.dialogButton1 {
+	background: none repeat scroll 0 0 #EAEAEA;
+	border: 1px solid #5A87D3;
+	color: #000000;
+	cursor: pointer;
+	font-family: "Microsoft yahei", arial;
+	font-size: 12px;
+	height: 22px;
+/* 	line-height: 22px; */
+	margin-left: 10px;
+	outline: medium none;
+	padding: 0 12px;
+}
+
+.dialogButton2 {
+	background: none repeat scroll 0 0 #EAEAEA;
+	border: 1px solid #ACACAC;
+	color: #000000;
+	cursor: pointer;
+	font-family: "Microsoft yahei", arial;
+	font-size: 12px;
+	height: 22px;
+/* 	line-height: 22px; */
+	margin-left: 10px;
+	outline: medium none;
+	padding: 0 12px;
+}
+
+.dialogButton1:hover,.dialogButton2:hover {
+	background: none repeat scroll 0 0 #E0EFFC;
+}

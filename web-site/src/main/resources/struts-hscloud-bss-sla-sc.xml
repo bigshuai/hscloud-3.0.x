@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE struts PUBLIC
+    "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+    "http://struts.apache.org/dtds/struts-2.0.dtd">
+
+<struts>
+	<constant name="struts.objectFactory" value="spring" />
+	<package name="hicloud-serviceCatalog" extends="hscloud-default"
+		namespace="/sc">
+		<action name="sc" class="com.hisoft.hscloud.web.action.ServiceCatalogAction">
+		</action>
+		<action name="si" class="com.hisoft.hscloud.web.action.WebSiteAction">
+		</action>
+		<action name="zoneGroup" class="com.hisoft.hscloud.web.action.ZoneGroupAction">
+		</action>
+		<action name="serviceItem" class="com.hisoft.hscloud.web.action.ServiceItemAction">
+		</action>
+	</package>
+	
+</struts>

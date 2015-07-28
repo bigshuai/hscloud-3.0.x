@@ -1,0 +1,565 @@
+<html>
+<head>
+<title>hc_admin_modelmanagementPage</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel='stylesheet' type='text/css'
+    href='../../extjs-4.1.0/resources/css/ext-all-gray.css' />
+<script type='text/javascript' src='../../extjs-4.1.0/ext-all.js'></script>
+<script type="text/javascript" src="../../js/head.js"></script>
+<script type="text/javascript" src="../../js/ux/data/PagingMemoryProxy.js"></script>
+<script type="text/javascript" src="../../js/ux/form/SearchField.js"></script>
+<script src="../../js/jquery-1.7.2.min.js" type="text/javascript"></script>
+<script type="text/javascript" charset="utf-8" src="../../js/i18n.js"></script>
+<script>
+Ext.Loader.setConfig({enabled: true});
+Ext.require([       
+             'Ext.data.*',
+             'Ext.form.*',
+             'Ext.panel.Panel',
+             'Ext.view.View',
+             'Ext.layout.container.Fit',
+             'Ext.toolbar.Paging',
+             'Ext.selection.CheckboxModel',
+             'Ext.tip.QuickTipManager',
+             'Ext.ux.data.PagingMemoryProxy',
+             'Ext.ux.form.SearchField'
+         ]);
+var recordNode;
+//去掉字符串左边的空格 
+function ltrim(s) {
+    if (s == null) return "";
+    var whitespace = new String(" \t\n\r");
+    var str = new String(s);
+    if (whitespace.indexOf(str.charAt(0)) != -1) {
+        var j = 0, i = str.length;
+        while (j < i && whitespace.indexOf(str.charAt(j)) != -1) {
+            j++;
+        }
+        str = str.substring(j, i);
+    }
+    return str;
+}
+
+//去掉字符串右边的空格 
+function rtrim(s) {
+    if (s == null) return "";
+    var whitespace = new String(" \t\n\r");
+    var str = new String(s);
+    if (whitespace.indexOf(str.charAt(str.length - 1)) != -1) {
+        var i = str.length - 1;
+        while (i >= 0 && whitespace.indexOf(str.charAt(i)) != -1) {
+            i--;
+        }
+        str = str.substring(0, i + 1);
+    }
+    return str;
+} 
+Ext.onReady(function() {    
+    Ext.QuickTips.init();
+    MultiLang = (function() {
+        return {
+            init: function() {
+                params = getCookie("lang");
+                i18n.set({
+                  lang: params, 
+                  path: '../../resources'
+                });
+                if (params) {
+                    var url = Ext.util.Format.format('../../extjs-4.1.0/locale/ext-lang-{0}.js', params);
+                    Ext.Ajax.request({
+                        url: url,
+                        success: this.onLoadExtLocaleSuccess,
+                        failure: this.onLoadExtLocaleFailure,
+                        scope: this
+                    });
+                } else {
+                    this.setup();
+                }
+            },
+            onLoadExtLocaleSuccess: function(response) {
+                try {
+                    eval(response.responseText);
+                } catch (e) {
+                   
+                }
+               
+                this.setup();
+            },
+            onLoadExtLocaleFailure: function() {
+              
+                this.setup();
+            },
+            setup: function() { 
+          
+    var menuTreeStore = Ext.create('Ext.data.TreeStore', {
+	autoLoad : false,//true
+	proxy: {
+		type: 'ajax',
+		url: path+'/../application_mgmt/application!getApplicationMenuByPid.action'
+	},
+	listeners:{		
+		beforeexpand:function(node, eOpts ){
+			if(node.isRoot()){
+				menuTreeStore.setProxy({
+					type: 'ajax',
+					
+					url: path+'/../application_mgmt/application!getApplicationMenuByPid.action'
+				});
+				
+				this.proxy.setExtraParam('nodeId',0) ;
+			}else if(node.isLeaf()==false){
+				menuTreeStore.setProxy({
+					type: 'ajax',
+				    
+					url: path+'/../application_mgmt/application!getNodeTree.action'
+				});
+				
+				this.proxy.setExtraParam('nodeId',node.getId()) ;
+			}			
+		}
+	}
+  });
+var applicationManegementTree=Ext.create('Ext.tree.Panel',{	
+	border:false,
+	useArrows:true,
+	autoScroll:true,
+	store: menuTreeStore,
+	//bodyStyle:'background:#1E7E39;',
+	rootVisible: true,
+	root: {
+		id:0,
+		text:'root',
+		icon:'images/overAll.png',
+        expanded: true        
+     },
+	listeners:{
+		    /* 'itemclick' : function(view, record, items, index, e) {  
+			               // alert(items);  
+			                if (record.get('leaf') == false) {  
+			                    return;  
+			                } else {  
+			                    Ext.MessageBox.show({  
+			                                title : '节点操作',  
+			                                msg : 'itemclick：index=' + index + ",text="  
+			                                        + record.data.text,  
+			                                icon : Ext.MessageBox.INFO  
+			                            });  
+			                }  
+			            },  */
+			            
+			            'itemcontextmenu' : function(menutree, record, items, index, e) {  
+			            	                e.preventDefault();  
+			            	                e.stopEvent();  
+			            	                var obj = record;  
+			            	                var nodemenu = new Ext.menu.Menu({  
+			            	                        floating : true,  
+			            	                        items : [{  
+			            	                            text : "添加文件夹",  
+			            	                            handler : function() {  
+			            	                                if (record.get('leaf') == false) {  
+			            	                                    /* Ext.MessageBox.prompt("标题", "請輸入",  
+			            	                                            function(btn, text) {  
+			            	                                                if (btn == "ok") {
+			            	                                                	
+			            	                                                	saveMenu(text,1,0,1);//第一个参数text 代表name,第二个参数1代表1级菜单，第三个参数0代表pid,第四个参数1代表云商城
+			            	                                                                record.appendChild({  
+			            	                                                                text : text,  
+			            	                                                                id : new Date()  
+			            	                                                                        .getTime(),  
+			            	                                                                expanded : true  
+			            	                                                            });  
+			            	                                                }  
+			            	                                            }, this, false, // 表示文本框为多行文本框  
+			            	                                            "新添加文件夹"); */
+			            		        	            	    Ext.getCmp('pid').setValue(0);//代表pid 父id
+			            	                                    Ext.getCmp('level').setValue(1);//代表一级菜单
+			            	                                    Ext.getCmp('type').setValue(1);//代表云商城
+			            	                                    Ext.getCmp('oper').setValue('newFolder');//代表新建文件夹
+			            		        	            	    applicationMenuWin.setTitle("新建文件夹");
+			            		        	            	    applicationMenuWin.show();
+			            		        	            	    recordNode=record;
+			            	                                }  
+			            	                            },  
+			            	                            listeners : {  
+			            	                                render : function(com) {  
+			            	                                	if(record.isRoot()){
+			            	                                		 com.setVisible(true);
+			            	                                	}else{
+			            	                                		com.setVisible(false);
+			            	                                	}  
+					            	                               
+			            	                                }  
+			            	                            }  
+			            	                        }, {  
+			            	                            text : "添加子节点",  
+			            	                            handler : function() {  
+			            	                               /*  Ext.MessageBox.prompt("标题", "請輸入",  
+			            	                                        function(btn, text) {  
+			            	                                            if (btn == "ok") {  
+			            	                                                record.appendChild({  
+			            	                                                            text : text,  
+			            	                                                            id : new Date()  
+			            	                                                                    .getTime(),  
+			            	                                                            expanded : true,  
+			            	                                                            leaf : true  
+			            	                                                        });  
+			            	                                            }  
+			            	                                        }, this, false, // 表示文本框为多行文本框  
+			            	                                        "新添加子节点");   */
+			            	                            	Ext.getCmp('pid').setValue(obj.getId());//代表pid 父id
+		            	                                    Ext.getCmp('level').setValue(2);//代表二级菜单
+		            	                                    Ext.getCmp('type').setValue(1);//代表云商城
+		            	                                    Ext.getCmp('oper').setValue('newNode');//代表新建子节点
+		            		        	            	    applicationMenuWin.setTitle("新建节点");
+		            		        	            	    applicationMenuWin.show();
+		            		        	            	    recordNode=record;
+			            	                            },  
+			            	                        listeners : {  
+			            	                            render : function(com) {  
+			            	                                if(record.isRoot()||record.get('leaf') == true)  
+			            	                                com.setVisible(false);  
+			            	                            }  
+			            	                        }  
+			            	                       }, /* {  
+			            	                            text : "编辑",  
+			            	                            // icon:'images/leaf.gif',  
+			            	                            // iconCls:'leaf',  
+			            	                            handler : function() {  
+			            	                            // Ext.MessageBox.prompt("标题", "請輸入",  
+			            	                                       // function(btn, text) {  
+			            	                                        //    if (btn == "ok") {  
+			            	                                          //      record.data.text= text;  
+			                                                          //            
+			            	                                          /  }  
+			            	                                       // }, this, false, // 表示文本框为多行文本框  
+			            	                                       // record.data.text);
+			            	                            	Ext.getCmp('id').setValue(obj.getId());//代表pid 父id
+			            	                            	//Ext.getCmp('name').setValue(obj.data.text);//代表pid 父id
+		            	                                    Ext.getCmp('oper').setValue('editNode');//代表新建子节点
+		            		        	            	    applicationMenuWin.setTitle("编辑节点");
+		            		        	            	    applicationMenuWin.show();
+		            		        	            	    recordNode=record;
+			            	                            },
+			            	                            listeners : {  
+				            	                            render : function(com) {  
+				            	                                if(record.isRoot())  
+				            	                                com.setVisible(false);  
+				            	                            }  
+				            	                        } 
+			            	                        }, */ {  
+			            	                            text : "删除",  
+			            	                            handler : function() {
+			            	                              //record.remove(record);  
+			            	                            	recordNode=record;
+			            	                            	delMenu(obj.getId());
+			            	                            },
+				            	                        listeners : {  
+				            	                            render : function(com) {  
+				            	                                if(record.isRoot())  
+				            	                                com.setVisible(false);  
+				            	                            }  
+				            	                        }
+			            	                        }]  
+			            	                    });  
+			            	                    nodemenu.showAt(e.getXY());  
+			            	                //}  
+			            	  
+			            	            }
+		   }
+	
+});	
+
+
+
+ var applicationMenuForm=Ext.create('Ext.form.FormPanel', {
+	    width: '300',
+	    height: '150',
+	    border:false,
+	    bodyPadding : 5,
+	    autoScroll:true,
+	    fieldDefaults : {
+			labelAlign : 'right',
+			labelWidth : 80,
+			anchor : '100%'
+		},  
+	    items: [
+	         {
+   	    	   xtype:'textfield',
+               fieldLabel:'菜单名称',
+               style:'margin-left:-10px;margin-right:5px;word-break: break-all; word-wrap:break-word;',
+               id:'name',
+       	    //  allowBlank: false,
+       	        maxLength:9
+       	        //enforceMaxLength:true
+              
+             
+           },
+	       {
+   	    	xtype:'textfield',
+               fieldLabel:'id',
+               style:'margin-left:-10px;margin-right:5px;word-break: break-all; word-wrap:break-word;',
+               id:'id',
+               hidden: true,
+               hideLabel: true
+           },
+	       {
+   	    	xtype:'textfield',
+               fieldLabel:'pid',
+               style:'margin-left:-10px;margin-right:5px;word-break: break-all; word-wrap:break-word;',
+               id:'pid',
+               hidden: true,
+               hideLabel: true
+           },
+           {
+      	    	  xtype:'textfield',
+                  fieldLabel:'level',
+                  style:'margin-left:-10px;margin-right:5px;word-break: break-all; word-wrap:break-word;',
+                  id:'level',
+                  hidden: true,
+                  hideLabel: true
+              },
+              {
+      	    	  xtype:'textfield',
+                  fieldLabel:'type',
+                  style:'margin-left:-10px;margin-right:5px;word-break: break-all; word-wrap:break-word;',
+                  id:'type',
+                  hidden: true,
+                  hideLabel: true
+              },
+              {
+      	    	  xtype:'textfield',
+                  fieldLabel:'oper',
+                  style:'margin-left:-10px;margin-right:5px;word-break: break-all; word-wrap:break-word;',
+                  id:'oper',
+                  hidden: true,
+                  hideLabel: true
+              }],
+	    buttons:[
+	        {text:"保存", handler:saveMenu},
+	        {text:i18n._('reset'), handler:function(){ applicationMenuForm.getForm().reset();}}
+	    ]
+	    
+	});
+    
+  //所有弹出窗
+	var applicationMenuWin = Ext.create('Ext.window.Window', {
+		width : 300,// 400
+		height : 150,
+		closable : false,
+		constrain : true,
+		modal : true,
+		tools : [ {
+			type : 'close',
+			handler : function() {
+				applicationMenuForm.getForm().reset();
+				applicationMenuWin.hide();
+			}
+		} ],
+		layout : 'fit',
+		defaults : {
+			split : false
+		},
+		items : [applicationMenuForm]
+	});        	
+
+
+
+
+
+var aitem1 = Ext.create('Ext.Panel',{
+	 id:"aitem1",
+	 title:"<center ><span id='m1' style='width:100%;color:#04468C;font-size:12;font-weight:bold'>"+"应用菜单维护"+"</span></center>",
+	 //autoScroll:true,
+	 hideCollapseTool:true,
+	 //bodyStyle:'background:#1E7E39',
+	 layout:'fit',
+	 items:applicationManegementTree
+ });  
+     
+     Ext.create('Ext.Viewport',{
+                    layout:'border',
+                    width:'100%',                   
+                    items:[
+                        {
+                            region:'center',
+                            xtype:'panel',
+                            id:'panel_one',
+                            title:i18n._('applicationManagement')+'&nbsp;&nbsp;>&nbsp;&nbsp;'+'菜单维护',
+                            width:'60%',
+                            layout:'fit',
+                            autoScroll:true,
+                            items:[
+                                {
+                                    xtype:'panel',
+                                    layout:'fit',
+                                    autoScroll:true,
+                                    items:[aitem1]
+                                }
+                            ]
+                        }
+                    ]//panel
+                }); 
+     
+     
+     //删除菜单
+  	function delMenu(id) {
+  	   var progress=Ext.Ajax.request({
+  	        url:path+'/../application_mgmt/application!delApplicationMenu.action',
+  	        method:'POST',
+  	        params:{
+  	        	'applicationCategory.id':id
+  	        },
+  	        success:function(form,action){
+  	            var obj = Ext.decode(form.responseText);
+  	                if(obj==null || obj.success==null){
+  	                    Ext.MessageBox.show({
+  	                       title: i18n._('errorNotice'),
+  	                       msg: i18n._('returnNull'),
+  	                       buttons: Ext.MessageBox.OK,
+  	                       icon: Ext.MessageBox.ERROR
+  	                    });
+  	                    return false;
+  	                }
+  	                if(!obj.success){
+  	                    Ext.MessageBox.show({
+  	                       title: i18n._('errorNotice'),
+  	                       msg: obj.resultMsg,
+  	                       buttons: Ext.MessageBox.OK,
+  	                       icon: Ext.MessageBox.ERROR
+  	                    });
+  	                    return false;
+  	                }
+  	                Ext.MessageBox.show({
+  	                	title: i18n._('notice'),
+  	                    msg: '删除成功！',
+  	                    buttons: Ext.MessageBox.OK,
+  	                    icon: Ext.MessageBox.INFO,
+  	                    fn: function(){
+  	                    	recordNode.remove(recordNode); 
+  	                    }
+  	                });
+  	              
+  	               return true
+  	        },   
+  	        failure:function(form,action){   
+  	            Ext.MessageBox.show({
+  	                title: i18n._('errorNotice'),
+  	                msg: i18n._('operateFail'),
+  	                buttons: Ext.MessageBox.OK,
+  	                icon: Ext.MessageBox.ERROR
+  	            });  
+  	           return false;
+  	        }
+  	    }); 
+  	}
+     
+     //保存菜单
+ 	function saveMenu(name,level,pid,type) {
+ 	   var name = Ext.getCmp('name').getValue();
+ 	   var id = Ext.getCmp('id').getValue();
+ 	   var type=Ext.getCmp('type').getValue();
+ 	   var pid=Ext.getCmp('pid').getValue();
+ 	   var level=Ext.getCmp('level').getValue();
+ 	   var oper =Ext.getCmp('oper').getValue();
+ 	  if(!Ext.getCmp('name').isValid()){
+          return;
+      }
+ 	  if(name == null || ltrim(rtrim(name))== "" ){
+	    	Ext.MessageBox.show({
+	    		titile:i18n._('errorNotice'),
+	    		msg:"菜单名称不能为空！",
+	    		buttons: Ext.MessageBox.OK,
+               icon: Ext.MessageBox.ERROR
+	    	});
+	    	return;
+	    }
+ 	   var progress=Ext.Ajax.request({
+ 	        url:path+'/../application_mgmt/application!saveMenuInfo.action',
+ 	        method:'POST',
+ 	        params:{
+ 	        	'applicationCategory.id':id,
+ 	        	'applicationCategory.name':name,
+ 	            'applicationCategory.parentId':pid,
+ 	            'applicationCategory.type':type,
+ 	            'applicationCategory.level':level,
+ 	        },
+ 	        success:function(form,action){
+ 	            var obj = Ext.decode(form.responseText);
+ 	                if(obj==null || obj.success==null){
+ 	                    Ext.MessageBox.show({
+ 	                       title: i18n._('errorNotice'),
+ 	                       msg: i18n._('returnNull'),
+ 	                       buttons: Ext.MessageBox.OK,
+ 	                       icon: Ext.MessageBox.ERROR
+ 	                    });
+ 	                    return false;
+ 	                }
+ 	                if(!obj.success){
+ 	                    Ext.MessageBox.show({
+ 	                       title: i18n._('errorNotice'),
+ 	                       msg: obj.resultMsg,
+ 	                       buttons: Ext.MessageBox.OK,
+ 	                       icon: Ext.MessageBox.ERROR
+ 	                    });
+ 	                    return false;
+ 	                }
+ 	                Ext.MessageBox.show({
+ 	                	title: i18n._('notice'),
+ 	                    msg: '保存成功！',
+ 	                    buttons: Ext.MessageBox.OK,
+ 	                    icon: Ext.MessageBox.INFO,
+ 	                    fn: function(){
+ 	                    	if(oper=='newFolder'){
+ 	                    		    recordNode.appendChild({  
+ 	                                 text : name,  
+ 	                                 id :obj.resultObject.id,  
+ 	                                 expanded : true 
+ 	                    		   });
+ 	                    	}else if(oper=='newNode'){
+ 	                    		recordNode.appendChild({  
+                                    text : name,  
+                                    id : obj.resultObject.id, 
+                                    expanded : true,  
+                                    leaf : true  
+                                }); 
+ 	                    		//menuTreeStore.load({node:recordNode});
+ 	                    		//menuTreeStore.reload();
+ 	                    }/* else if(oper=='editNode') {
+ 	                    	recordNode.data.text= name;
+ 	                    	menuTreeStore.load({node:recordNode});
+ 	                    	} */
+ 	                    }
+ 	                });
+ 	               applicationMenuForm.getForm().reset();
+ 	               applicationMenuWin.hide();
+ 	               return true
+ 	        },   
+ 	        failure:function(form,action){   
+ 	            Ext.MessageBox.show({
+ 	                title: i18n._('errorNotice'),
+ 	                msg: i18n._('operateFail'),
+ 	                buttons: Ext.MessageBox.OK,
+ 	                icon: Ext.MessageBox.ERROR
+ 	            });  
+ 	           return false;
+ 	        }
+ 	    }); 
+ 	}
+     
+            }
+        };
+    })();
+
+    MultiLang.init();
+});
+ function getCookie(name){
+         var arr = document.cookie.match(new RegExp("(^| )"+name+"=([^;]*)(;|$)"));
+         if(arr != null) return unescape(arr[2]);
+         return null;
+ };
+ 
+</script>
+</head>
+<body>
+</body>
+</html>

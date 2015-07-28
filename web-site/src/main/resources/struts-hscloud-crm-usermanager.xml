@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE struts PUBLIC
+    "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+    "http://struts.apache.org/dtds/struts-2.0.dtd">
+
+<struts>
+	<package name="hicloud-usermanager" extends="hscloud-default"
+		namespace="/user_mgmt">
+
+		<interceptors>
+			<interceptor-stack name="usermanagerStack">
+				<interceptor-ref name="hscloudStack" />
+				<interceptor-ref name="author">
+			         <param name="excludeMethods">createUser,readCopyright,getPassword,getSessionUser,userLoginByEmail,activeUser,logout,loadPermission,duplicateEmail,pageUserGroup,pageSubUser,getUserGroup,getDomainByDomainId,userLoginForPaymentByUrl,userLoginByUrl,getOuterInfomation,synchroExternalUser,modifyUserInf</param>
+				</interceptor-ref>
+			</interceptor-stack>
+		</interceptors>
+		<global-results>
+			<result name="login" type="redirect">../index.html</result>
+		</global-results>
+
+		<action name="webSite" class="com.hisoft.hscloud.web.action.WebSiteAction">
+		</action>
+		<action name="basicData" class="com.hisoft.hscloud.web.action.BasicDataAction">
+		</action>
+		<action name="user" class="com.hisoft.hscloud.web.action.UserAction">
+			 <interceptor-ref name="usermanagerStack">
+			 </interceptor-ref>
+		</action>
+		<action name="loginByUrl" class="com.hisoft.hscloud.web.action.UserLoginByUrlAction">
+			<result name="success" type="redirect">/function/shop/package/index.html</result>
+			<result name="error" type="redirect">/index.html</result>
+		</action>
+		<action name="userGroup" class="com.hisoft.hscloud.web.action.GroupAction">
+		    <interceptor-ref name="usermanagerStack" />
+		</action>
+		<action name="permission" class="com.hisoft.hscloud.web.action.PermissionAction">
+			<interceptor-ref name="usermanagerStack"/>
+		</action>
+		<action name="activeUser" class="com.hisoft.hscloud.web.action.UserAction">
+			<result name="success" type="redirect">/portal/activateUser.html?result=${activeFlag}?_?${user.name}?_?${user.email}?_?
+			</result>
+		</action>
+		<action name="userBank" class="com.hisoft.hscloud.web.action.UserBankAction">
+            <interceptor-ref name="usermanagerStack" />
+        </action>
+        <action name="userBrank" class="com.hisoft.hscloud.web.action.UserBrandAction">
+            <interceptor-ref name="usermanagerStack" />
+        </action>
+        <action name="paymentByUrl" class="com.hisoft.hscloud.web.action.UserLoginByUrlAction">
+			<result name="success" type="redirect">/function/business/orderunpaid/index.html</result>
+			<result name="error" type="redirect">/index.html</result>
+		</action>
+	</package>
+</struts>

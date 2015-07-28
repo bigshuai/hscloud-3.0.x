@@ -1,0 +1,874 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link rel="shortcut icon" href="../images/favicon.ico" >
+<link rel="stylesheet" href="../css/shared.css" type="text/css" />
+<link rel="stylesheet" media="all" type="text/css" href="http://code.jquery.com/ui/1.8.21/themes/ui-lightness/jquery-ui.css" />
+<link rel="stylesheet" media="all" type="text/css" href="../css/Timepicker/jquery-ui-timepicker-addon.css" />
+<link rel="stylesheet" href="../css/ui-lightness/jquery-ui-1.8.23.custom.css">
+<link rel="stylesheet" href="console.css" type="text/css" />
+<script type="text/javascript" src="../js/jquery.js"></script>
+<script type="text/javascript"  src="../js/jquery.cookie.js"></script>
+<script type="text/javascript" src="../js/pagination.js"></script>
+<script type="text/javascript"src="../js/shared.js"></script>
+<script type="text/javascript" src="../js/jquery-ui-1.8.23.custom.min.js"></script>
+<script type="text/javascript" src="../js/config.js"></script>
+<script type="text/javascript" src="../js/Timepicker/jquery-ui-timepicker-addon.js"></script>
+<script type="text/javascript" src="../js/jquery.simplemodal.js"></script>
+<script type="text/javascript" src="../js/jquery.md5.js"></script>
+<script type="text/javascript">
+    document.write("<" + "script " + "language=\"javaScript\" src=\"../js/Timepicker/localization/jquery-ui-timepicker-zh-CN.js\" " + ">" + "<" + "/" + "script" + ">");
+	document.write("<" + "script " + "language=\"javaScript\" src=\"../resources/" + i18n.checkLocale() + ".js\" " + ">" + "<" + "/" + "script" + ">");
+</script>
+<script type="text/javascript" src="console.js"></script>
+<style type="text/css">
+console.css
+</style>
+<title>控制台管理</title>
+<script>	
+	$(function(){
+		var div_li =$("div.tabMenu ul li")
+		div_li.click(function(){
+			$(this).addClass("btnSelected").siblings().removeClass("btnSelected").addClass("btnUnSelected");
+			$("div.tabMenu ul li:odd").removeClass("btnSelected").removeClass("btnUnSelected");
+			$("div.tabMenu img").each(function(){
+				this.src = this.src.replace('_static','');
+				this.src = this.src.replace('.png','_static.png');
+			});
+			var obj = $(this).find("img");
+			obj[0].src = obj[0].src.replace('_static','');
+		});
+	});
+	fileter();//判断session是否有效
+	
+	//icp信息展示
+	/* function icpEditShow() {
+	    $("div.dataContainer > div").eq(5).show().siblings().hide();
+	    clearPassword();
+	}; */
+	$(function(){
+		var div_tab_li =$("div.tabPanels ul li")
+		div_tab_li.click(function(){
+			$(this).removeClass("tabUnSelected").addClass("tabSelected").siblings().addClass("tabUnSelected").removeClass("tabSelected");
+		});
+	});	
+</script>
+</head>
+
+<body  marginheight="0" marginwidth="0" style="word-break: break-all">
+	<div class="top_bg"> 
+		<div style="width:300px;height:106px; float:left;background-image:url(images/logo.png)"></div>
+		<div style=" height:106px;color:#3c6ab9; font-size:18px; line-height:120px; float:left">
+			<span style="color: #3c6ab9">
+				<!-- 当前主机名： -->
+				<!-- <span id="vmInfo_Name">&nbsp;</span>&nbsp; -->
+				<span>IP:</span>
+				<span id="vmInfo_IP">&nbsp;</span>
+			</span>
+		</div> 
+		<div id="quit" style="width:119px;height:27px; float:right; margin-top:40px; margin-right:120px;background-image:url(images/logout.png);cursor:pointer;"></div> 
+	</div>
+	<div class="left">
+             <div class="left_bg" onClick="vmInfoShow()">             
+                    <img src="images/host.png" style="float:left"/>
+                    <div class="text1">云主机信息</div>
+                    <div class="text2">Host information</div>
+             </div>
+             
+             <div class="left_bg" onClick="vmManageShow()">
+                    <img src="images/manage.png" style="float:left"/>
+                    <div class="text1">管理面板</div>
+                    <div class="text2">Manage panel</div>
+             </div>
+             
+             <div class="left_bg" style="display: none">
+                    <img src="images/monitoring.png" style="float:left"/>
+                    <div class="text1">主机监控</div>
+                    <div class="text2">Host monitoring</div>
+             </div>
+             
+             <div class="left_bg" onClick="snapshotManageShow()">
+                    <img src="images/snapshot.png" style="float:left"/>
+                    <div class="text1">快照管理</div>
+                    <div class="text2">Snapshot</div>
+             </div>
+             
+             <div class="left_bg" onClick="eventManageShow()">
+                    <img src="images/event.png" style="float:left"/>
+                    <div class="text1">事件管理</div>
+                    <div class="text2">Event management</div>
+             </div>
+             
+             <div class="left_bg" onClick="icpEditShow()">
+                    <img src="images/ipcrecord.png" style="float:left"/>
+                    <div class="text1">备案管理</div>
+                    <div class="text2">Record management</div>
+             </div>
+	</div>
+	<div id="dataContainer" class="dataContainer">
+		<!-- 云主机信息 -->
+		<div id="vmInfoDiv">
+			<div class="r_banner_bg">云主机信息</div>
+			<div class="r_bg">		
+				<table id="vmInfoTable" >			
+					<tr>
+						<th align="left" bgcolor="#f0f1f2">
+							<table style="border-bottom:1px solid #d7d7d7;">
+								<tr>
+									<th width="220" height="48" align="right" bgcolor="#e1e9f2" >
+										<span class="font">主机名称：</span>
+									</th>
+									<th id="vmName" style="float:left; line-height:48px; padding-left:20px;">virtual machine 								
+									</th>
+									<!-- <th class="button_b">修改名称</th> -->
+								</tr>
+							</table>
+						</th>
+					</tr>              
+					<tr>
+						<th align="left" bgcolor="#f0f1f2">
+							<table style="border-bottom:1px solid #d7d7d7;">
+								<tr>
+									<th width="220" height="48" align="right" bgcolor="#e1e9f2" >
+										<span class="font">CPU：</span>
+									</th>
+									<th id="vmCPU" style="float:left; line-height:48px; padding-left:20px;">2.0Ghz×2</th>
+								</tr>
+							</table>
+						</th>
+					</tr>              
+					<tr>
+						<th align="left" bgcolor="#f0f1f2">
+							<table style="border-bottom:1px solid #d7d7d7;">
+								<tr>
+									<th width="220" height="48" align="right" bgcolor="#e1e9f2" >
+										<span class="font">内存：</span>
+									</th>
+									<th id="vmMEM" style="float:left; line-height:48px; padding-left:20px;">8G</th>
+								</tr>
+							</table>
+						</th>
+					</tr>              
+					<tr>
+						<th align="left" bgcolor="#f0f1f2">
+							<table style="border-bottom:1px solid #d7d7d7;">
+								<tr>
+									<th width="220" height="48" align="right" bgcolor="#e1e9f2" >
+										<span class="font">硬盘：</span>
+									</th>
+									<th id="vmDisk" style="float:left; line-height:48px; padding-left:20px;">500G</th>
+								</tr>
+							</table>
+						</th>
+					</tr>  
+					<tr>
+						<th align="left" bgcolor="#f0f1f2">
+							<table style="border-bottom:1px solid #d7d7d7;">
+								<tr>
+									<th width="220" height="48" align="right" bgcolor="#e1e9f2" >
+										<span class="font">数据盘：</span>
+									</th>
+									<th id="vmExtDisk" style="float:left; line-height:48px; padding-left:20px;">10G</th>
+								</tr>
+							</table>
+						</th>
+					</tr>            
+					<tr>
+						<th align="left" bgcolor="#f0f1f2">
+							<table style="border-bottom:1px solid #d7d7d7;">
+								<tr>
+									<th width="220" height="48" align="right" bgcolor="#e1e9f2" >
+										<span class="font">带宽：</span>
+									</th>
+									<th id="vmNetwork" style="float:left; line-height:48px; padding-left:20px;">5M带宽</th>
+								</tr>
+							</table>
+						</th>
+					</tr>              
+					<tr>
+						<th align="left" bgcolor="#f0f1f2">
+							<table style="border-bottom:1px solid #d7d7d7;">
+								<tr>
+									<th width="220" height="48" align="right" bgcolor="#e1e9f2" >
+										<span class="font">IP地址：</span>
+									</th>
+									<th id="vmIP" style="float:left; line-height:48px; padding-left:20px;">192.168.1.6</th>
+								</tr>
+							</table>
+						</th>
+					</tr>              
+					<tr>
+						<th align="left" bgcolor="#f0f1f2">
+							<table style="border-bottom:1px solid #d7d7d7;">
+								<tr>
+									<th width="220" height="48" align="right" bgcolor="#e1e9f2" >
+										<span class="font">操作系统：</span>
+									</th>
+									<th id="vmOS" style="float:left; line-height:48px; padding-left:20px;">Windows 2008</th>
+								</tr>
+							</table>
+						</th>
+					</tr>              
+					<tr>
+						<th align="left" bgcolor="#f0f1f2">
+							<table style="border-bottom:1px solid #d7d7d7;">
+								<tr>
+									<th width="220" height="48" align="right" bgcolor="#e1e9f2" >
+										<span class="font">购买日期：</span>
+									</th>
+									<th id="vmBuydate" style="float:left; line-height:48px; padding-left:20px;">2012/12/16</th>
+								</tr>
+							</table>
+						</th>
+					</tr>              
+					<tr>
+						<th align="left" bgcolor="#f0f1f2">
+							<table style="border-bottom:1px solid #d7d7d7;">
+								<tr>
+									<th width="220" height="48" align="right" bgcolor="#e1e9f2" >
+										<span class="font">到期日期：</span>
+									</th>
+									<th id="vmExpiredate" style="float:left; line-height:48px; padding-left:20px;">--</th>
+								</tr>
+							</table>
+						</th>
+					</tr>              
+				</table>            
+			</div>
+		</div>
+		<!-- 管理面板 -->
+		<div id="vmManageDiv"  style="display: none">
+			<div class="r_banner_bg">管理面板</div>
+            <div class="r_bg">
+				<table>                        
+					<tr>
+						<th align="left" bgcolor="#f0f1f2">
+							<table style="border-bottom:1px solid #d7d7d7;">
+								<tr>
+									<th width="220" height="48" align="right" bgcolor="#e1e9f2" >
+										<span class="font">服务器状态：</span>
+									</th>
+									<th id="vmStatus" style="float:left; line-height:48px; padding-left:70px; color:#090;font-family: 微软雅黑;font-size: 14px;">运行中</th>
+								</tr>
+							</table>
+						</th>
+					</tr>              
+					<tr>
+						<th align="left" bgcolor="#f0f1f2">
+							<table style="border-bottom:1px solid #d7d7d7;">
+								<tr>
+									<th width="220" height="48" align="right" bgcolor="#e1e9f2" ></th>
+									<th class="button_b" onclick="vmStart()">启动</th>
+								</tr>
+							</table>
+						</th>
+					</tr>              
+					<tr>
+						<th align="left" bgcolor="#f0f1f2">
+							<table style="border-bottom:1px solid #d7d7d7;">
+								<tr>
+									<th width="220" height="48" align="right" bgcolor="#e1e9f2" ></th>
+									<th class="button_b" onClick="vmRestart()">重启</th>
+								</tr>
+							</table>
+						</th>
+					</tr>              
+					<tr>
+						<th align="left" bgcolor="#f0f1f2">
+							<table style="border-bottom:1px solid #d7d7d7;">
+								<tr>
+									<th width="220" height="48" align="right" bgcolor="#e1e9f2" ></th>
+									<th class="button_b" onClick="vmRemote()">远程管理</th>
+								</tr>
+							</table>
+						</th>
+					</tr>              
+					<tr>
+						<th align="left" bgcolor="#f0f1f2">
+							<table style="border-bottom:1px solid #d7d7d7;">
+								<tr>
+									<th width="220" height="48" align="right" bgcolor="#e1e9f2" ></th>
+									<th class="button_b" onClick="vmShutdown()">关机</th>
+								</tr>
+							</table>
+						</th>
+					</tr>              
+					<tr>
+						<th align="left" bgcolor="#f0f1f2">
+							<table style="border-bottom:1px solid #d7d7d7;">
+								<tr>
+									<th width="220" height="48" align="right" bgcolor="#e1e9f2" ></th>
+									<th class="button_b" onClick="vmInstallShow()">重置系统</th>
+								</tr>
+							</table>
+						</th>
+					</tr>              
+					<tr>
+						<th align="left" bgcolor="#f0f1f2">
+							<table style="border-bottom:1px solid #d7d7d7;">
+								<tr>
+									<th width="220" height="48" align="right" bgcolor="#e1e9f2" ></th>
+									<th class="button_b" onClick="passwordEditShow()">重置密码</th>
+								</tr>
+							</table>
+						</th>
+					</tr>             
+				</table>            
+			</div>
+		</div>
+		<!--主机监控  -->
+		<div id="monitorDiv"  style="display: none">
+			<div class="r_banner_bg">主机监控</div>
+            <div class="r_bg"></div>
+		</div>
+		<!-- 快照管理 -->
+		<div id="snapshotManageDiv"  style="display: none">
+			<div class="r_banner_bg">快照管理</div>
+            <div class="r_bg">
+            	<table>
+	              	<tr valign="top">
+	                <th width="100%" align="right" scope="row" >
+	                  <div id="TabbedPanels1" class="tabPanels" align="left">
+	                    <ul class="snapshotTabGroup">
+	                      <li class="tabSelected" onClick="manualSnapshotShow()">
+	                      	<img style="width:111px; height:32px;" src="images/manualSnapshot.png" />
+	                      </li>
+	                      <li class="tabUnSelected" onClick="timingSnapshotShow()">
+	                      	<img style="width:111px; height:32px;" src="images/timingSnapshot.png" />
+	                      </li>
+	                    </ul>
+						<div class="TabbedPanelsContentGroup" style="float: left;padding-top: 5px;width: 97%;background-color:#FFF;">
+							<div class="TabbedPanelsContent" > 
+		                      	<table>
+		                  			<tr>
+		                    			<th height="45" align="left"  style="color: #F00;font-size: 12px;background-color:#FFF;" scope="col"> &nbsp;&nbsp;&nbsp;警告：还原快照会造成当前数据丢失，请谨慎操作。</th>
+		                    		</tr>
+		                  			<tr>
+		                    			<th height="100" align="left" bgcolor="#FFFFFF" scope="col">
+		                    				<table id="shotinf"  style="display:none;margin-left: 20px;">
+		                      					<tr valign="top" >
+		                        					<th width="100%" height="21" align="left" scope="col" style="color: #666;font-size: 12px;">
+		                        					时间：<span id="time"></span>
+		                        					</th>
+		                      					</tr>
+		                      					<tr valign="top">
+		                        					<th height="21" align="left" scope="col" style="color: #666;font-size: 12px;">标题：<span id="title"></span></th>
+		                      					</tr>
+		                      					<tr valign="top">
+		                        					<th height="21" align="left" scope="col" style="color: #666;font-size: 12px;">状态：<span id="status"></span></th>
+		                      					</tr>
+		                      					<tr valign="top">
+		                        					<th height="50" align="left" scope="col" style="color: #666;font-size: 12px;">备注：<span id="info" style="text-overflow:ellipsis;-o-text-overflow:ellipsis; overflow: hidden;"></span></th>
+		                      					</tr>
+		                    				</table>
+		                    				<table id="noshot" style="display:none;margin-left: 20px;">
+		                      					<tr>
+		                        					<th><font color="#646464" style="text-align: center;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;对不起，您还没有生成快照</font></th>
+		                      					</tr>
+		                    				</table>
+		                    			</th>
+		                  			</tr>
+		                		</table>
+		                  		<table>
+		                    		<tr style="text-align:center;">
+		                      			<th height="40" scope="row">&nbsp;
+		                      			<input type="hidden" id="snapshotid">
+		                      			<input type="hidden" id="autoback_h">
+		                      			<input type="hidden" id="type0_h">
+		                      			<input type="hidden" id="type1_h">
+		                      			<input type="hidden" id="type2_h">
+		                      			</th>
+		                      			<td style="width:203px; height:40px;padding:0px 0px 0px 90px;">
+		                      				<div class="button_b"  id="submitsnapshot" >生成快照</div>
+		                      				<!-- <img style="cursor:pointer;width:111px; height:32px;" id="submitsnapshot" src="images/createSnapshot_gray.png"/> -->
+		                      			</td>
+		                      			<td  style="width:203px; height:40px;padding:0px 90px 0px 0px;">
+		                      				<div class="button_b"  id="resetsnapshot" >还原快照</div>
+		                      				<!-- <img style="cursor:pointer;width:111px; height:32px;" id="resetsnapshot" src="images/revertSnapshot_gray.png"/> -->
+		                      			</td>
+		                      			<td height="40">&nbsp;</td>
+		                    		</tr>
+		                  		</table>  
+	                  		</div>
+							<div class="TabbedPanelsContent" style="display: none"> 
+							<form name="auto_plan">
+								<table style="border-bottom:1px solid #d7d7d7;">
+									<tr align="left">
+										<th height="45" class="css4" scope="col" style="background-color:#FFF;">&nbsp;
+											<table>
+												<tr>
+													<!-- <th width="20" height="45" scope="col">&nbsp;</th> -->
+													<th height="45" scope="col" style="font-size:12px;text-align: left;padding-left: 15px;padding-right: 15px;">&nbsp;&nbsp;&nbsp;&nbsp;用户可以选择不自动备份，也可以选择按周或按月选中某个时间点进行自动备份。在每周的选择框中可选择日期，在旁边的时间框中输入备份的时间。在每月的选择框中可选择第1日到第28日任意一天，在旁边的时间框中输入备份的时间。点击提交即可。</th>
+													<!-- <th width="20" height="45" scope="col">&nbsp;</th> -->
+												</tr>
+											</table>
+										</th>
+									</tr>
+									<tr>
+										<th align="left"  style="height:40px;color: #F00;font-size: 12px;background-color:#FFF;padding-left: 15px;padding-right: 15px;" scope="col">&nbsp;&nbsp;&nbsp;&nbsp;警告：定时快照备份会覆盖手工快照/定时快照的上一次快照，请谨慎操作。</th>
+									</tr>
+									<tr>
+										<th  align="right" style="background-color:#FFF;"> 
+											<table style="width:100%;">
+												<tr>
+													<td width="50" height="40">&nbsp;</td>
+													<td width="422" height="40" style="color: #666;font-size: 12px;">
+														<input type="checkbox" name="checkbox" id="autoback" style="width:15px;vertical-align:middle;" />
+															<span style="font-size:12px;">启动自动备份</span>
+															<input type="hidden" id="planId">
+													</td>
+													<td width="238" height="40">&nbsp;</td>
+												</tr>
+												<tr>
+													<td height="40">&nbsp;</td>
+													<td height="40" style="color: #666;font-size: 12px;">
+														<label>
+															<input type="radio" name="auto_type"  id="week_r" value="1" style="width:15px;vertical-align:middle;" disabled="disabled"/>
+															每周
+														</label>
+														<label>
+															<select name="select" id="week" style="width: 160px;" disabled="disabled">
+																<option value="1">星期一</option>
+																<option value="2">星期二</option>
+																<option value="3">星期三</option>
+																<option value="4">星期四</option>
+																<option value="5">星期五</option>
+																<option value="6">星期六</option>
+																<option value="7">星期日</option>
+															</select>
+														</label>&nbsp;&nbsp;
+														<input id="week_time" type="text" style="width: 50px;height:20px" value="00:00" disabled="disabled">
+													</td>
+													<td height="40"></td>
+												</tr>
+												<tr>
+													<td height="40">&nbsp;</td>
+													<td height="40" style="color: #666;font-size: 12px;">
+														<input type="radio" name="auto_type"   id="month_r" value="2" style="width:15px;vertical-align:middle;" disabled="disabled"/>
+														 	每月 
+														<label style="text-align: right;">
+															<select name="select" id="month" style="width: 160px;" disabled="disabled">
+																<option value="1">第01日</option>
+									                            <option value="2">第02日</option>
+									                            <option value="3">第03日</option>
+									                            <option value="4">第04日</option>
+									                            <option value="5">第05日</option>
+									                            <option value="6">第06日</option>
+									                            <option value="7">第07日</option>
+									                            <option value="8">第08日</option>
+									                            <option value="9">第09日</option>
+									                            <option value="10">第10日</option>
+									                            <option value="11">第11日</option>
+									                            <option value="12">第12日</option>
+									                            <option value="13">第13日</option>
+									                            <option value="14">第14日</option>
+									                            <option value="15">第15日</option>
+									                            <option value="16">第16日</option>
+									                            <option value="17">第17日</option>
+									                            <option value="18">第18日</option>
+									                            <option value="19">第19日</option>
+									                            <option value="20">第20日</option>
+									                            <option value="21">第21日</option>
+									                            <option value="22">第22日</option>
+									                            <option value="23">第23日</option>
+									                            <option value="24">第24日</option>
+									                            <option value="25">第25日</option>
+									                            <option value="26">第26日</option>
+									                            <option value="27">第27日</option>
+									                            <option value="28">第28日</option>
+															</select>
+														</label>
+														&nbsp;&nbsp;
+														<input id="month_time" type="text" style="width: 50px;height:20px" value="00:00" disabled="disabled">
+													</td>
+													<td height="40">&nbsp;</td>
+												</tr>
+											</table>
+										</th>
+									</tr>
+								</table> 
+								<table >
+									<tr style="text-align:center;">
+										<td height="40">&nbsp;</td>
+										<td style="width:203px; height:40px;padding:0px 0px 0px 90px;">	
+											<div class="button_gray"  id="submitplan" >提交</div>										
+											<!-- <img style="cursor:pointer;width:111px; height:32px;" id="submitplan" src="images/submit_gray.png"/> -->
+										</td>
+										<td style="width:203px; height:40px;padding:0px 90px 0px 0px;">
+											<div class="button_gray"  id="resetplan" >重置</div>
+											<!-- <img  style="cursor:pointer;width:111px; height:32px;" id="resetplan" src="images/reset_gray.png" /> -->
+										</td>
+										<td height="40">&nbsp;</td>
+									</tr>
+								</table>
+								</form>
+							</div>
+	                    </div>
+	                  </div>
+	                 </th>
+	                </tr>			              	
+	            </table>
+            </div>
+		</div>
+		<!-- 事件管理 -->
+		<div id="eventManageDIV"  style="display: none">
+			<div class="r_banner_bg">事件管理</div>
+            <div class="r_bg">
+            	<table id="eventManageTable" style="width: 97%;margin-left: 10px;margin-right: 10px;">					
+					<tr>
+						<td>
+							<div style="margin-top:10px;margin-bottom:10px;font-family: '宋体';font-size: 14px;">
+								<div style="float:right;height:40px;">
+									<div class="button_b" id="search_bar" onClick="findOperation();" style="margin-top: 0px;width: 90px;">搜索</div>
+									<!-- <img alt="" src="images/serach.png" style="cursor: pointer;" id="search_bar" onClick="findOperation();"> -->
+								</div>
+								<div style="float:right;height:40px;padding-right:10px;">
+									<input type="text" id="search_date_to" disabled="disabled"  style="width: 80px;"/>
+								</div>
+								<div style="float:right;height:40px;line-height: 26px;color:#333333;padding-right:10px;">至</div>
+								<div style="float:right;height:40px;padding-right:10px;">
+									<input type="text" id="search_date_from" disabled="disabled" style="width: 80px;"/>
+								</div>
+								<div style="float:right;height:40px;line-height: 26px;color:#333333;padding-right:10px;">操作时间：</div>
+								<div style="float:right;height:40px;padding-right:10px;">
+									<select style="border: 1px solid #CCCCCC;border-radius:3px 3px 3px 3px;height: 24px;width: 80px;cursor: pointer;" id="opsType">
+										<option value="0">全部类型</option>
+										<option value="1">启动</option>
+										<option value="2">重启</option>
+										<option value="3">关机</option>
+										<option value="6">生成快照</option>
+										<option value="7">还原快照</option>
+										<option value="8">重装系统</option>     
+										<!-- <option value="9">密码重置</option> -->
+										<option value="10">主机修复</option>
+									</select>
+								</div>
+								<div style="float:right;height:40px;line-height: 26px;padding-right:10px;">查询：</div>
+							</div>						
+				      </td>
+				  </tr>
+				  <tr>
+					<td colspan="2" scope="col" align="center">
+					    <table style="margin: 0px 0px 5px 0px;table-layout:fixed" id="listOPSTable"></table>
+					    <div id="pager"></div>
+					</td>
+				  </tr>
+			</table>
+            </div>           
+		</div>
+		 <!--备案管理  -->
+		<div id="icpEditDiv"  style="display: none">
+			<div class="r_banner_bg">备案管理</div>
+            <div class="r_bg">
+            	<iframe src="../icp/index.html" width="100%" height="442px" style="border:none;"></iframe>
+            </div>
+		</div>
+		<!-- <div style="width:72.2%; height:50px; margin-top:58px; background-color:#2a3d4d; color:#8d9cae; float:left; line-height:50px; text-align:right; padding-right:120px; font-size:12px;">北京时间：2013年12月12日  星期四  14:45:23</div> -->
+	</div>
+	<div style="width:60.4%; height:50px; margin-top:58px; background-color:#2a3d4d; color:#8d9cae; float:left; line-height:50px; text-align:right; padding-right:280px; font-size:12px;">北京时间：<span id="currentTime"><script>setInterval(function(){$("#currentTime").text(new Date().toLocaleString( ));},1000);</script></span></div>	
+	
+	
+	<div id="modpasswordmsg"></div>
+	<!-- jquery统一alert提示框所需 -->
+	<div id="dialog-alert" style="display: none">
+		<p>
+			<span class="ui-icon ui-icon-alert"
+				style="float: left; margin: 0 7px 20px 0;"></span>
+			<span id="dialog-message-alert"></span>	
+		</p>
+	</div>
+	<!-- jquery统一confirm提示框所需 -->
+	<div id="dialog-confirm" style="display: none">
+		<p>
+			<span class="ui-icon ui-icon-alert"style="float: left; margin: 0 7px 20px 0;"></span>
+			<span id="dialog-message-confirm"></span>	
+		</p>
+	</div>
+	<!-- 手动生成快照设置对话框 -->
+	<div id="dialog-createSnapshot" style="display: none;" >
+		<table id="listtable" style="width: 100%; height: 200px;background-color: #FFF;">
+		    <tr height="10"><td></td> </tr>
+			<tr align="center" >
+				<td valign="top"><label style="font-size: 12px;">标题：</label></td>
+				<td valign="top">					
+					<input id="snapshot_name" style="border: 1px #CCCCCC solid; font-size: 12px;width:250px" type="text" class="form_input"/>										
+				</td>
+			</tr>
+			<tr align="center" >
+				<td valign="top"><label style="font-size: 12px;">备注：</label></td>
+				<td valign="top">
+					<textarea id="snapshot_comments" style="border: 1px #CCCCCC solid;font-size: 12px;width:250px" cols="40" rows="3"></textarea>
+				</td>
+			</tr>
+			<tr>
+				<td valign="top"  colspan="2"><label style="font-size: 12px;">需快照的磁盘：</label></td>				
+			</tr>
+			<tr align="center" >
+				<td>&nbsp;</td>
+				<td colspan="2">
+					<form>
+					    <div style="float: left;width: 90px;">
+					    <!-- 
+						<input type="checkbox" name="checkbox" style="width:15px;vertical-align:text-top;" checked="checked"/>
+						 -->
+						<span style="font-size:12px;">系统盘</span>
+						</div>
+						<div id="c_edisk1" style="float: left;width: 90px;display: none;">
+						 <!-- 
+						<input type="checkbox" name="checkbox" style="width:15px;vertical-align:text-top;" checked="checked"/>
+						<span style="font-size: 12px;">数据盘1</span>
+						 -->
+						</div>
+						<div id="c_edisk2" style="float: left;width: 90px;display: none;">
+						 <!-- 
+						<input type="checkbox" name="checkbox" style="width:15px;vertical-align:text-top;" checked="checked"/>
+						 -->
+						<span style="font-size: 12px;">数据盘2</span>
+						</div>
+					</form>					
+				</td>
+			</tr>				
+			<tr>
+				<td valign="top"  colspan="2"><span style="color: #F00;font-size: 12px;">警告：新生成的快照会覆盖上一次的快照文件！</span></td>
+			</tr>
+		</table>
+		
+	</div>
+	<div id="msg" style="display: none;"></div>
+	<!-- auto还原快照设置对话框 -->
+	<div id="dialog-revertSnapshot" style="display: none">
+		
+		<table id="listtable" style="width: 100%; height: 200px;background-color: #FFF;">
+		    <tr height="10"><td></td> </tr>
+			<tr align="center" >
+				<td valign="top"><label style="font-size: 12px;">标题：</label></td>
+				<td valign="top">					
+					<input id="autotitle" style="border: 1px #CCCCCC solid; font-size: 12px;width:250px" type="text" class="form_input" readonly="readonly"/>										
+				</td>
+			</tr>
+			<tr align="center" >
+				<td valign="top"><label style="font-size: 12px;">备注：</label></td>
+				<td valign="top">
+					<textarea id="autoinfo" style="border: 1px #CCCCCC solid;font-size: 12px;width:250px" cols="40" rows="3" readonly="readonly"></textarea>
+				</td>
+			</tr>
+			<tr>
+				<td valign="top"  colspan="2"><label style="font-size: 12px;">需还原的磁盘：</label></td>				
+			</tr>
+			<tr align="center" >
+				<td>&nbsp;</td>
+				<td colspan="2">
+					<form>
+					    <div style="float: left;width: 90px;">
+					    <!-- 
+						<input type="checkbox" name="checkbox" style="width:15px;vertical-align:text-top;" checked="checked"/>
+						 -->
+						<span style="font-size:12px;">系统盘</span>
+						</div>
+						<div id="r_edisk1" style="float: left;width: 90px;display: none;">
+						<!-- 
+						<input type="checkbox" name="checkbox" style="width:15px;vertical-align:text-top;" checked="checked"/> 
+						-->
+						<span style="font-size: 12px;">数据盘1</span>
+						</div>
+						<div id="r_edisk2" style="float: left;width: 90px;display: none;">
+						<!-- 
+						<input type="checkbox" name="checkbox" style="width:15px;vertical-align:text-top;" checked="checked"/>
+						 -->
+						<span style="font-size: 12px;">数据盘2</span>
+						</div>
+					</form>					
+				</td>
+			</tr>				
+			<tr>
+				<td valign="top"  colspan="2"><span style="color: #F00;font-size: 12px;">警告：还原快照会造成当前数据丢失！</span></td>
+			</tr>
+		</table>
+	</div>
+	<!-- VNC等待框   -->
+	<div id="vnc_waitDIV" style="display: none">
+		<table style="font-size:12px;width:440px;">
+		    <tr><td height="20" colspan="2">&nbsp;</td></tr>
+		    <tr height="54"><td id="vnc_image" align="center" valign="middle" colspan="2"><img src="images/load_wait.gif"/></td></tr>
+		    <tr><td height="15" colspan="2">&nbsp;</td></tr>
+		    <tr><td width="50" height="25"></td><td id="vncTip1" align="left"><script>i18n._dialog('vncTip1',lang.vpdc.center.vncTip1)</script></td></tr>
+		    <tr><td width="50" height="25"></td><td id="vncTip2" align="left"><script>i18n._dialog('vncTip2',lang.vpdc.center.vncTip2)</script><a id="download" href="../download/vncviewer/tvnviewer.exe"><script>i18n._dialog('download',lang.vpdc.center.download)</script></a></td></tr>
+		    <tr><td width="50" height="25"></td><td id="vncTip3" align="left"><script>i18n._dialog('vncTip3',lang.vpdc.center.vncTip3)</script><input type="text" id="validCode" maxlength="5" onFocus="getImageCode()"/>
+		           <img id="imageCode" onClick="getImageCode()" alt="" title="看不清，换一个！" src="console/login!getImageCode.action"><img id="getParam" src="images/confirmValidCode.PNG" onClick="getConnectionParam()"/></td></tr>
+		    <tr><td width="50" height="25"></td><td id="vncTip4" align="left"></td></tr>
+		    <tr><td height="20" colspan="2">&nbsp;</td></tr>
+		</table>
+	</div>
+	<!-- 重置系统对话框 -->
+	<div id="dialog-vmInstall" style="display: none;" >
+		<table id="vmInstallTable" >			
+			<tr>
+				<th colspan="2" align="right" bgcolor="#f6f6f6" scope="row">
+					<table style="background-color:#eeeeee;">
+					  <tr>
+						<th align="left" bgcolor="#FFFFFF" scope="col">
+							<table>
+								<tr>
+									<th height="48" align="center" bgcolor="#F6F6F6" scope="col">
+										<span style="color: #F00;font-size: 14px;"> 
+											警告：重装或更换操作系统将导致您系统盘上的所有数据丢失，请确认已备份，谨慎操作。
+										</span>
+									</th>
+								</tr>
+							</table>
+						</th>
+					  </tr>
+					  <tr>
+						<th align="left" scope="col">
+							<form id="systemListform" name="systemListform" method="post" action="" style="padding:0px 0px 0px 0px; ">
+							<table style="background-color:#FFF;">
+								<tr>
+									<th style="width:200px;height:48px;padding:0px 20px 0px 0px;min-width:120px;" align="right" bgcolor="#F6F6F6" scope="col"><font color="#646464">选择操作系统：</font></th>
+									<th align="left" scope="col">
+										<label>
+											<select name="select" id="select" style="width: 200px" onChange="loadOsUser(this)">
+											</select>
+										</label>
+									</th>
+								</tr>
+								<tr>
+									<th style="width:200px;height:48px;padding:0px 20px 0px 0px;min-width:120px;" align="right" bgcolor="#F6F6F6" scope="col"><font color="#646464">用户名：</font></th>
+									<th align="left" style="color: #666666" id="os_name"></th>
+								</tr>
+								<tr>
+									<th style="width:200px;height:48px;padding:0px 20px 0px 0px;min-width:120px;" align="right" bgcolor="#F6F6F6" scope="col"><font color="#646464">设置密码：</font></th>
+									<th align="left" scope="col">
+										<input type="password" style="width: 200px" id="os_pwd"/>
+									</th>
+								</tr>
+								<tr>
+									<th style="width:200px;height:48px;padding:0px 20px 0px 0px;min-width:120px;" align="right" bgcolor="#F6F6F6" scope="col"><font color="#646464">重复密码：</font></th>
+									<th align="left" scope="col">
+										<input type="password" style="width: 200px" id="os_pwd2"/>
+									</th>
+								</tr>
+								<tr>
+									<th style="width:200px;height:48px;padding:0px 20px 0px 0px;min-width:120px;" align="right" bgcolor="#F6F6F6" scope="col"></th>
+									<th align="left" scope="col">
+										<div class="button_b" onClick="vmReset()" >重置</div>
+										<!-- <img style="cursor:pointer " src="images/reset2.png" width="111" height="32" onClick="vmReset()" /> -->
+									</th>
+								</tr>
+							</table>
+							</form>
+						</th>
+					  </tr>
+					</table>
+				</th>
+			</tr>
+		</table>		
+	</div>
+	<!-- 重置密码对话框 -->
+	<div id="dialog-passwordEdit" style="display: none;" >
+		<table id="passwordEditTable" >			
+			<tr>
+				<th colspan="2" align="right" bgcolor="#f6f6f6" scope="row">
+					<table style="background-color:#eeeeee;">
+						<tr>
+							<th align="left" bgcolor="#FFFFFF" scope="col">
+								<table >
+									<tr bgcolor="d7d7d7">
+										<th align="left" bgcolor="#FFFFFF" scope="col">
+											<table >
+												<tr>
+													<th style="width:200px;height:48px;padding:0px 20px 0px 0px;min-width:120px;" align="right" bgcolor="#F6F6F6" scope="col">
+														<font color="#646464">原始密码：</font>
+													</th>
+													<th style="padding:0px 0px 0px 20px;min-width:270px;" align="left" valign="middle" scope="col">
+														<table >
+															<tr>
+																<th width="150" scope="col">
+																	<form id="form2" name="form1" method="post" action="" style="padding:15px 0px 0px 0px; ">
+																		<label>
+																		<input type="password" name="textfield" id="oldpassword" />
+																		</label>
+																	</form>
+																</th>
+																<td width="20"><img alt="" src="../images/white.png" id="oldpasswordmsg" ></td>
+																<th width="45%" align="left" scope="col">
+																</th>
+															</tr>
+														</table>
+													</th>
+												</tr>
+											</table>
+										</th>
+									</tr>
+								</table>
+							</th>
+						</tr>
+						<tr>
+							<th align="left" bgcolor="#FFFFFF" scope="col">
+								<table >
+									<tr bgcolor="d7d7d7">
+										<th align="left" bgcolor="#FFFFFF" scope="col">
+											<table>
+												<tr>
+													<th style="width:200px;height:48px;padding:0px 20px 0px 0px;min-width:120px;" align="right" bgcolor="#F6F6F6" scope="col">
+														<font color="#646464">重置密码：</font>
+													</th>
+													<th style="padding:0px 0px 0px 20px;min-width:270px;" align="left" valign="middle" scope="col">
+														<table>
+															<tr>
+																<th width="150" scope="col"> 
+																	<form id="form2" name="form1" method="post" action="" style="padding:15px 0px 0px 0px; ">
+																		<label>
+																		 <input type="password" name="textfield" id="newpassword" />
+																		</label>
+																	</form>
+																</th>
+																<td width="20"><img alt="" src="../images/white.png" id="newpasswordmsg" title=""></td>
+																<th width="45%" align="left" scope="col"></th>
+															</tr>
+														</table>
+													</th>
+												</tr>
+											</table>
+										</th>
+									</tr>
+								</table>
+							</th>
+						</tr>
+						<tr>
+							<th align="left" bgcolor="#FFFFFF" scope="col">
+								<table>
+									<tr>
+										<th style="width:200px;height:48px;padding:0px 20px 0px 0px;min-width:150px;" align="right" bgcolor="#F6F6F6" scope="col">
+											<font color="#646464">确认密码：</font>
+										</th>
+										<th style="padding:0px 0px 0px 20px;min-width:270px;" align="left" valign="middle" scope="col">
+											<table >
+												<tr>
+													<th width="150" scope="col">
+														<form id="form1" name="form1" method="post" action="" style="padding:15px 0px 0px 0px; ">
+															<span id="spryconfirm1">
+																<label>
+																	<input type="password" name="text1" id="comfirpassword" />
+																</label>																
+															</span>
+														</form>
+													</th>
+													<td width="20"><img id="comfirpasswordmsg" alt="" src="../images/white.png" ></td>
+													<th width="45%" align="left" scope="col">
+														<div class="button_b" id="modpassword" >重置</div>
+														<!-- <img style="cursor:pointer " src="images/reset.png" width="111" height="32" id="modpassword" /> -->
+													</th>
+												</tr>
+											</table>                  
+										</th>
+									</tr>
+								</table>
+							</th>
+						</tr>
+					</table>
+				</th>
+			</tr>
+		</table>		
+	</div>
+</body>
+</html>

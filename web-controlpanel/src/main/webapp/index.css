@@ -1,0 +1,82 @@
+table{
+	width:100% ;
+	/* border-bottom:1px solid #d7d7d7; */
+	border-collapse:collapse;
+}
+th,td{
+	padding:0px;
+}
+.gray{
+	color: rgb(204,204,204);
+}
+.black{
+	color: #555555;
+}
+
+input{
+	border: 1px solid #CCCCCC;
+    border-radius: 3px 3px 3px 3px;
+    display: inline-block;
+    font-family: Arial,Helvetica,sans-serif;
+    line-height: 18px;
+    width: 180px;
+    height: 24px;
+}
+
+input:focus{
+    border-color: rgba(82, 168, 236, 0.8);
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset, 0 0 8px rgba(82, 168, 236, 0.6);
+    outline: 0 none;
+}
+
+label{
+	font-family: "微软雅黑";
+	font-size: 14px;	
+	color:#333;
+}
+
+.username{
+    background: url("images/username.png") no-repeat;
+	background-color:#FFF;
+    background-position: left; center;
+    padding-left: 20px;
+}
+
+.password{	
+	background: url("images/password.png") no-repeat;
+	background-color:#FFF;
+	background-position: left; center;
+    padding-left: 20px;
+}
+
+.validCode{	
+	background: url("images/code.png") no-repeat;
+	background-color:#FFF;
+	background-position: left; center;
+    padding-left: 20px;
+}
+
+.button{
+	float:left;
+	margin-left:30px;
+	margin-top:380px;
+	border-radius:3px; 
+	cursor:pointer;
+	width:82px; 
+	height:82px;
+	background-image:url(images/login_button_bg.png);
+	color:#fff;
+	font-family:微软雅黑; 
+	font-size:18px;
+	line-height:82px; 
+	text-align:center
+}
+.button:hover{
+	background-image:url(images/login_button_bg.png)
+}
+.ui-widget-header {
+	border: 1px solid #3c6ab9;
+	background: #3c6ab9;
+	color: #ffffff;
+	font-weight: bold;
+}

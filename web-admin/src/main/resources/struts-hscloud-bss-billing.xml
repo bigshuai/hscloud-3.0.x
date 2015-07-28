@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE struts PUBLIC
+    "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+    "http://struts.apache.org/dtds/struts-2.0.dtd">
+
+<struts>
+	<constant name="struts.objectFactory" value="spring" />
+	<package name="hicloud-billing" extends="hscloud-default"
+		namespace="/bss">
+		<interceptors>
+            <interceptor name="authorInterceptor" class="com.hisoft.hscloud.web.interceptor.AuthorInterceptor"/>
+            <interceptor-stack name="authorStack">
+                <interceptor-ref name="authorInterceptor"/>
+                <interceptor-ref name="hscloudStack"/>
+            </interceptor-stack>
+        </interceptors>
+
+	<action name="account" class="com.hisoft.hscloud.web.action.AccountAction">
+		<interceptor-ref name="authorStack"/>
+	</action>
+	<action name="payment" class="com.hisoft.hscloud.web.action.PayOnlineAction">
+		<interceptor-ref name="authorStack"/>
+	</action>
+	<action name="trLog" class="com.hisoft.hscloud.web.action.TranscationLogAction">
+		<interceptor-ref name="authorStack"/>
+	</action>
+	<action name="responsibility" class="com.hisoft.hscloud.web.action.ResponsibilityAction">
+		<interceptor-ref name="authorStack"/>
+	</action>
+	</package>
+</struts>

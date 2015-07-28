@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE struts PUBLIC
+    "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+    "http://struts.apache.org/dtds/struts-2.0.dtd">
+<struts>
+	<constant name="struts.objectFactory" value="spring" />
+	<constant name="struts.i18n.encoding" value="UTF-8" />
+	<package namespace="/ops" name="hicloud-vpdc-ops" extends="hscloud-default">
+		<interceptors>
+			<interceptor name="authorInterceptor"
+				class="com.hisoft.hscloud.web.interceptor.AuthorInterceptor" />
+			<interceptor-stack name="authorStack">
+				<interceptor-ref name="authorInterceptor" />
+				<interceptor-ref name="hscloudStack" />
+			</interceptor-stack>
+		</interceptors>
+
+		<global-results>
+			<result name="login" type="redirect">/index.html</result>
+		</global-results>
+		<global-exception-mappings>
+			<exception-mapping result="input" exception="java.lang.Exception"></exception-mapping>
+		</global-exception-mappings>
+		
+		<!-- 虚拟机操作 -->
+		<action name="ops" class="com.hisoft.hscloud.web.action.OpsAction">
+		</action>
+		
+		<!-- 用户虚拟机的监控 -->
+		<action name="vmsOss" class="com.hisoft.hscloud.web.action.OpsAction">
+		</action>
+		
+		<action name="getHosts" class="com.hisoft.hscloud.vpdc.ops.action.SystemAmdinAction">
+		</action>
+		
+		<!-- 系统管理员监控所有的节点 -->
+		<action name="ossHost" class="com.hisoft.hscloud.vpdc.ops.action.SystemAmdinAction">
+		</action>
+		
+		<!-- vrouterTemplate -->
+        <action name="vrouterTemplateAction" class="com.hisoft.hscloud.web.action.VrouterTemplateAction">
+        </action>
+	</package>
+</struts>

@@ -1,0 +1,100 @@
+/* CSS Document */
+*{ margin:0; padding:0; font-size:12px; font-family:"宋体";color:#636363}
+.dv_all{width:800px; height:600px; margin:0 auto; background:url(../images1_1/backgroun.gif) no-repeat;}
+.logo{width:117px; height:56px; padding-left:80px;padding-bottom:7px;}
+.banner1{ margin-top:100px;width:800px; height:252px;position:relative}
+.content{ width:800px; height:190px; padding-top:15px;}
+.c_left{ width:317px; height:190px; margin-left:80px;float:left;_margin-left:40px;}
+.c_xian{ width:5px; height:140px; float:left; padding-top:20px;}
+.c_right{ width:350px; height:190px; float:left}
+.c_left1{ width:280px; height:90px;}
+.c_left1img{ float:left}
+.c_left1con{ float:left; width:170px; height:90px;}
+.c_left1con_t{ font-size:14px; font-weight:bold; color:#12ade6; font-family:"黑体";padding-bottom:8px; width:150px;}
+.c_left1con_c{ color:#636363}
+.c_left1img11{ float:left; width:90px;}
+.foot{ width:800px; height:60px; text-align:center; padding-top:10px;}
+.foot ul{ width:400px; height:25px; text-align:center; padding-left:270px;}
+.foot ul li{ float:left; height:25px; line-height:25px; width:60px; list-style:none; background:url(../images1_1/dian.gif) no-repeat left; padding-left:5px;}
+.foot2{ text-align:center; float:left; padding-left:230px; height:20px;line-height:20px;}
+.foot3{ width:110px; float:left; padding-left:10px;}
+
+/******banner********/
+#inner { width: 800px; margin: 0 auto; height:252px;}
+.hot-event { padding: 230px 0 0; position: relative; }
+.hot-event .switch-tab { text-align: center;float:left;background:url(../images1_1/mc.gif) repeat-x;width:60px;height:15px;padding-top:1px;}
+.tabbg1{background:url(../images1_1/lc.gif) no-repeat;width:8px;height:15px;float:left;}
+.tabbg2{background:url(../images1_1/rc.gif) no-repeat;width:8px;height:15px;float:left;}
+.tabbtn{ width:110px; height:30px;padding-top:5px;padding-left:350px;}
+.hot-event .switch-tab a, .hot-event .switch-tab .current { DISPLAY: inline-block; BACKGROUND: url(../images1_1/bg2.gif);
+OVERFLOW: hidden; WIDTH: 13px; CURSOR: pointer; LINE-HEIGHT: 0; HEIGHT: 13px;background-position:13px 13px;font: 0/0 arial; color: transparent;vertical-align: top;}
+.hot-event .switch-tab .current { BACKGROUND-POSITION: 0px 13px }
+
+.hot-event .switch-nav a { display: inline-block; padding: 7px 16px; background: rgba(0,0,0,.3); border-style: solid; border-color: rgba(255,255,255,.6); }
+.hot-event .switch-nav a:hover { background: rgba(0,0,0,.2); }
+.hot-event .event-item { height: 230px; width: 800px; position: absolute; z-index: 1; left: 0; top: 0; }
+.hot-event .event-item .banner { display: block; }
+.hot-event .event-item img { -webkit-box-reflect: below 0 -webkit-gradient(linear,0 0,0 100%,from(transparent),color-stop(85%,transparent),to(rgba(255,255,255,.2))); border: 0; }
+.hide-clip { position: absolute!important; clip: rect(1px 1px 1px 1px); clip: rect(1px,1px,1px,1px); padding: 0!important; border: 0!important; height: 1px!important; line-height: 0!important; width: 1px!important; overflow: hidden; }
+a { color: #636363; }
+a { text-decoration: none; }
+a .ico { cursor: pointer; }
+.ico { display: inline-block; width: 16px; height: 16px; vertical-align: middle; overflow: hidden; }
+
+.loginbg{ background:url(images/loginbg.png); width:252px; height:220px; z-index:100; position:absolute;top: 5px;right: 5px; margin:0; padding:0}
+.zhuce{ width:206px; height:30px; padding-top:8px; margin-left:23px; margin-bottom:4px; cursor:pointer}
+.zhuce a{color:#f8aa02}
+.zhuce1{ width:206px; height:35px;margin-left:23px; margin-top:20px;text-align:center;line-height:35px;}
+.zhuce1 a{ width:206px; height:35px;display:block;font-size:14px; color:#ffffff;font-weight:100px;}
+.zhuce2{ width:206px; margin-left:23px;height:35px;  margin-top:10px;line-height:35px;}
+.denglu{ width:206px; height:30px; margin-left:23px; margin-top:15px; margin-bottom:10px;cursor:pointer}
+.denglutst{ width:136px; height:60px;float:left; margin-left:28px;}
+.denglutst .input1{ border:0px; background:#e4e6e9; height:20px; width:129px;}
+.denglutst .input2{ border:0px; background:#e4e6e9; height: 18px;width: 129px;margin-top:5px;}
+.denglubtn{ width:40px; height:60px;float:left; padding-left:5px;}
+.login_input{
+	border: 1px solid #CCCCCC;
+    border-radius: 2px 2px 2px 2px;
+    color: #555555;
+	background-color:#fff;
+    display: inline-block;
+    font-family:Arial, Helvetica, sans-serif;
+	font-size:12px;
+	color:#999;
+	padding-left:10px;
+    line-height: 30px;
+	margin-left:23px; 
+	margin-top:10px;
+    width: 196px;
+    height: 30px;
+	vertical-align: middle;
+}
+
+.login_input:focus{
+    border-color: rgba(116, 161, 254, 0.8);
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset, 0 0 6px rgba(200, 217, 237, 0.8);
+    outline: 0 none;
+}
+
+#validCode {
+	width : 47%;
+	border: 1px solid #CCCCCC;
+    border-radius: 3px 3px 3px 3px;
+    display: inline-block;
+}
+
+#validCode:focus{
+	/* border-color: rgba(82, 168, 236, 0.8);
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset, 0 0 8px rgba(82, 168, 236, 0.6);
+    outline: 0 none; */
+    border-color: rgba(116, 161, 254, 0.8);
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset, 0 0 6px rgba(200, 217, 237, 0.8);
+    outline: 0 none;   
+}
+
+#imageCode{
+	display: block;
+	margin-left: 160px;
+	margin-top: -25px;
+	height: 20px;
+}

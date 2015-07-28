@@ -1,0 +1,383 @@
+
+.rechargeTypeCss {
+    cursor: pointer; 
+    padding-bottom:8px; 
+    color:#4d6587;
+    text-align:center;
+    width: 110px;
+}
+
+.td_start_css{
+	background-image:url(../../images/account/index_1.png);
+}
+.td_end_css{
+    background-image:url(../../images/account/index_3.png);
+}
+
+.td1_css{
+	background-image:url(../../images/account/index_29.png);
+}
+.td_css{
+	background-image:url(../../images/account/index_2.png);
+}
+
+.websjy div{-moz-border-radius:8px;-webkit-border-radius:8px;border-radius:8px;}
+.websjy1{-moz-border-radius:5px 20px 3px 10px;-webkit-border-radius:5px 20px 3px 10px;border-radius:5px 20px 3px 10px;}
+.websjy,.websjy2{-moz-border-radius:5px;-webkit-border-radius:5px;border-radius:5px;}
+.websjy3{-moz-border-radius:200px;-webkit-border-radius:200px;border-radius:200px;}
+.websjy4{-moz-border-radius:5px 5px 0 0;-webkit-border-radius:5px 5px 0 0;border-radius:5px 5px 0 0;}
+
+    
+#balance {
+	position:absolute;
+	margin-left:50px;
+	margin-top:15px;
+	width:680px;
+	height:35px;
+	font-size:12px;
+	font-family: Arial, Helvetica, sans-serif;
+	z-index:1;
+}
+
+#balance td{
+	padding-left:15px;
+}
+
+#detail{table-layout:fixed; border-collapse:collapse;}
+
+#detail td{ 
+	padding:5px 12px 5px 12px;
+	border:1px solid #CCCCCC;
+	font-size:13px;
+	font-family: Arial, Helvetica, sans-serif;
+}
+
+ul,ol{
+	list-style:none;
+}
+.icon-info{
+    background-color: #D2EEF7;
+    border-style: solid solid solid none;
+    border-width: 1px 1px 1px medium;
+    font-weight: normal;
+    height: 30px;
+    line-height: 15px;
+    padding: 0 3px;
+    top: -1px;
+    font: 12px/1.5 tahoma,arial,宋体;
+}
+.icon{
+    background-image:url(../../images/account/bankicon.png);
+    display:inline-block;
+    height: 30px;
+    width:120px;
+    background-repeat: no-repeat;
+}
+.ICBC{    
+    background-position: 0 -40px;
+}
+.CMB {
+    background-position: 0 -80px;
+}
+.CCB{
+    background-position: 0 -320px;
+}
+.BOC{
+    background-position: 0 -520px;
+}
+.ABC{
+    background-position: 0 -480px;
+}
+.COMM{
+    background-position: 0 -600px;
+}
+.PSBC {
+    background-position: 0 -400px;
+}
+.CEB {
+    background-position: 0 -440px;
+}
+.SPDB {
+    background-position: 0 -360px;
+}
+.GDB {
+    background-position: 0 -280px;
+}
+.CITIC {
+    background-position: 0 -200px;
+}
+.CIB {
+    background-position: 0 -3365px;
+}
+.SDB {
+    background-position: 0 -240px;
+}
+.CMBC {
+    background-position: 0 -120px;
+}
+.HZCB {
+    background-position: 0 -760px;
+}
+.SHBANK {
+    background-position: 0 -840px;
+}
+.BJRCB {
+    background-position: 0 -2640px;
+}
+.SPABANK {
+    background-position: 0 -1880px;
+}
+.FDB {
+    background-position: 0 -1320px;
+}
+.NBBANK {
+    background-position: 0 -1240px;
+}
+.BJBANK {
+    background-position: 0 -3240px;
+}
+.WZCB {
+    background-position: 0 -1720px;
+}
+.ICBCBTB{
+    background-image:url(../../images/account/ENV_ICBC_OUT.gif);
+}
+.CCBBTB{
+    background-image:url(../../images/account/ENV_CCB_OUT.gif);
+}
+.ABCBTB{
+    background-image:url(../../images/account/ENV_ABC_OUT.gif);
+}
+.SPDBBTB{
+    background-image:url(../../images/account/ENV_CCB_OUT.gif);
+}
+
+.bank-list{
+	overflow:hidden;
+	margin-top:5px;
+	padding-left:5px;
+}
+.bank-list li{
+	float:left;
+	width:153px;
+	margin-bottom:5px;
+}
+
+#contentDivTable{
+	width:973px;
+	border-bottom:1px solid #b4b4b4;
+	border-right:1px solid #b4b4b4;
+	/* border:1px solid #b4b4b4; */
+	margin:0 auto;
+}
+
+#paymentId{
+	cursor: pointer;
+	margin-left: -70px;
+	padding-left: 0px; 
+	margin-top: 8px;" 
+}
+
+.ui-slider-horizontal {
+	height: .7em !important;
+	
+}
+
+.ui-slider-handle {
+	width: .9em !important;
+	height: 1.1em !important
+}
+.ui-dialog{
+	padding : .1em !important;
+}
+.ui-dialog-titlebar{
+	font-size : 14px!important;
+	padding: .2em .5em!important;
+}
+.ui-dialog-buttonpane{
+padding: .2em 1em .3em .4em!important;
+}
+.ui-button{
+	margin: .3em .4em .3em 0!important;
+}
+.ui-dialog-content{
+	padding: 0 .5em!important;
+	min-height: 65px!important;
+	font-size:12px;
+	max-height:400px;
+	
+}
+.ui-dialog-content p{
+	margin-top:20px;
+}
+.ui-dialog-content span{
+	margin-top: 5px!important;
+}
+.ui-button span{
+	padding: .2em .5em!important;
+	font-size : .5em!important;
+}
+.ui-widget {
+font-family: Trebuchet MS,Tahoma, Verdana, Arial, sans-serif!important;
+}
+.ui-icon-alert{
+}
+
+button{
+	padding: 0px 11px 0px 21px !important;
+	font-size: 1.3em !important;
+}
+#dialog-message-alert{
+	display: inline-block;
+	margin-top: 5px;
+	font-size:12px;
+	width:350px;
+}
+
+#winDiv {
+	height: 230px;
+	width: 500px;
+	margin-left:3px;
+	font-family: 微软雅黑, Arial, Helvetica, sans-serif;
+}
+
+#failDiv {
+	float: left;
+	height: 230px;
+	width: 240px;
+}
+
+#succDiv {
+	height: 220px;
+	float: left;
+	width: 240px;
+	border-left: 1px solid #ee7600;
+}
+
+#winDiv img {
+	position: relative;
+	top: 50px;
+	left: 30px;
+}
+
+#succDiv img {
+	margin-left:8px;
+}
+
+.rc_span {
+	position: relative;
+	top: 30px;
+	font-size: 20px;
+	font-weight: normal;
+}
+
+.gray_color {
+	color: #646464;
+}
+
+.orange_color{
+	color: #ee7600;
+}
+
+.rc_tip {
+	font-size: 14px;
+}
+
+.rc_fail_tip {
+	left: 5px;
+	position: absolute;
+	top: 160px;
+}
+
+.rc_succ_tip {
+	left: 300px;
+    position: absolute;
+    top: 160px;
+}
+#succDiv a {
+	color: #ee7600;
+	text-decoration: underline;
+}
+
+#offlinePayTable{
+	width:710px;
+	height:120px;
+}
+#offlinePayTable tr{
+	height:35px;
+}
+#offlinePayTable td{
+	height:35px;
+	font-size:13px;
+}
+
+#offlinePayTable .left{
+	background-color:#f5f5f5;
+	text-align:right;
+	border-color:#e7e6e6;
+	border-style:solid;
+	border-top-width:1px;
+	width:150px;
+	border-bottom-width:0px;
+	border-left-width:1px;
+	border-right-width:1px;
+}
+
+#offlinePayTable .right{
+	padding-left:20px;
+	border-color:#e7e6e6;
+	border-style:solid;
+	border-bottom-width:0px;
+	border-top-width:1px;
+	border-left-width:0px;
+	border-right-width:1px;
+}
+
+#offlinePayTitle{
+	padding-bottom:12px;
+}
+
+#offlinePayDesc{
+	padding-top:30px;
+	padding-left:5px;
+	
+}
+
+.fontBold{
+	font-size:14px;
+	font-weight:bold;	
+}
+
+#offlinePayTable .lastTr{
+	border-bottom-width:1px;
+}
+.transfershow_div{
+	color:#4d6587;
+	padding-top: 10px;
+	text-align: left;
+	margin-left:20px;
+}
+#accountBalance2_div{
+	margin-left:32px;
+}
+#pointsBalance2_div{
+	margin-left:32px;
+}
+#accountType_div{
+	margin-left:32px;
+}
+#transferType_div{
+	margin-left:32px;
+}
+#transferBalance_div{
+	margin-left:32px;
+}
+.transfershow_div a{
+	color: #4d6587;
+	font-weight:bold;
+	font-family:微软雅黑;
+}
+.transfershow_div span{
+	font-weight:normal;
+	vertical-align: text-bottom;
+}

@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<link href="../../css/shared.css" rel="stylesheet">
+<link rel="shortcut icon" href="../../images/shared/favicon.ico" >
+<link rel="stylesheet" href="../../com/head/head.css" type="text/css" />
+<link rel="stylesheet" href="jingoal.css" type="text/css" />
+<link rel="stylesheet" href="../../css/ui-lightness/jquery-ui-1.8.23.custom.css">
+<script type="text/JavaScript" src="../../js/jquery.js"></script>
+<script src="../../js/jquery.cookie.js" type="text/JavaScript"></script>
+<script type="text/JavaScript" src="../../js/config.js"></script>
+<script type="text/JavaScript" src="../../js/shared.js"></script>
+<script language="JavaScript" src="../../js/jquery.md5.js"></script>
+<script type="text/javascript" src="../../js/jquery-ui-1.8.23.custom.min.js"></script>
+<script src="../../js/pagination.js"></script>
+<script type="text/JavaScript">
+	document.write("<" + "script "
+			+ "language=\"javaScript\" src=\"../../resources/"
+			+ i18n.checkLocale() + ".js\" " + ">" + "<" + "/" + "script" + ">");
+</script>
+<script src="../../com/head/head.js" type="text/JavaScript"></script>
+<script language="JavaScript" src="jingoal.nav.js"></script>
+<script language="JavaScript" src="jingoal.js"></script>
+<title>息壤云主机</title>
+</head>
+<body>
+<div class="dv_all">
+<div class="logo"><img src="images/logo.gif"></div><!--logo结束---->
+<div class="banner1">
+<div class="loginbg">
+<div class="zhuce"><a href="../../user/register/index.html?user_source=jingoal"><img src="images/register.png" /></a></div>
+<div><input type="text" id="name" class="login_input" placeholder="用户名"/></div>
+<div><input type="password" id="pass" class="login_input" placeholder="密码"/></div>
+<div>
+    <input type="text" id="validCode" class="login_input" placeholder="验证码" onfocus="getImageCode()"/>
+    &nbsp;<img id="imageCode" alt="" title="看不清，换一个！" src="../../user_mgmt/webSite!getImageCode.action">
+</div>
+<div class="denglu"><img src="images/login.png" id="login_btn" />
+</div><!--denglu结束--->
+</div><!----loginbg结束---->
+<!-- 代码 开始 -->
+    <div id="inner">
+        <div class="hot-event">
+            <!--<div class="switch-nav"><a href="#" onclick="return false;" class="prev"><i class="ico i-prev"></i><span class="hide-clip">上一个</span></a><a href="#" onclick="return false;" class="next"><i class="ico i-next"></i><span class="hide-clip">下一个</span></a></div>-->
+            <div class="event-item" style="display: block; opacity: 1;">
+                <a target="_blank" class="banner">
+                    <img src="images/banner1.jpg" if" class="photo" style="width: 800px; height: 230px;" alt="测试用图片">
+                </a>
+            </div>
+            <div class="event-item" style="display: none; opacity: 0;">
+                <a target="_blank" class="banner">
+                    <img src="images/banner2.jpg" class="photo" style="width: 800px; height: 230px;" alt="测试用图片">
+                </a>
+            </div>
+            <div class="event-item" style="display: none; opacity: 0;">
+                <a target="_blank" class="banner">
+                    <img src="./images/banner3.jpg" class="photo" style="width: 800px; height: 230px;" alt="测试用图片">
+                </a>
+            </div>
+
+<div class="tabbtn">
+             <div class="tabbg1"></div>
+            <div class="switch-tab">
+                <a href="http://cloud.xrnet.cn/TP-Link/jingoal#" onclick="return false;" class="current">1</a>
+                <a href="http://cloud.xrnet.cn/TP-Link/jingoal#" onclick="return false;" class="">2</a>
+                <a href="http://cloud.xrnet.cn/TP-Link/jingoal#" onclick="return false;" class="">3</a>
+            </div>
+			<div class="tabbg2"></div>
+			</div>
+        </div>
+    </div>
+    <script type="text/javascript">
+        $('#inner').nav({ t: 8000, a: 3000 });
+    </script>
+    <!-- 代码 结束 -->
+
+</div><!--banner结束---->
+<div class="content">
+<div class="c_left">
+<div class="c_left1">
+       <div class="c_left1img" style="padding-left:12px; margin-right:30px"><img src="images/vm.png"></div><!--c_left1img结束-->
+       <div class="c_left1con">
+          <div class="c_left1con_t">弹性云计算</div>
+          <div class="c_left1con_c">整合计算、存储与网络资源，按需使用付费，快速部署和管理大规模可扩展的IT基础设施资源等……</div>
+       </div><!--c_left1con结束-->
+    </div><!--c_left1结束-->
+
+
+    <div class="c_left1" style="padding-bottom:5px;">
+       <div class="c_left1img"><img src="./images/con1.gif"></div><!--c_left1img结束-->
+       <div class="c_left1con">
+          <div class="c_left1con_t">MY VPDC</div>
+          <div class="c_left1con_c">通过拖放拓扑结构的设计，用户在不接触任何硬件的情况下，利用SDN技术快速创建、配置和部署您的专署数据中心……<!--c_left1con结束-->
+    </div>
+       </div>
+    </div><!--c_left1结束-->
+    
+    
+</div><!--c_left结束-->
+
+<div class="c_xian"><img src="./images/con_shu.gif"></div>
+
+<div class="c_right">
+
+        <div class="c_left1" style="margin-left:20px;">
+       <div class="c_left1img11"><img src="images/mem.png" /></div><!--c_left1img结束-->
+       <div class="c_left1con">
+          <div class="c_left1con_t">云存储</div>
+          <div class="c_left1con_c">为多种应用构建大规模的数据存储服务，如：互联网海量数字内容、网盘、数字媒体、备份、归档、BigData等……</div>
+       </div><!--c_left1con结束-->
+    </div><!--c_left1结束-->
+    
+        <div class="c_left1" style="height:110px; margin-left:20px;padding-bottom:5px;">
+       <div class="c_left1img11"><img src="./images/con2.gif"></div><!--c_left1img结束-->
+       <div class="c_left1con">
+          <div class="c_left1con_t">全面监控</div>
+          <div class="c_left1con_c">您使用的主机、硬盘以及网络资源都有监控，您可以很方便的了解系统运行情况以及分析和定位问题……</div>
+       </div><!--c_left1con结束-->
+    </div><!--c_left1结束-->
+    
+</div><!--c_right结束-->
+
+</div><!--content结束---->
+<div class="foot">
+
+<ul>
+<li><a href="http://www.xirang.com/" target="_blank">息壤主页</a></li>
+<li><a href="http://kb.xrnet.cn/news/index.php" target="_blank">帮助中心</a></li>
+</ul>
+<div class="foot2">
+7*24小时热线电话: 010-52239198&nbsp;&nbsp;01052239199
+</div>
+<div class="foot3"><a href="http://chat.53kf.com/webCompany.php?arg=xirang&style=1&language=cn&lytype=0&charset=GBK&kflist=off&kf=&zdkf_type=1&referer=http%3A//www.xirang.com/joinus.php&keyword=http%3A//www.xirang.com/&tpl=crystal_blue"> <img src="./images/kefu.gif"></a></div>
+</div><!--foot结束---->
+</div><!---dv_all结束--->
+
+<div id="dialog-alert" style="display:none;">
+	<p>
+	    <span class="ui-icon ui-icon-alert"
+			style="float: left; margin: 0 7px 20px 0;">
+		</span>
+		<span id="dialog-message-alert"></span>	
+	</p>
+</div>
+<div><object id="ClCache" click="sendMsg" host="" width="0" height="0"></object></div>
+</body>
+</html>

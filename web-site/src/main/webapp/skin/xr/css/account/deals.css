@@ -1,0 +1,45 @@
+
+#query {
+    border: 1px solid #CCCCCC;
+    border-radius: 16px 16px 16px 16px;
+    color: #555555;
+    display: inline-block;
+    font-family: Arial, Helvetica, sans-serif;
+    color: #999;
+    line-height: 18px;
+    padding-left: 10px;
+    padding-right: 10px;
+    width: 280px;
+    height: 22px;
+    vertical-align: middle;
+}
+
+#query:focus {
+    border-color: rgba(15, 161, 253, 0.8);
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset, 0 0 6px
+        rgba(155, 216, 255, 0.8);
+    outline: 0 none;
+}
+
+#search {
+    background-image: url("../../images/common/search.png");
+    cursor: pointer;
+    height: 22px;
+    left: 805px;
+    position: absolute;
+    top: 5px;
+    width: 22px;
+    z-index: 99;
+}
+
+.query_table {
+	float: left;
+    width: 840px;
+    margin-top: 20px;
+    margin-left: 50px;
+    font-size: 14px;
+    line-height: 14px;
+    border-radius: 3px;
+    
+    position: relative;
+}

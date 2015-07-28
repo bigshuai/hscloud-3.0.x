@@ -1,0 +1,77 @@
+<html>
+    <head>
+            
+    </head>
+    <body>
+    <table width="100%" cellspacing="0">
+      <tr bgcolor="#004b8a">
+        <td  height="7"></td>
+      </tr>
+	  <tr bgcolor="#ed6e00">
+        <td  height="2"></td>
+      </tr>
+     
+    </table>     
+	<br/>    
+		<div>            
+        <table cellspacing="0" style="border:0px solid #368">            
+            <tr>
+                <td style="padding:3px 8px">
+                   	<strong>尊敬的tywaterlily，您好：</strong>
+                </td>
+            </tr>
+            <tr>
+                <td style="padding:3px 8px"> 
+					感谢您申请注册HS Cloud海辉IaaS云平台！
+                </td>
+            </tr>
+            <tr>
+                <td style="padding:3px 8px">
+					以下是您的注册信息：
+                </td>
+            </tr>
+            <tr>
+				<td style="padding:3px 8px">
+					<span style="font-size:12px">您的用户名：{params:username}</span>
+                </td> 
+            </tr>
+            <tr>
+				<td style="padding:3px 8px">
+					<span style="font-size:12px">您的注册邮箱：{params:mail}</span>
+                </td>
+            </tr>
+            <tr>
+                <td style="padding:3px 8px">
+					<span style="font-size:12px">登录HS Cloud海辉IaaS云平台需输入您的用户名和密码。建议您保管好本邮件！如忘记密码，请点此<a href="{params:rootUrl}/user/getpassword/index.html">找回密码</a>。<span>
+                </td>              
+            </tr>
+        </table>
+        <br/>
+        <br/>		
+        <div>为了您的账户安全，请点击链接完成注册：</div>
+        <div>
+        <a href="{params:rootUrl}/user_mgmt/activeUser!activateUser.action?user.id={params:id}&activateKey={params:activateKey}">点击激活HS Cloud帐户</a></div>
+        </div> 
+        <br/>
+		<br/>
+		<table width="100%" cellspacing="0">
+	  		<tr bgcolor="#ed6e00">
+        		<td  height="3" colspan="4"></td>
+      		</tr>
+     		<tr bgcolor="#004b8a">
+        <td width="10%"  height="20">&nbsp;</td>
+		<td width="35%" style="font-size:15px;font-family: Arial, Helvetica, sans-serif;color: #FFFFFF;" >
+			北京海辉高科软件有限公司
+		</td>
+		<td width="44%" style="font-size:15px;font-family: Arial, Helvetica, sans-serif;color: #FFFFFF;" >北京市海淀区上地东路1号院7号楼环洋大厦5层</td>
+		<td width="11%"  >&nbsp;</td>
+  </tr>
+	  <tr bgcolor="#004b8a">
+        <td width="10%"  height="20">&nbsp;</td>
+		<td width="35%"  style="font-size:15px;font-family: Arial, Helvetica, sans-serif;color: #FFFFFF;" >hscloud.hisoft.com</td>
+		<td width="44%" style="font-size:15px;font-family: Arial, Helvetica, sans-serif;color: #FFFFFF;" >电话：+86 010 59875863  传真：+86 010 59875599</td>
+		<td width="11%"  >&nbsp;</td>
+      </tr>
+    </table> 
+    <body>
+</html>

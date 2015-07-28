@@ -1,0 +1,853 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+ <head>
+  <title>订单列表 </title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel='stylesheet' type='text/css' href='../../../extjs-4.1.0/resources/css/ext-all-gray.css' />
+<script type='text/javascript' src='../../../extjs-4.1.0/ext-all.js'></script>
+<script type="text/javascript" src="../../../js/head.js"></script>
+<script type="text/javascript" src="../../../js/ux/data/PagingMemoryProxy.js"></script>
+<script type="text/javascript" src="../../../js/ux/form/SearchField.js"></script>
+<script type="text/javascript" src="../../../js/ux/ProgressBarPager.js"></script>
+<script type="text/javascript" src="../../../js/ux/RowExpander.js"></script>
+<script src="../../../js/jquery-1.7.2.min.js" type="text/javascript"></script>
+<script type="text/javascript" charset="utf-8" src="../../../js/i18n.js"></script>
+
+
+    <style type="text/css">
+        body .x-panel {
+            margin:0 0 0 0;
+			padding:0 0 0 0;
+        }
+		        /* style rows on mouseover */
+        .x-grid-row-over .x-grid-cell-inner {
+            font-weight: bold;
+        }
+		        .x-ie6 .x-action-col-cell img {
+            position:relative;
+            top:-1px;
+        }
+        
+        .fontWhite{  
+            color: #ffffff;  
+        }  
+    </style>
+
+<script type="text/javascript">
+
+
+Ext.Loader.setConfig({
+    enabled: true
+});
+
+Ext.require([
+    'Ext.data.*',
+    'Ext.panel.Panel',
+    'Ext.view.View',
+    'Ext.layout.container.Fit',
+    'Ext.toolbar.Paging',
+    'Ext.ux.form.SearchField',
+	'Ext.ux.RowExpander',
+    'Ext.selection.CheckboxModel',
+	'Ext.ux.data.PagingMemoryProxy',
+    'Ext.ux.ProgressBarPager'
+]);
+
+var store;
+//编辑窗口
+var editWin;
+//详细信息窗口
+var add;
+
+
+
+Ext.regModel('osTypeInfo', {
+	fields: [{name: 'osTypeText'}, {name: 'osTypeValue'}]
+});
+
+var osTypeStore = Ext.create('Ext.data.Store', {
+	model: 'osTypeInfo',
+	data: [
+	       {osTypeText:'Windows', osTypeValue: 'Windows'},
+	       {osTypeText:'Linux', osTypeValue: 'Linux'}
+	       ]
+});
+
+
+
+function detailView() {
+	var rows = Ext.getCmp('imageGrid').getSelectionModel().getSelection();
+    if(rows.length > 0){
+        var id = rows[0].get('id');
+        var fileName = rows[0].get('fileName');
+        var size = rows[0].get('size');
+        var osType = rows[0].get('osType');
+        var distro = rows[0].get('distro');
+        var desc = rows[0].get('desc');
+        var username = rows[0].get('username');
+        var passwd = rows[0].get('passwd');
+        
+        Ext.getCmp('id').setValue(id);
+        Ext.getCmp('fileNameId').setValue(fileName);
+        Ext.getCmp('sizeId').setValue(size+'G');
+        Ext.getCmp('osTypeId').setValue(osType);
+        Ext.getCmp('versionNameId').setValue(distro);
+        Ext.getCmp('memoId').setValue(desc);
+        Ext.getCmp('userNameId').setValue(username);
+        Ext.getCmp('passwordId').setValue(passwd);
+        add.show();
+    } else {
+    	Ext.MessageBox.show({
+           title: i18n._('Prompt'),
+           msg: i18n._('selectOne'),
+           icon:Ext.MessageBox.WARNING,
+           buttons: Ext.MessageBox.OK
+        }); 
+    }
+}
+
+function editView() {
+	var rows = Ext.getCmp('imageGrid').getSelectionModel().getSelection();
+    if(rows.length > 0){
+        var id = rows[0].get('id');
+        var fileName = rows[0].get('fileName');
+        var size = rows[0].get('size');
+        var osType = rows[0].get('osType');
+        var distro = rows[0].get('distro');
+        var desc = rows[0].get('desc');
+        var username = rows[0].get('username');
+        var passwd = rows[0].get('passwd');
+        
+        
+        Ext.getCmp('edit_Id').setValue(id);
+        Ext.getCmp('editFileNameId').setValue(fileName);
+        Ext.getCmp('editSizeId').setValue(size+'G');
+        Ext.getCmp('editOsTypeId').setValue(osType);
+        Ext.getCmp('editVersionNameId').setValue(distro);
+        Ext.getCmp('editMemoId').setValue(desc);
+        Ext.getCmp('editUserNameId').setValue(username);
+        Ext.getCmp('editPasswordId').setValue(passwd);
+        editWin.show();
+    } else {
+    	Ext.MessageBox.show({
+           title: i18n._('Prompt'),
+           msg: i18n._('selectOne'),
+           icon:Ext.MessageBox.WARNING,
+           buttons: Ext.MessageBox.OK
+        }); 
+    }
+}
+
+//此处为独立函数
+function LTrim(str){
+    var i;
+    for(i=0;i<str.length;i++)
+    {
+        if(str.charAt(i)!=" "&&str.charAt(i)!=" ")break;
+    }
+    str=str.substring(i,str.length);
+    return str;
+}
+function RTrim(str){
+    var i;
+    for(i=str.length-1;i>=0;i--)
+    {
+        if(str.charAt(i)!=" "&&str.charAt(i)!=" ")break;
+    }
+    str=str.substring(0,i+1);
+    return str;
+}
+function Trim(str){
+    return LTrim(RTrim(str));
+}
+
+Ext.onReady(function() {
+	var vmid=0;
+    var params;
+    MultiLang = (function() {
+        return {
+            init: function() {
+                // load ExtJS locale
+                params = getCookie("lang");
+                i18n.set({
+  				  lang: params, 
+  				  path: '../../../resources'
+  				});
+                if (params) {
+                    var url = Ext.util.Format.format('../../../extjs-4.1.0/locale/ext-lang-{0}.js', params);
+                    Ext.Ajax.request({
+                        url: url,
+                        success: this.onLoadExtLocaleSuccess,
+                        failure: this.onLoadExtLocaleFailure,
+                        scope: this
+                    });
+                } else {
+                	this.setup();
+                }
+            },
+            onLoadExtLocaleSuccess: function(response) {
+                try {
+                    eval(response.responseText);
+                } catch (e) {
+                    //Ext.Msg.alert('Failure', e.toString());
+                }
+                //this.loadmyprojectLocale();
+                this.setup();
+            },
+            onLoadExtLocaleFailure: function() {
+                //Ext.Msg.alert('Failure', 'Failed to load locale file.');
+                this.setup();
+                //this.loadmyprojectLocale();
+            },
+            setup: function() {
+	
+            	//数字验证
+                Ext.apply( 
+                    Ext.form.VTypes, 
+                    { 
+                      digitCheck : function(val, field) { 
+                         var str=val; 
+                         var pattern = /^\d+(.\d+)?$/;
+                         return pattern.test(str);
+                      },
+                      digitCheckText : i18n._("digitCheckText")
+                     }        
+                );
+                
+                //字符检验
+                function checkPassword(array, letter) {
+                    for(var index = 0; index < array.length; index++) {
+                        if(letter == array[index]){
+                            return true;
+                        }
+                    }
+                    return false;
+                }
+                
+                //密码验证
+                Ext.apply( 
+                    Ext.form.VTypes, 
+                    { 
+                        passwordCheck : function(val, field) { 
+                            if(val.length < 6) {
+                                return false;
+                            }
+                            
+                            var digitals = [0,1,2,3,4,5,6,7,8,9];
+                            var lowerCaseLetters = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','v','y','z'];
+                            var upperCaseLetters = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','V','Y','Z'];
+                            
+                            var digitalFlag = false;
+                            var lowerLetterFlag = false;
+                            var upperLetterFlag = false;
+                            
+                            var password = val;
+                            for(var i = 0; i < password.length; i++) {
+                                if(checkPassword(digitals, password[i]) == true) {
+                                    digitalFlag = true;
+                                } else if(checkPassword(lowerCaseLetters, password[i]) == true) {
+                                    lowerLetterFlag = true;
+                                } else if(checkPassword(upperCaseLetters, password[i]) == true) {
+                                    upperLetterFlag = true;
+                                } else {
+                                	return false;
+                                }
+                            }
+                            
+                            if(digitalFlag == false || lowerLetterFlag == false
+                                    || upperLetterFlag == false) {
+                                return false;
+                            }   
+                            return true;
+                        },
+                        passwordCheckText : i18n._("passwordStyleErr")
+                    }        
+                );
+                
+              //用户名验证
+                Ext.apply(Ext.form.VTypes, 
+                    { 
+                        usernameCheck : function(val, field) { 
+                            var str=val; 
+                            var pattern = /^[A-Za-z0-9]{1,}$/;
+                            return pattern.test(str);
+                        },
+                        usernameCheckText : i18n._("InvalidCharacters")
+                        }        
+                );
+            	
+              Ext.define('Image', {
+			      extend: 'Ext.data.Model',
+			      fields: [
+			          'id', 'fileName', 'size', 'osType','distro','desc','status','username', 'passwd', 
+			          {name: 'createDate', mapping: 'createDate', type: 'date', dateFormat: 'time'}
+			      ],
+			      idProperty: 'id'
+			  });
+
+			  // create the Data Store
+			  store = Ext.create('Ext.data.Store', {
+			      pageSize: pageSize,
+			      model: 'Image',
+			      sorters: [
+			                {
+			                    property : 'createDate',
+			                    direction: 'DESC'
+			                }
+			            ],
+			      remoteSort: true,
+			      proxy: new Ext.data.proxy.Ajax({
+			      	url: path+'/../../image/image!showImageList.action',
+					reader: {
+			              type: 'json',
+			              root: 'resultObject.result',
+			              totalProperty: 'resultObject.totalCount'
+			        }
+			      })
+			  });
+ 
+
+
+    		Ext.QuickTips.init();
+    		
+    		
+    		add = Ext.create('Ext.window.Window', {
+    			title: i18n._('Detail'),
+    			height: 265,
+    			layout:'fit',
+    			width: 400,
+    			border: false,
+    			constrain : true,
+    			closable:false,
+    			modal:true,
+    			tools:[{
+    				  type:'close',
+    				  handler:function(){
+    					  Ext.getCmp('addform').getForm().reset();
+    			          add.hide();
+    				  }
+    			}],
+    			items: [
+    				{
+    				xtype: 'form',
+    				id:'addform',
+    				height:'100%',
+    				width:500,
+    				border: false,
+    				items: [
+    					{
+    						xtype:'displayfield',
+    						fieldLabel: i18n._('imageId'),
+    						style:'margin-left:40px;margin-top:20px;',
+    						name:'id',
+    						id: 'id',
+    						allowBlank: false,
+    						maxLength:50
+    					},
+    					{
+    						xtype:'displayfield',
+    						fieldLabel: i18n._('imageName'),
+    						style:'margin-left:40px;',
+    						name:'fileName',
+    						id: 'fileNameId',
+    						allowBlank: false,
+    						maxLength:50
+    					},
+    					{
+    		                xtype:'displayfield',
+    		                fieldLabel: i18n._('virtualSize'),
+    		                style:'margin-left:40px;',
+    		                name:'size',
+    		                id:'sizeId',
+    		                maxLength:50
+    		            },
+    		            {
+    		                xtype:'displayfield',
+    		                fieldLabel: i18n._('osType'),
+    		                style:'margin-left:40px;',
+    		                name:'size',
+    		                id:'osTypeId',
+    		                maxLength:50
+    		            },
+    					{
+    						xtype:'displayfield',
+    						name: 'versionName',
+    						id:'versionNameId',
+    						fieldLabel:i18n._('versionName'),
+    						style:'margin-left:40px;',
+    						allowBlank: false,
+    						maxLength:50
+    					},
+    					{
+                            xtype:'displayfield',
+                            name: 'userName',
+                            fieldLabel: i18n._('username'),
+                            id:'userNameId',
+                            style:'margin-left:40px;',
+                            name:i18n._('User Name'),
+                            allowBlank: false,
+                            maxLength:50
+                        },
+                        {
+                            xtype:'displayfield',
+                            name: 'password',
+                            fieldLabel: i18n._('password'),
+                            id:'passwordId',
+                            style:'margin-left:40px;',
+                            allowBlank: false,
+                            maxLength:50
+                        },
+    					{
+    						xtype: 'displayfield',
+    						name: 'memo',
+    						id:'memoId',
+    						style:'margin-left:40px;',
+    						fieldLabel:i18n._('memo'),
+    						maxLength:255
+    					}
+    				]
+    			}]
+    		});
+    		
+    		editWin = Ext.create('Ext.window.Window', {
+    			title: i18n._('modify'),
+    			height: 345,
+    			layout:'fit',
+    			width: 400,
+    			border: false,
+    			constrain : true,
+    			closable:false,
+    			modal:true,
+    			tools:[{
+    				  type:'close',
+    				  handler:function(){
+    					  Ext.getCmp('editForm').getForm().reset();
+    					  editWin.hide();
+    				  }
+    			}],
+    			items: [
+    				{
+    				xtype: 'form',
+    				id:'editForm',
+    				height:'100%',
+    				width:500,
+    				border: false,
+    				items: [
+    					{
+    						xtype:'displayfield',
+    						fieldLabel: i18n._('imageId'),
+    						style:'margin-left:40px;margin-top:20px;',
+    						name:'xxid',
+    						id: 'edit_Id',
+    						allowBlank: false,
+    						maxLength:50
+    					},
+    					{
+    						xtype:'displayfield',
+    						fieldLabel: i18n._('imageName'),
+    						style:'margin-left:40px;',
+    						name:'fileName',
+    						id: 'editFileNameId',
+    						allowBlank: false,
+    						maxLength:50
+    					},
+    					{
+    		                xtype:'displayfield',
+    		                fieldLabel: i18n._('virtualSize'),
+    		                style:'margin-left:40px;',
+    		                name:'size',
+    		                id:'editSizeId',
+    		                vtype:'digitCheck',
+    		                maxLength:50
+    		            },
+    					{
+    						xtype: 'combo',
+    						name: 'osType',
+    						id:'editOsTypeId',
+    						style:'margin-left:40px;',
+    						fieldLabel: i18n._('osType'),
+    						triggerAction: 'all',
+    						store: osTypeStore,
+    						displayField: 'osTypeText',
+    						valueField: 'osTypeValue',
+    						queryMode: 'local',
+    						forceSelection: true,
+    						typeAhead: true,
+    						allowBlank: false,
+    						value: 'Windows'
+    					},
+    					{
+    						xtype:'textfield',
+    						name: 'versionName',
+    						id:'editVersionNameId',
+    						fieldLabel:i18n._('versionName'),
+    						style:'margin-left:40px;',
+    						allowBlank: false,
+    						maxLength:50
+    					},
+    					{
+                            xtype:'textfield',
+                            name: 'userName',
+                            id:'editUserNameId',
+                            fieldLabel: i18n._('username'),
+                            style:'margin-left:40px;',
+                            name:i18n._('User Name'),
+                            allowBlank: false,
+                            vtype:'usernameCheck',
+                            maxLength:50
+                        },
+                        {
+                            xtype:'textfield',
+                            name: 'password',
+                            id:'editPasswordId',
+                            fieldLabel: i18n._('password'),
+                            style:'margin-left:40px;',
+                            allowBlank: false,
+                            vtype:'passwordCheck',
+                            minLength:6,
+                            maxLength:50
+                        },
+    					{
+    						xtype: 'textarea',
+    						name: 'memo',
+    						id:'editMemoId',
+    						style:'margin-left:40px;',
+    						fieldLabel:i18n._('memo'),
+    						maxLength:255
+    					}
+    				]
+    			}],
+    			dockedItems: [{
+    				xtype: 'toolbar',
+    				dock: 'bottom',
+    				ui: 'footer',
+    				layout: {
+    					pack: 'left'
+    				},
+    				items: [{
+    					style:'margin-left:160px;',
+    					minWidth: 80,
+    					text:i18n._('OK'),
+    					handler:function(){
+    						var editVersionNameId = Trim(Ext.getCmp('editVersionNameId').getValue());
+    						var editOsTypeId = Trim(Ext.getCmp('editOsTypeId').getValue());
+    						var editPasswordId = Trim(Ext.getCmp('editPasswordId').getValue());
+    						var editUserNameId = Trim(Ext.getCmp('editUserNameId').getValue());
+    						var editMemoId = Trim(Ext.getCmp('editMemoId').getValue());
+    						
+    						Ext.getCmp('editVersionNameId').setValue(editVersionNameId);
+    						Ext.getCmp('editOsTypeId').setValue(editOsTypeId);
+    						Ext.getCmp('editPasswordId').setValue(editPasswordId);
+    						Ext.getCmp('editUserNameId').setValue(editUserNameId);
+    						Ext.getCmp('editMemoId').setValue(editMemoId);
+    						
+    						if(!Ext.getCmp('editOsTypeId').isValid() || !Ext.getCmp('editVersionNameId').isValid()
+                                    || !Ext.getCmp('editUserNameId').isValid() 
+                                    || !Ext.getCmp('editPasswordId').isValid()){
+                                return;
+                            }
+    						
+    						Ext.Ajax.request({
+    							url: path+'/../../image/image!editImage.action',
+    							method:'POST',
+    							params: {
+    								"image.id":Ext.getCmp('edit_Id').getValue(),
+    								"image.distro": Ext.getCmp('editVersionNameId').getValue(),
+    								"image.osType":Ext.getCmp('editOsTypeId').getValue(),
+    								"image.passwd":Ext.getCmp('editPasswordId').getValue(),
+                                    "image.username":Ext.getCmp('editUserNameId').getValue(),
+    								"image.desc":Ext.getCmp('editMemoId').getValue()
+    							},
+    							success: function(response){
+    								var obj = Ext.decode(response.responseText);
+    								if(obj.success){
+    									Ext.MessageBox.show({
+    										 title:i18n._('notice'),
+    										 msg:i18n._('Modify information success!'),
+    										 icon:Ext.MessageBox.INFO,
+    										  buttons: Ext.MessageBox.OK
+    								   
+    									 }); 
+    									Ext.getCmp('editForm').getForm().reset();
+    									editWin.hide();
+    									store.load();
+    								}
+    								else{
+    									Ext.MessageBox.show({
+    									   title:i18n._('notice'),
+    									   msg: obj.resultMsg,
+    									   icon:Ext.MessageBox.WARNING,
+    									   buttons: Ext.MessageBox.OK
+    									   
+    								   }); 
+    								   return;
+    								}
+    							}
+    						});
+    					}
+    			    }]
+    			}]
+    		});
+
+
+    		
+    ////////////////////////////////////////////////////////////////////////////////////////
+    // Grid 4
+    ////////////////////////////////////////////////////////////////////////////////////////
+    var selModel = Ext.create('Ext.selection.CheckboxModel', {
+        listeners: {
+            selectionchange: function(sm, selections) {
+                grid4.down('#removeButton').setDisabled(selections.length == 0);
+            }
+        }
+    });
+    var sm = Ext.create('Ext.selection.RowModel');
+    var pluginExpanded = true;
+    var grid = Ext.create('Ext.grid.Panel', {
+        id:'imageGrid',
+        store: store,
+		layout:'fit',
+		margin:'0 0 0 0',
+	    width:'100%',
+		height:'100%',
+	//	height:300,
+        frame: true,
+		border:false,
+		simpleSelect :true,
+     	selModel:sm,
+        iconCls: 'icon-grid',
+		//自适应
+        viewConfig: {
+            stripeRows: true,
+			forceFit: true
+        },
+        columns:[
+		Ext.create('Ext.grid.RowNumberer',{header:'',dataIndex:'item',align:'left',flex:0.1}),
+       {
+            text: i18n._('imageId'),
+            dataIndex: 'id',
+            flex: 0.6,
+            sortable: false
+        },{
+            text: i18n._('imageName'),
+            dataIndex: 'fileName',
+            flex: 0.4,
+            sortable: false
+        },{
+            text: i18n._('virtualSize'),
+            dataIndex: 'size',
+            flex: 0.2,
+            align: 'left',
+            sortable: true,
+            renderer : function(value) {
+    			if (value != '' && value !=null) {
+    				return value+'G';//良好
+    			} else {
+    				return value;
+    			}
+
+    		}
+        },{
+            text: i18n._('osType'),
+            dataIndex: 'osType',
+            flex: 0.2,
+            sortable: true
+        },{
+            text: i18n._('versionName'),
+            dataIndex: 'distro',
+            flex: 0.3,
+            sortable: true
+        },{
+            text: i18n._('memo'),
+            dataIndex: 'desc',
+            flex: 0.6,
+            sortable: false
+        }],
+        listeners:{
+            'itemdblclick':{
+                fn:function(){
+                    detailView();
+                }
+            }
+        },
+        columnLines: true,
+        //page
+        bbar: Ext.create('Ext.PagingToolbar', {
+            store: store,
+            pageSize: 0,
+            displayInfo: true
+        }),
+        // inline buttons
+        dockedItems: [ {
+            xtype: 'toolbar',
+            cls: 'toolbarCSS',
+            items: [
+			{
+                itemId: 'removeButton',
+                text: '<font id="editId" color="#ffffff" >' + i18n._('modify') + '</font>',
+                tooltip: i18n._('modify'),
+                icon:'../../../images/edit_new.png',
+                listeners: {
+					 "mouseout" : function() {
+						 document.getElementById("editId").style.color = "#ffffff";
+					 },
+					 "mouseover" : function() {
+						 document.getElementById("editId").style.color = "#000000";
+					 }
+						
+				},
+			    handler: function(e) {
+			    	editView();
+			    }
+            },{
+                itemId: 'detailButton',
+                text: '<font id="deleteId" color="#ffffff" >' + i18n._('Delete') + '</font>',
+                tooltip:i18n._('Delete'),
+                disabled: true,
+                icon:'../../../images/delete.png',
+                listeners: {
+					 "mouseout" : function() {
+						 document.getElementById("deleteId").style.color = "#ffffff";
+					 },
+					 "mouseover" : function() {
+						 document.getElementById("deleteId").style.color = "#000000";
+					 }
+						
+				},
+                handler:function(){
+                	var rows = grid.getSelectionModel().getSelection();
+	                if(rows.length > 0){
+	                    var id = rows[0].get('id');
+	                  //  var record = store1.getById(id);
+	                  Ext.Msg.confirm(i18n._('confirm'),i18n._('Whether delete?'), function(btn) {  
+                            if (btn == 'yes') {  
+                            	Ext.Ajax.request({  
+                                    url : path+'/../../image/image!deleteImage.action',
+                                    jsonData:{
+                                        'id':id
+                                    },      
+                                    success : function(response) {
+                                        var obj = Ext.decode(response.responseText);
+                                        if(obj.success){
+                                        	Ext.MessageBox.show({
+		                                       title:i18n._('notice'),
+		                                       msg:i18n._('Delete Success!'),
+		                                       icon:Ext.MessageBox.INFO,
+		                                       buttons: Ext.MessageBox.OK
+			                                }); 
+                                        	store.load();
+		                                } else {
+		                                	Ext.MessageBox.show({
+		                                       title: i18n._('notice'),
+		                                       msg: obj.resultMsg,
+		                                       icon:Ext.MessageBox.INFO,
+		                                       buttons: Ext.MessageBox.OK
+			                                }); 
+                                        }
+                                    },  
+                                    failure : function(res) {  
+                                        Ext.MessageBox.show({
+                                              // title: '提示',
+                                              // msg: '网络错误',
+                                               title:i18n._('notice'),
+                                               msg:i18n._('Internet Error'),
+                                               icon:Ext.MessageBox.INFO,
+                                               buttons: Ext.MessageBox.OK
+                                           }); 
+                                    },  
+                                    scope : this  
+                                  });  
+                            }  
+                          }, this);  
+	                }else{
+	                    Ext.MessageBox.show({
+	                           //title: '提示',
+	                          // msg: '请选择一个用户',
+	                          title:i18n._('notice'),
+	                           msg:i18n._('selectOne'),
+	                           icon:Ext.MessageBox.INFO,
+	                           buttons: Ext.MessageBox.OK
+	                           
+	                       }); 
+	                    return;
+	                }   
+            	}},
+           	{
+				 xtype:'button',
+				 text: '<font id="detailId" color="#ffffff" >' + i18n._('Detail') + '</font>',
+				 tooltip:i18n._('Detail'),
+				 icon: '../../../images/detail.png',
+				 listeners: {
+					 "click" : function(){
+						 detailView();
+					 },
+					 "mouseout" : function() {
+						 document.getElementById("detailId").style.color = "#ffffff";
+					 },
+					 "mouseover" : function() {
+						 document.getElementById("detailId").style.color = "#000000";
+					 }
+						
+				 }
+					 
+			},
+            {xtype:'tbfill'},
+			{
+				xtype: 'label',
+				text: i18n._('quickQuery') + ":",
+				cls : 'fontWhite'
+			},
+			{
+                labelWidth: 65,
+                xtype: 'searchfield',
+                width: 300,
+                store: store,
+				id:'orderNoField',
+				emptyText:i18n._('imageName') + '/' + i18n._('osType') + '/' + i18n._('versionName') + '/' + i18n._('memo')
+			 }]
+        }]
+    });
+
+Ext.create('Ext.Viewport', {
+    width: '100%',
+	height:'100%',
+	layout:'fit',
+	border:false,
+    items:[{
+            xtype:'panel',
+			id:'pane_one',
+			title: i18n._('CMDB')+'&nbsp;&nbsp;>&nbsp;&nbsp;'+i18n._('imageManage'),
+			width:'100%',
+			bodyBorder:false,
+			layout:'fit',
+			items:grid
+		 }]
+	});
+	
+ 	/* store.on('beforeload',function(store,options){
+		var new_params={'image.id':'1'};
+		Ext.apply(store.proxy.extraParams,new_params);
+	}); */
+	 store.load();
+
+            }
+        };
+    })();
+
+    MultiLang.init();
+    
+});
+
+function getCookie(name){
+         var arr = document.cookie.match(new RegExp("(^| )"+name+"=([^;]*)(;|$)"));
+         if(arr != null) return unescape(arr[2]);
+		 return null;
+ }
+
+</script>
+ </head>
+
+ <body>
+  
+ </body>
+</html>

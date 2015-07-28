@@ -1,0 +1,1349 @@
+@CHARSET "UTF-8";
+
+input::-ms-clear {
+	display: none;
+}
+
+#publicResourcesMenu {
+	float: left;
+	font-size: 12px;
+	margin-top: 25px;
+	width: 940px;
+}
+
+#addHost {
+	cursor: pointer;
+	margin-left: 30px;
+}
+
+.container {
+	position: relative;
+}
+
+#query {
+	border: 1px solid #CCCCCC;
+	border-radius: 16px 16px 16px 16px;
+	color: #555555;
+	display: inline-block;
+	font-family: Arial, Helvetica, sans-serif;
+	color: #999;
+	line-height: 18px;
+	padding-left: 10px;
+	padding-right: 10px;
+	width: 280px;
+	height: 22px;
+	vertical-align: middle;
+}
+
+#query:focus {
+	border-color: rgba(15, 161, 253, 0.8);
+	box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset, 0 0 6px
+		rgba(155, 216, 255, 0.8);
+	outline: 0 none;
+}
+
+#search {
+	background-image: url("../../../images/common/search.png");
+	cursor: pointer;
+	height: 22px;
+	left: 403px;
+	position: absolute;
+	top: 2px;
+	width: 22px;
+	z-index: 99;
+}
+
+#showway2 {
+	margin-left: 10px;
+}
+
+.showway1 {
+	border: 1px solid #CCCCCC;
+	border-radius: 2px 2px 2px 2px;
+	background-color: #585858;
+	background-image: url(../../../images/common/showway1_.png);
+	display: inline-block;
+	width: 24px;
+	height: 24px;
+	vertical-align: middle;
+	cursor: pointer;
+}
+
+.showway1:hover {
+	background-color: #585858;
+	background-image: url(../../../images/common/showway1_.png);
+}
+
+.showway2 {
+	border: 1px solid #CCCCCC;
+	border-radius: 2px 2px 2px 2px;
+	color: #fff;
+	background-image: url(../../../images/common/showway2.png);
+	display: inline-block;
+	margin-left: 3px;
+	width: 24px;
+	height: 24px;
+	vertical-align: middle;
+	cursor: pointer;
+}
+
+.showway2:hover {
+	background-color: #585858;
+	background-image: url(../../../images/common/showway2_.png);
+}
+
+#publicResourcesContent,#publicResourcesLegend,#publicResourcesList {
+	float: left;
+	height: 548px;
+	width: 940px;
+}
+
+#legendContent,#tableId2 {
+	float: left;
+	height: 480px;
+	width: 940px;
+}
+
+.singleHost {
+	background-color: #f5f3f4;
+	border: 1px solid #CCCCCC;
+	height: 190px;
+	width: 190px;
+	margin-top: 30px;
+	margin-left: 30px;
+	margin-right: 8px;
+	margin-bottom: 10px;
+	font-size: 12px;
+	font-family: Arial, Helvetica, sans-serif;
+	color: #333;
+	float: left;
+}
+
+.singleHost:hover {
+	background-image: url(../../../images/vpdc/center/singleHost.png);
+	border-color: #70a8ff;
+	box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset, 0 0 6px
+		rgba(155, 216, 255, 0.8);
+	color: #fff;
+}
+
+.divLeft {
+	height: 112px;
+	width: 112px;
+	float: left;
+	margin-top: 12px;
+	margin-left: 12px;
+	border: 1px solid #CCC;
+}
+
+.divRight {
+	float: left;
+	height: 114px;
+	margin-top: 12px;
+	width: 64px;
+}
+
+.divRightHidden {
+	display: none;
+	float: left;
+	height: 126px;
+	text-align: center;
+	width: 64px;
+}
+
+.detailInfo {
+	height: 20px;
+	width: 20px;
+	margin-left: 44px;
+	cursor: pointer;
+}
+
+.divBottom {
+	width: 166px;
+	height: 45px;
+	float: left;
+	line-height: 17px;
+	margin-top: 12px;
+	padding-left: 12px;
+	padding-right: 12px;
+}
+
+#hostName2,#ipAddress2 {
+	font-weight: bold;
+}
+
+#legendPager,#listPager {
+	float: left;
+	height: 68px;
+	width: 940px;
+}
+
+#listContent {
+	float: left;
+	width: 880px;
+	height: 440px;
+	border: 1px solid #e1e1e5;
+	background: url(../../../images/message/table_light.png) repeat-x
+		#F5F6FA;
+	margin-left: 30px;
+	margin-top: 20px;
+	font-size: 14px;
+	line-height: 14px;
+	border-radius: 3px;
+}
+
+.tableHeader {
+	color: #4D6587;
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 14px;
+	font-weight: bold;
+	line-height: 14px;
+}
+
+.ipDiv {
+	float: left;
+	width: 170px;
+}
+
+.buttonImage {
+	cursor: pointer;
+	float: left;
+	margin-left: 20px;
+	margin-top: 7px;
+}
+
+.buttonImage2 {
+	cursor: pointer;
+	float: left;
+	margin-left: 5px;
+}
+
+.vpdcIndex {
+	margin-right: 15px;
+}
+
+.leftTriangle1 {
+	background-image: url("../../../images/vpdc/center/leftTriangle.png");
+	cursor: pointer;
+	height: 12px;
+	left: 46px;
+	position: absolute;
+	top: 14px;
+	width: 8px;
+	z-index: 99;
+	display: none;
+}
+
+.legendOperateDiv1 {
+	height: 110px;
+	left: 55px;
+	position: absolute;
+	top: 8px;
+	width: 120px;
+	z-index: 99;
+	background: none repeat scroll 0 0 rgba(0, 0, 0, 0.6);
+	border: 1px solid rgba(0, 0, 0, 0);
+	border-radius: 5px;
+	display: none;
+	/* filter: progid:DXImageTransform.Microsoft.Gradient(GradientType=0,
+	StartColorStr='#88000000', EndColorStr='#88000000'); */
+}
+
+.leftTriangle2 {
+	background-image: url("../../../images/vpdc/center/leftTriangle.png");
+	cursor: pointer;
+	height: 12px;
+	left: 46px;
+	position: absolute;
+	top: 44px;
+	width: 8px;
+	z-index: 99;
+	display: none;
+}
+
+.legendOperateDiv2 {
+	height: 58px;
+	left: 55px;
+	position: absolute;
+	top: 38px;
+	width: 120px;
+	z-index: 99;
+	background: none repeat scroll 0 0 rgba(0, 0, 0, 0.6);
+	border: 1px solid rgba(0, 0, 0, 0);
+	border-radius: 5px;
+	display: none;
+}
+
+.leftTriangle3 {
+	background-image: url("../../../images/vpdc/center/leftTriangle.png");
+	cursor: pointer;
+	height: 12px;
+	left: 46px;
+	position: absolute;
+	top: 74px;
+	width: 8px;
+	z-index: 99;
+	display: none;
+}
+
+.legendOperateDiv3 {
+	height: 186px;
+	left: 55px;
+	position: absolute;
+	top: 68px;
+	width: 120px;
+	z-index: 99;
+	background: none repeat scroll 0 0 rgba(0, 0, 0, 0.6);
+	border: 1px solid rgba(0, 0, 0, 0);
+	border-radius: 5px;
+	display: none;
+}
+
+.topTriangle1 {
+	background-image: url("../../../images/vpdc/center/topTriangle.png");
+	cursor: pointer;
+	display: none;
+	height: 8px;
+	left: 9px;
+	position: absolute;
+	top: 25px;
+	width: 14px;
+	z-index: 99;
+}
+
+.listOperateDiv1 {
+	background: none repeat scroll 0 0 rgba(0, 0, 0, 0.6);
+	border: 1px solid rgba(0, 0, 0, 0);
+	border-radius: 5px;
+	display: none;
+	height: 110px;
+	left: -46px;
+	position: absolute;
+	top: 33px;
+	width: 120px;
+	z-index: 99;
+}
+
+.topTriangle2 {
+	background-image: url("../../../images/vpdc/center/topTriangle.png");
+	cursor: pointer;
+	display: none;
+	height: 8px;
+	left: 10px;
+	position: absolute;
+	top: 25px;
+	width: 14px;
+	z-index: 99;
+}
+
+.listOperateDiv2 {
+	background: none repeat scroll 0 0 rgba(0, 0, 0, 0.6);
+	border: 1px solid rgba(0, 0, 0, 0);
+	border-radius: 5px;
+	display: none;
+	height: 58px;
+	left: -45px;
+	position: absolute;
+	top: 33px;
+	width: 120px;
+	z-index: 99;
+}
+
+.topTriangle3 {
+	background-image: url("../../../images/vpdc/center/topTriangle.png");
+	cursor: pointer;
+	display: none;
+	height: 8px;
+	left: 10px;
+	position: absolute;
+	top: 25px;
+	width: 14px;
+	z-index: 99;
+}
+
+.listOperateDiv3 {
+	background: none repeat scroll 0 0 rgba(0, 0, 0, 0.6);
+	border: 1px solid rgba(0, 0, 0, 0);
+	border-radius: 5px;
+	display: none;
+	height: 212px;
+	left: -45px;
+	position: absolute;
+	top: 33px;
+	width: 120px;
+	z-index: 99;
+}
+
+.operateImage {
+	padding-left: 9px;
+	padding-top: 5px;
+	line-height: 20px;
+}
+
+.dialogTable {
+	margin: 0 auto;
+	font-size: 16px;
+	font-family: 微软雅黑;
+	width: 500px;
+}
+
+.dialogTd1 {
+	width: 120px;
+	text-align: right;
+	height: 36px;
+}
+
+.dialogTd2 {
+	padding-left: 10px;
+	width: 380px;
+	height: 36px;
+	text-align: left;
+}
+
+.dialogTable_input {
+	border: 1px solid #a4a4a4;
+	cursor: text;
+	width: 300px;
+	height: 28px;
+	background-color: #fff;
+	color: #313131;
+	font-family: 微软雅黑;
+	font-size: 14px;
+	line-height: 28px;
+}
+
+.dialogTable_input:focus {
+	border: 1px solid #5A87D3;
+}
+
+.dialogTable_select {
+	border: 1px solid #a4a4a4;
+	cursor: text;
+	width: 302px;
+	height: 32px;
+	background-color: #fff;
+	color: #313131;
+	font-family: 微软雅黑;
+	font-size: 14px;
+	line-height: 32px;
+}
+
+.dialogTable_select:focus {
+	border: 1px solid #5A87D3;
+}
+
+.dialog2Table {
+	margin: 0 auto;
+	font-size: 14px;
+	font-family: 微软雅黑;
+	width: 600px;
+}
+
+.dialog2Td1 {
+	width: 130px;
+	text-align: right;
+	height: 26px;
+}
+
+.dialog2Td2 {
+	padding-left: 10px;
+	width: 470px;
+	height: 26px;
+	text-align: left;
+}
+
+/***************************** 快照和还原 tab选项卡样式: begin ******************************** */
+ul,ol,li {
+	list-style-type: none;
+}
+
+a,area {
+	blr: expression(this.onFocus = this.onBlur)
+}
+
+:focus {
+	-moz-outline-style: none;
+}
+
+.clear {
+	clear: both;
+}
+
+.hidden {
+	display: none;
+}
+
+.block {
+	display: block;
+}
+
+.m2yw_right {
+	width: 500px;
+	margin-top: 10px;
+}
+
+.m2yw_tab {
+	background: url(../../../images/vpdc/center/m2line.jpg) repeat-x scroll
+		left bottom transparent;
+	height: 25px;
+}
+
+.m2yw_tab ul li {
+	background: url(../../../images/vpdc/center/m2_hover2.jpg) no-repeat
+		scroll 0 0 transparent;
+	cursor: pointer;
+	float: left;
+	height: 25px;
+	line-height: 25px;
+	margin-right: 5px;
+	text-align: center;
+	width: 85px;
+}
+
+.m2yw_tab ul .m2yw_cutli {
+	background: url(../../../images/vpdc/center/m2_hover1.jpg) no-repeat
+		scroll 0 0 transparent;
+	color: black;
+	font-weight: bold;
+}
+
+.m2yw_pic {
+	border-bottom: 1px solid #DEDCDD;
+	border-left: 1px solid #DEDCDD;
+	border-right: 1px solid #DEDCDD;
+	height: 350px;
+}
+
+.m2yw_piclist {
+	float: left;
+	overflow: hidden;
+	position: relative;
+	width: 498px;
+	height: 350px;
+	background-color: white;
+}
+
+/********************************** 快照和还原 tab选项卡样式: end ******************************** */
+#snapshotTable {
+	border: 0px;
+	margin-top: 20px;
+	font-size: 14px;
+	font-family: 微软雅黑;
+	width: 498px;
+	vertical-align: middle;
+}
+
+.snapshot_td1 {
+	width: 120px;
+	text-align: right;
+	height: 40px;
+}
+
+.snapshot_td2 {
+	padding-left: 10px;
+	width: 380px;
+	height: 40px;
+	text-align: left;
+}
+
+#snapshotName {
+	border: 1px solid #a4a4a4;
+	cursor: text;
+	width: 300px;
+	height: 28px;
+	background-color: #fff;
+	color: #313131;
+	font-family: 微软雅黑;
+	font-size: 14px;
+	line-height: 28px;
+}
+
+#snapshotComments {
+	border: 1px solid #a4a4a4;
+	height: 120px;
+	width: 300px;
+}
+
+#snapshotName:focus,#snapshotComments:focus {
+	border: 1px solid #5A87D3;
+}
+
+#snapshotMessage {
+	color: green;
+	font-family: 微软雅黑;
+	font-size: 14px;
+}
+
+.page_button {
+	background-color: #5A87D3;
+	border: 0 none;
+	border-radius: 3px;
+	color: #FFFFFF;
+	cursor: pointer;
+	font-family: 微软雅黑;
+	font-size: 16px;
+	height: 44px;
+	line-height: 44px;
+	text-align: center;
+	width: 150px;
+}
+
+.restore_td1 {
+	width: 100px;
+	text-align: right;
+	height: 40px;
+}
+
+.restore_td2 {
+	padding-left: 10px;
+	width: 200px;
+	height: 40px;
+	text-align: left;
+}
+
+.restore_td3 {
+	width: 200px;
+	height: 40px;
+}
+
+#week_select,#month_select {
+	background-color: #FFFFFF;
+	border: 1px solid #A4A4A4;
+	color: #313131;
+	cursor: text;
+	font-family: 微软雅黑;
+	font-size: 14px;
+	height: 30px;
+	line-height: 30px;
+	margin-left: 10px;
+	padding-left: 10px;
+	width: 90px;
+}
+
+#week_time,#month_time {
+	border: 1px solid #A4A4A4;
+	color: #313131;
+	cursor: text;
+	font-family: 微软雅黑;
+	font-size: 14px;
+	height: 26px;
+	line-height: 26px;
+	padding-left: 10px;
+	width: 80px;
+}
+
+#restoreMessage {
+	padding-left: 15px;
+	color: green;
+	font-family: 微软雅黑;
+	font-size: 14px;
+	color: green;
+	text-align: left;
+}
+
+#restoreButton,#enterRemoteMonitoring {
+	margin-left: 5px;
+	background-color: #5A87D3;
+	border: 0 none;
+	border-radius: 3px;
+	color: #FFFFFF;
+	cursor: pointer;
+	font-family: 微软雅黑;
+	font-size: 16px;
+	height: 44px;
+	line-height: 44px;
+	text-align: center;
+	width: 150px;
+	background-color: #5A87D3;
+}
+
+#week_select:focus,#month_select:focus,#week_time:focus,#month_time:focus
+	{
+	border: 1px solid #5A87D3;
+}
+
+/***************************  历史快照样式     ******************************* */
+.hSTable {
+	width: 498px;
+	border: 0px;
+	font-family: 微软雅黑;
+	font-size: 14px;
+	height: 39px;
+}
+
+.hSTd1 {
+	width: 8%;
+	text-align: center;
+}
+
+.hSTd2 {
+	width: 40%;
+	text-align: center;
+}
+
+.hSTd3 {
+	width: 30%;
+	text-align: center;
+}
+
+.hSTd4 {
+	width: 10%;
+	text-align: center;
+}
+
+.hSTd5 {
+	width: 12%;
+	text-align: left;
+}
+
+.hSTdRestore {
+	border: 0px;
+	cursor: pointer;
+	margin-top: 10px;
+}
+
+.hSTdDelete {
+	border: 0px;
+	cursor: pointer;
+	margin-left: 8px;
+}
+
+#historySnapshots {
+	float: left;
+	width: 498px;
+	height: 312px;
+	overflow-x: hidden;
+	overflow-y: scroll;
+}
+/***************************  远程监控样式     ******************************* */
+#remoteTable {
+	width: 500px;
+	border: 0px;
+	font-family: 微软雅黑;
+	font-size: 14px;
+}
+
+#remoteImgTd {
+	vertical-align: middle;
+	text-align: center;
+	height: 70px;
+	padding-top: 10px;
+}
+
+.remoteTd1 {
+	width: 170px;
+	height: 25px;
+	text-align: right;
+}
+
+.remoteTd2 {
+	width: 350px;
+	height: 25px;
+	text-align: left;
+}
+
+#validCode {
+	border: 1px solid #a4a4a4;
+	border-radius: 2px;
+	width: 120px;
+	height: 23px;
+	color: #313131;
+	line-height: 23px;
+}
+
+#validCode:focus {
+	border: 1px solid #5A87D3;
+}
+
+#validCodeDiv {
+	float: left;
+}
+
+.imageCodeDiv {
+	float: left;
+	margin-left: 10px;
+	margin-top: 4px;
+}
+
+#prompt {
+	text-align: right;
+}
+
+.dg_btn_no {
+	background: none repeat scroll 0 0 #EAEAEA;
+	border: 1px solid #ACACAC;
+	color: #333333;
+	cursor: pointer;
+	float: right;
+	font-family: "Microsoft yahei", arial;
+	font-size: 12px;
+	height: 20px;
+	line-height: 20px;
+	margin-left: 10px;
+	outline: medium none;
+	padding: 0 18px;
+	text-decoration: none;
+}
+
+.dg_btn_no:hover {
+	background: none repeat scroll 0 0 #E0EFFC;
+}
+
+/***************************** 事件监控 tab选项卡样式: begin ******************************** */
+.m2yw2_right {
+	width: 800px;
+	margin-top: 10px;
+}
+
+.m2yw2_tab {
+	background: url(../../../images/vpdc/center/m2line.jpg) repeat-x scroll
+		left bottom transparent;
+	height: 25px;
+}
+
+.m2yw2_tab ul li {
+	background: url(../../../images/vpdc/center/m2_hover2.jpg) no-repeat
+		scroll 0 0 transparent;
+	cursor: pointer;
+	float: left;
+	height: 25px;
+	line-height: 25px;
+	margin-right: 5px;
+	text-align: center;
+	width: 85px;
+}
+
+.m2yw2_tab ul .m2yw2_cutli {
+	background: url(../../../images/vpdc/center/m2_hover1.jpg) no-repeat
+		scroll 0 0 transparent;
+	color: black;
+	font-weight: bold;
+}
+
+.m2yw2_pic {
+	border-bottom: 1px solid #DEDCDD;
+	border-left: 1px solid #DEDCDD;
+	border-right: 1px solid #DEDCDD;
+	height: 500px;
+}
+
+.m2yw2_piclist {
+	float: left;
+	overflow: hidden;
+	position: relative;
+	width: 798px;
+	height: 500px;
+	background-color: white;
+}
+
+/********************************** 事件监控 tab选项卡样式: end ******************************** */
+#eventMonitoringTable {
+	width: 800px;
+	margin: 0px 5px 0px 5px;
+	border: 0px;
+}
+
+#logSearch {
+	border: 0px;
+	height: 46px;
+	width: 800px;
+	font-family: 微软雅黑;
+	font-size: 14px;
+}
+
+#operateType {
+	border: 1px solid #DEDEDE;
+	width: 125px;
+	height: 30px;
+	font-family: 微软雅黑;
+	font-size: 14px;
+	padding-left: 5px;
+}
+
+#dateFrom,#dateTo {
+	border: 1px solid #DEDEDE;
+	cursor: text;
+	width: 120px;
+	height: 26px;
+	background-color: #FBFBFB;
+	color: #313131;
+	font-family: 微软雅黑;
+	font-size: 14px;
+	line-height: 26px;
+	padding-left: 10px;
+}
+
+#operateType:focus {
+	border: 1px solid #5A87D3;
+}
+
+#logHeader {
+	border: 0px;
+	height: 40px;
+	width: 800px;
+	font-family: 微软雅黑;
+	font-size: 14px;
+}
+
+.box_datepicker {
+	float: left;
+	border: 1px solid #c1c1c1;
+	background: url(../../../images/vpdc/center/datepicker.png);
+	color: #555555;
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 14px;
+	color: #999;
+	line-height: 18px;
+	padding-left: 10px;
+	margin-left: 10px;
+	width: 100px;
+	height: 28px;
+	vertical-align: middle;
+}
+
+.box_datepicker:focus {
+	border-color: #00a1cb;
+}
+
+.hasDatepicker {
+	border: 1px solid #C1C1C1;
+	color: #999999;
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 14px;
+	float: left;
+	line-height: 18px;
+	vertical-align: middle;
+}
+
+.ui-datepicker-trigger {
+	position: relative;
+	top: 6px;
+	left: -30px;
+	float: left;
+	cursor: pointer;
+}
+
+#logDiv {
+	border: 0px;
+	height: 350px;
+	width: 800px;
+	font-family: 微软雅黑;
+	line-height: 40px;
+	font-size: 14px;
+}
+
+#tableId3 {
+	float: left;
+	cursor: auto;
+	border: 0px;
+	height: 40px;
+	width: 798px;
+}
+
+.logTd1 {
+	width: 9%;
+	text-align: right;
+	padding-right: 14px;
+}
+
+.logTd2 {
+	width: 21%;
+	text-align: center;
+}
+
+.logTd3 {
+	width: 22%;
+	text-align: center;
+}
+
+.logTd4 {
+	width: 28%;
+	text-align: center;
+}
+
+.logTd5 {
+	width: 10%;
+	text-align: center;
+}
+
+.logTd6 {
+	width: 10%;
+}
+
+/********************************** 详细监控 tab选项卡样式 ******************************** */
+#detailMonitoring {
+	border: 0px;
+	width: 800px;
+	height: 28px;
+	background-color: #E0E0E0;
+}
+
+#dmType,#dmObject {
+	border: 0px;
+	width: 100%;
+	height: 28px;
+}
+
+.select_dm {
+	background: url(../../../images/vpdc/center/bg_dm_select.png);
+	width: 68px;
+	height: 26px;
+	line-height: 26px;
+	text-align: center;
+	font-weight: bold;
+	color: #ffffff;
+	cursor: pointer;
+}
+
+.unselect_dm {
+	width: 68px;
+	height: 26px;
+	line-height: 26px;
+	text-align: center;
+	cursor: pointer;
+}
+
+#monitorMenu1Td1 {
+	width: 10px;
+	height: 28px;
+	background-image: url("../../../images/vpdc/center/bg_dm_left.gif");
+}
+
+#monitorMenu1Td2 {
+	width: 20px;
+	height: 28px;
+	background-image: url("../../../images/vpdc/center/bg_dm_middle.gif");
+}
+
+#monitorMenu1Td3 {
+	height: 28px;
+	background-image: url("../../../images/vpdc/center/bg_dm_middle.gif");
+	width: 5px;
+	padding-left: 2px;
+}
+
+#monitorMenu1Td4 {
+	height: 28px;
+	background-image: url("../../../images/vpdc/center/bg_dm_middle.gif");
+}
+
+#historyMonitorTD {
+	background-image: url("../../../images/vpdc/center/bg_dm_middle.gif");
+	text-align: left;
+	display: none;
+	height: 28px;
+	padding-top: 3px;
+}
+
+#monitorMenu1Td5 {
+	width: 11px;
+	height: 28px;
+	background-image: url("../../../images/vpdc/center/bg_dm_right.gif");
+}
+
+#mdstart {
+	width: 128px;
+	margin-top: 2px;
+	vertical-align: middle;
+}
+
+#mdend {
+	vertical-align: middle;
+	width: 128px;
+	border: 1px solid #C1C1C1;
+	color: #999999;
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 14px;
+	line-height: 18px;
+	margin-top: 2px;
+}
+
+#searchMonitor {
+	margin-left: 4px;
+	cursor: pointer;
+	vertical-align: middle;
+}
+
+#monitorMenu2Td1 {
+	width: 10px;
+	background-image: url("../../../images/vpdc/center/bg_mo_left.gif");
+}
+
+#monitorMenu2Td2 {
+	text-align: center;
+	color: #FFFFFF;
+	background-image: url("../../../images/vpdc/center/bg_mo_middle.gif");
+}
+
+#monitorMenu2Td3,#monitorMenu2Td5,#monitorMenu2Td7 {
+	color: #000000;
+	background-image: url("../../../images/vpdc/center/bg_mo_middle.gif");
+	width: 5px;
+	padding-left: 2px;
+}
+
+#monitorMenu2Td4 {
+	text-align: center;
+	color: #FFFFFF;
+	background-image: url("../../../images/vpdc/center/bg_mo_middle.gif");
+}
+
+#monitorMenu2Td6 {
+	text-align: center;
+	color: #FFFFFF;
+	background-image: url("../../../images/vpdc/center/bg_mo_middle.gif");
+}
+
+#monitorMenu2Td8 {
+	text-align: center;
+	color: #FFFFFF;
+	background-image: url("../../../images/vpdc/center/bg_mo_middle.gif");
+}
+
+#monitorMenu2Td9 {
+	width: 10px;
+	background-image: url("../../../images/vpdc/center/bg_mo_right.gif");
+}
+
+/***************************** 安全策略 tab选项卡样式: begin *********************************/
+.m2yw3_right {
+	width: 680px;
+	margin-top: 10px;
+}
+
+.m2yw3_tab {
+	background: url(../../../images/vpdc/center/m2line.jpg) repeat-x scroll
+		left bottom transparent;
+	height: 25px;
+}
+
+.m2yw3_tab ul li {
+	background: url(../../../images/vpdc/center/m2_hover2.jpg) no-repeat
+		scroll 0 0 transparent;
+	cursor: pointer;
+	float: left;
+	height: 25px;
+	line-height: 25px;
+	margin-right: 5px;
+	text-align: center;
+	width: 85px;
+}
+
+.m2yw3_tab ul .m2yw3_cutli {
+	background: url(../../../images/vpdc/center/m2_hover1.jpg) no-repeat
+		scroll 0 0 transparent;
+	color: black;
+	font-weight: bold;
+}
+
+.m2yw3_pic {
+	border-bottom: 1px solid #DEDCDD;
+	border-left: 1px solid #DEDCDD;
+	border-right: 1px solid #DEDCDD;
+	height: 480px;
+}
+
+.m2yw3_piclist {
+	float: left;
+	overflow: hidden;
+	position: relative;
+	width: 678px;
+	height: 480px;
+	background-color: white;
+}
+
+/********************************** 安全策略 tab选项卡样式: end *********************************/
+.intranetHeader {
+	border: 0px;
+	height: 30px;
+	width: 678px;
+	font-family: 微软雅黑;
+	font-size: 14px;
+	margin-top: 2px;
+}
+
+.intranetTable {
+	border: 0px;
+	height: 30px;
+	width: 678px;
+	font-family: 微软雅黑;
+	font-size: 14px;
+}
+
+#tableId4 {
+	width: 100%;
+	padding-bottom: 5px;
+	float: left;
+	cursor: auto;
+	border: 0px;
+	height: 30px;
+	width: 678px;
+	font-family: 微软雅黑;
+	font-size: 14px;
+}
+
+.securitySearch {
+	border: 0px;
+	height: 32px;
+	width: 678px;
+	font-family: 微软雅黑;
+	font-size: 14px;
+	color: #000000;
+	font-weight: bold;
+	background-color: #5A87D3;
+}
+
+.intranetTd1 {
+	width: 9.5%;
+	text-align: right;
+	padding-right: 8px;
+	height: 30px;
+}
+
+.intranetTd2 {
+	width: 47.5%;
+	text-align: center;
+	height: 30px;
+}
+
+.intranetTd3 {
+	width: 23%;
+	text-align: center;
+	height: 30px;
+}
+
+.intranetTd4 {
+	width: 20%;
+	padding-left: 30px;
+	height: 30px;
+	text-align: left;	
+}
+
+.intranetTd4 img {
+	cursor: pointer;
+}
+
+#searchTd1 {
+	width: 20%;
+	text-align: right;
+}
+
+#searchTd2 {
+	width: 80%;
+	padding-left: 180px;
+}
+
+#addedHosts {
+	float: left;
+	width: 678px;
+	height: 120px;
+	overflow-x: hidden;
+	overflow-y: scroll;
+}
+
+#unAddedHosts {
+	float: left;
+	width: 678px;
+	height: 240px;
+	margin-bottom: 10px;
+}
+
+/********************** 搜索框 div里面放置输入框和按钮    搜索框样式开始：begin ***********************/
+#keyword {
+	border: 1px solid #DEDEDE;
+	border-radius: 14px;
+	cursor: text;
+	width: 320px;
+	height: 20px;
+	background-color: #FBFBFB;
+	color: #313131;
+	font-family: 微软雅黑;
+	font-size: 14px;
+	line-height: 20px;
+	padding-left: 10px;
+	font-style: italic;
+}
+
+#searchHost {
+	background-image: url("../../../images/vpdc/center/searchHost.png");
+	position: absolute;
+	width: 20px;
+	height: 20px;
+	top: 3px;
+	left: 300px;
+	z-index: 99;
+	cursor: pointer;
+}
+
+/*********************************** 搜索框样式结束：end **************************************/
+.extranetHeader {
+	border: 0px;
+	height: 30px;
+	width: 678px;
+	font-family: 微软雅黑;
+	font-size: 14px;
+	margin-top: 2px;
+}
+
+#protocols {
+	float: left;
+	width: 678px;
+	height: 400px;
+	overflow-x: hidden;
+	overflow-y: scroll;
+}
+
+.extranetTable {
+	border: 0px;
+	height: 40px;
+	width: 678px;
+	font-family: 微软雅黑;
+	font-size: 14px;
+}
+
+.extranetTd1 {
+	width: 9.5%;
+	text-align: right;
+	padding-right: 8px;
+}
+
+.extranetTd2 {
+	width: 24.5%;
+	text-align: center;
+}
+
+.extranetTd3 {
+	width: 36%;
+	text-align: center;
+}
+
+.extranetTd4 {
+	width: 30%;
+	padding-left: 25px;
+	text-align: left;
+}
+
+.extranetTable select {
+	border: 1px solid #DEDEDE;
+	width: 114px;
+	height: 26px;
+	font-family: 微软雅黑;
+	font-size: 14px;
+	line-height: 26px;
+}
+
+.extranetTable input {
+	cursor: text;
+	width: 55px;
+	height: 18px;
+	background-color: #FBFBFB;
+	color: #313131;
+	font-family: 微软雅黑;
+	font-size: 14px;
+	line-height: 18px;
+	padding-left: 5px;
+}
+
+.extranetTable img {
+	cursor: pointer;
+}

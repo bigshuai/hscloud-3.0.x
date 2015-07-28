@@ -1,0 +1,43 @@
+<html>
+    <head>
+        
+    </head>
+    <body>
+        <div>
+                           您好：<br/>
+                           此邮件用来通知您，您刚刚在我们hscloud平台所创建的虚拟机已经可以使用
+		<br/><br/>
+       	 虚拟机的详细信息如下：<br/>
+		<span style="font-size:12px;color:#369"><br/>1. 配置信息:</span><br/>
+        <table cellspacing="0" summary="虚拟机{params:name}" style="border:1px solid #368">
+            <tr style="background:#efefef">
+                <td style="padding:3px 8px">名称</td> <td style="padding:3px 8px">CPU</td> <td style="padding:3px 8px">内存(MB)</td>
+                <td style="padding:3px 8px">硬盘(GB)</td> <td style="padding:3px 8px">IP</td> 
+            </tr>
+            <tr>
+                <td style="padding:3px 8px">{params:name}</td> <td style="padding:3px 8px">{params:cpu}</td> <td style="padding:3px 8px">{params:ram}</td>
+                <td style="padding:3px 8px">{params:disk}</td> <td style="padding:3px 8px" >{params:ip}</td>
+            </tr>
+        </table>
+		
+		<span style="font-size:12px;color:#369"><br/>2. 操作系统信息:</span><br/>
+		<table cellspacing="0" summary="虚拟机{params:name}" style="border:1px solid #368">
+			<tr style="background:#efefef">
+				<td style="padding:3px 8px">操作系统</td><td style="padding:3px 8px" >系统用户名</td><td style="padding:3px 8px">系统密码</td>
+				
+			</tr>
+			<tr>
+				<td style="padding:3px 8px">{params:os}</td>
+				<td style="padding:3px 8px">{params:os-name}</td>
+				<td style="padding:3px 8px">{params:os-passwd} </td>
+			</tr>
+		</table>
+<span style="background:#FF8000;color:#fff">NOTE:</span><span style="color:#FF8000"> 为了您的系统安全，请尽快更改系统默认密码</span>
+        <br/>
+        <br/>
+                           说明：<br/>
+        如果您的虚拟机为windows操作系统，请通过windows远程访问工具来访问/管理主机，<br/>
+        如果您的虚拟机为linux操作系统，请通过ssh远程访问/管理主机
+        </div> 
+    <body>
+</html>

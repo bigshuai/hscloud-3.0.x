@@ -1,0 +1,53 @@
+.gray{
+	color: rgb(204,204,204);
+}
+.black{
+	color: #555555;
+}
+ul {
+	padding:0px 0px 0px 30px;
+	list-style:none;
+	font-size:14px;
+}
+li {
+	height:20px;
+	list-style:none;
+	padding:0px 80px 0px 60px;
+	text-align:right;
+}
+li img {
+	vertical-align:middle;
+	padding:0px 0px 0px 0px;
+}
+li span {
+	padding:0px 0px 0px 0px;
+	vertical-align:middle;
+}
+input{
+	border: 1px solid #CCCCCC;
+    border-radius: 3px 3px 3px 3px;
+    display: inline-block;
+    font-family: Arial,Helvetica,sans-serif;
+    line-height: 18px;
+    width: 180px;
+    height: 24px;
+}
+input:focus{
+    border-color: rgba(82, 168, 236, 0.8);
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset, 0 0 8px rgba(82, 168, 236, 0.6);
+    outline: 0 none;
+}
+label{
+	font-family: "宋体";
+	font-size: 14px;
+}
+.username{
+    background: url("../images/login/username.png") no-repeat;
+    background-position: left; center;
+    padding-left: 15px;
+}
+.password{
+	background: url("../images/login/password.png") no-repeat;
+	background-position: left; center;
+    padding-left: 15px;
+}

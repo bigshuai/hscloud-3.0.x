@@ -1,0 +1,205 @@
+<html>
+<head>
+<title>月收入统计</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel='stylesheet' type='text/css' href='../../extjs-4.1.0/resources/css/ext-all-gray.css' />
+<script type='text/javascript' src='../../extjs-4.1.0/ext-all.js'></script>
+<script type="text/javascript" src="../../js/head.js"></script>
+<script type="text/javascript" src="../../js/ux/data/PagingMemoryProxy.js"></script>
+<script type="text/javascript" src="../../js/ux/form/SearchField.js"></script>
+<script src="../../js/jquery-1.7.2.min.js" type="text/javascript"></script>
+<script type="text/javascript" charset="utf-8" src="../../js/i18n.js"></script>
+<script type="text/javascript" src="../systemmanagement/common.js"></script>
+
+<script>
+Ext.require('Ext.chart.*');
+Ext.require([
+	'Ext.form.field.ComboBox',
+    'Ext.form.FieldSet',
+	'Ext.Window', 
+    'Ext.data.*',
+    'Ext.panel.Panel',
+    'Ext.layout.container.Fit',
+    'Ext.ux.form.SearchField',
+	'Ext.fx.target.Sprite',
+	'Ext.ux.data.PagingMemoryProxy'
+]);
+
+Ext.onReady(function () {
+	var personUserAmountModel = Ext.define('personUserAmountModel', {
+		extend : 'Ext.data.Model',
+		fields : [
+		          'reportMonth','userNum'
+		          ]
+	});
+	
+	var yearStore = Ext.create('Ext.data.Store', {
+	    fields: ['id', 'year'],
+	    proxy : new Ext.data.proxy.Ajax(
+				{
+					url:path + '/../report_mgmt/userReport!findReoprtYear.action',
+					reader : {
+						type : 'json',
+						root : 'resultObject'									
+					},
+					listeners:{
+						exception:function(reader, response, error, eOpts){
+							v_mask.hide();
+							ajaxException(reader, response, error, eOpts );										
+						}
+					}							
+				})
+	    
+	    
+	});
+	yearStore.load();
+	
+	//用户统计Store
+	var store = Ext.create('Ext.data.Store', {
+		model : 'personUserAmountModel',
+		autoLoad : false,
+		proxy : new Ext.data.proxy.Ajax({
+			actionMethods: { read: 'POST' },
+			url : path + '/../report_mgmt/userReport!findPersonUserAmountStatisticsList.action',
+			 reader : {
+				type : 'json',
+				root : 'resultObject'
+			},
+			listeners:{
+				exception:function(reader, response, error, eOpts){
+					ajaxException(reader, response, error, eOpts );
+				}
+			}
+		}),	
+		listeners : {
+			beforeload : function(store,operation, eOpts ){	
+				v_mask = new Ext.LoadMask(Ext.getBody(), {
+					msg : i18n._('please wait'),
+					removeMask : true			
+				});
+				v_mask.show();
+			},
+			load : function(store, records, successful, eOpts ){
+				v_mask.hide();
+			}
+		}
+	});	
+	store.load();
+	
+	var imgb = new Ext.Button({  
+    		        text: '<font color="#ee7700">'+i18n._('Search')+'</font>',
+    		        icon: "images/search.png",
+    		        handler :function(btn) { 
+    		        	var proxy = store.getProxy();
+    		        	var searchAppyear = Ext.getCmp('searchAppyear').getValue();
+						proxy.setExtraParam('searchAppyear',searchAppyear);
+						proxy.extraParams.start = 0;
+						store.loadPage(1,null);
+    	            }
+    		    }); 
+
+var grid = Ext.create('Ext.panel.Panel', {
+    id:'button-grid',
+    store: store,
+    title:i18n._('报表管理')+'&nbsp;&nbsp;>&nbsp;&nbsp;'+i18n._('用户统计')+'&nbsp;&nbsp;>&nbsp;&nbsp;'+i18n._('个人用户月增长数量统计'),
+	layout:'fit',
+
+    width:'100%',
+	height:'100%',
+    frame: true,
+	border:false,
+	simpleSelect :true,
+    iconCls: 'icon-grid',
+	renderTo: Ext.getBody(),
+	//自适应
+    viewConfig: {
+        stripeRows: true,
+		forceFit: true
+    }
+});
+
+Ext.create('Ext.form.Panel', {
+    width: 400,
+	margin:'10px 0 30px 320px',
+    bodyPadding: 10,
+    renderTo: Ext.getBody(),
+    layout: {
+        type: 'hbox',
+        align: 'middle'
+    },
+    items: [{
+        xtype: 'label',
+        forId: 'myFieldId',
+        text: '年份',
+        margins: '0 10px 0 50px'
+    },{
+       xtype:'combobox',
+	   margins: '0 10px 0 0 ',
+		name:'searchAppyear', 
+		id:'searchAppyear', 
+		store:yearStore,         //       这里的store为combox的数据源                   
+		queryMode: 'local',                    
+		displayField: 'year',   // 显示在前台的名字                    
+		valueField: 'id',                // 具体的值                   
+		emptyText:'全部',                //为空的状态下显示的内容
+		hideLabel:true
+    },imgb]
+});
+var myDate = new Date();
+var nowYear=myDate.getFullYear()
+Ext.getCmp('searchAppyear').setValue(nowYear);
+
+	Ext.create('Ext.chart.Chart', {
+	    renderTo: Ext.getBody(),
+		margin:'0 0 0 200px',
+	    width: 600,
+	    height: 400,
+	    animate: true,
+	    store: store,
+	        axes: [{
+	            type: 'Numeric',
+	            position: 'left',
+	            fields: ['userNum'],
+	            label: {
+	                renderer: Ext.util.Format.numberRenderer('0.0')
+	            },
+	            title: '用户数（单位：人）',
+	            grid: true,
+	            minimum: 0
+	        }, {
+	            type: 'Category',
+	            position: 'bottom',
+	            fields: ['reportMonth'],
+	            title: '月份（单位：月）'
+	        }],
+	        series: [{
+	            type: 'column',
+	            axis: 'left',
+	            highlight: true,
+	            tips: {
+	              trackMouse: true,
+	              width: 140,
+	              height: 28,
+	              renderer: function(storeItem, item) {
+	                this.setTitle(storeItem.get('reportMonth') + ': ' + storeItem.get('userNum') + '人');
+	              }
+	            },
+	            label: {
+	              display: 'insideEnd',
+	              'text-anchor': 'middle',
+	                field: 'data1',
+	                renderer: Ext.util.Format.numberRenderer('0'),
+	                orientation: 'vertical',
+	                color: '#333'
+	            },
+	            xField: 'reportMonth',
+	            yField: 'userNum'
+	        }]
+	});
+   
+});
+</script>
+</head>
+<body>
+</body>
+</html>

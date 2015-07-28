@@ -1,0 +1,1 @@
+java -cp .;lib/*:MessageServer.jar; com.pactera.hscloud.messageserver.server.MessageServer

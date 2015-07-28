@@ -1,0 +1,127 @@
+@CHARSET "UTF-8";
+#query {
+	border: 1px solid #CCCCCC;
+	border-radius: 16px 16px 16px 16px;
+	color: #555555;
+	display: inline-block;
+	font-family: Arial, Helvetica, sans-serif;
+	color: #999;
+	line-height: 18px;
+	width: 220px;
+	height: 22px;
+	margin-top: 3px;
+	vertical-align: middle;
+	background-repeat: no-repeat;
+	background-position: right;
+	float: left;
+	
+}
+#search {
+	background-image: url("../../../images/common/search.png");
+	cursor: pointer;
+	height: 22px;
+	left: 240px;
+	position: relative;
+	display: block;
+	width: 22px;
+	top:5px;
+	z-index: 99;
+}
+.box_datepicker{
+	float:left;
+	border: 1px solid #c1c1c1;
+	background: url(images/datepicker.png);
+    color: #555555;
+    font-family: Arial,Helvetica,sans-serif;
+	font-size:14px;
+	color:#999;
+    line-height: 18px;
+	padding-left: 10px;
+	margin-left:10px;
+    width:100px;
+    height: 33px;
+	vertical-align: middle;
+	border-radius:3px;
+	
+}
+.box_datepicker:focus{
+    border-color:#00a1cb;
+}
+
+.cn_blue_bold{
+	font-weight:bold; 
+	font-family: Arial, Helvetica, sans-serif; 
+	color:#4d6587; 
+	font-size:14px;
+}
+
+
+#div_operating {
+	height:44px; 
+	padding-left:10px;
+	margin-left:50px;
+	padding-top:25px;
+}
+
+#to_span {
+	line-height:33px;
+	float:left;
+	margin-left: 10px;
+}
+
+#order_seach_label {
+	line-height:33px;
+	float:left;
+}
+
+#query:focus {
+	border-color: rgba(15, 161, 253, 0.8);
+	box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset, 0 0 6px
+		rgba(155, 216, 255, 0.8);
+	outline: 0 none;
+}
+a{
+	text-decoration: none;;
+}
+.tr {
+	line-height: 20px;
+	height: 40px;
+	font-family: Arial, Helvetica, sans-serif;
+	color:#4d6587;
+	font-size:14px;
+}
+
+.tr:hover{
+	background-color: #fff;
+}
+
+
+.order_detail_table {
+	font-size: 14px;
+	font-family: Arial, Helvetica, sans-serif;
+	table-layout: fixed;
+    margin-left: 20px;
+    width: 470px;
+}
+
+.order_detail_table td {
+	word-break: break-all;
+	word-wrap: break-word;
+}
+
+.order_detail_table .order_detail_table_left {
+	text-align: right;
+	width: 100px;
+}
+
+.order_detail_table .order_detail_table_right {
+	padding-left: 18px;
+	font-weight: 400;
+	text-align: left;
+}
+
+.order_detail_hr {
+	margin: 10px 20px 5px 20px;
+	border: 1px dashed #b8b8b8;
+}
+

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE struts PUBLIC
+    "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+    "http://struts.apache.org/dtds/struts-2.0.dtd">
+
+<struts>
+	<constant name="struts.objectFactory" value="spring" />
+	<package name="hscloud-default" extends="struts-default" namespace="/">
+		<interceptors>
+		    <interceptor name="i18n" class="com.opensymphony.xwork2.interceptor.I18nInterceptor"/>
+            <interceptor name="localMessage" class="com.hisoft.hscloud.common.util.LocalMessageInterceptior"/>
+            <interceptor name="login" class="com.hisoft.hscloud.web.interceptor.LoginInterceptor"/>
+            <interceptor name="author" class="com.hisoft.hscloud.web.interceptor.AuthorInterceptor"/>
+            <interceptor-stack name="hscloudStack">
+            	<interceptor-ref name="i18n"/>
+                <interceptor-ref name="localMessage"/>
+                <interceptor-ref name="login">
+                    <param name="excludeMethods">verifyAlipayAsynResponse,verifyAlipayResponse,getImageCode,userLoginByUrl,readCopyright,getPassword,loadCountry,loadDomain,loadIndustry,createUser,userLoginByEmail,setLocale,getDomainByDomainId,loadDomainById,duplicateEmail,showOuterAnnouncement,showMoreAnnouncement,showMoreOuterAnnouncement,userLoginForPaymentByUrl,activeUser,getOuterInfomation,synchroExternalUser,modifyUserInf</param>
+                </interceptor-ref>
+                <interceptor-ref name="defaultStack"/>
+            </interceptor-stack>
+		</interceptors>
+		<default-interceptor-ref name="hscloudStack"/><!--这句是设置所有Action自动调用的拦截器堆栈 -->
+	</package>
+	<include file="struts-hscloud-crm-usermanager.xml"></include>
+	<include file="struts-hscloud-vpdc-ops.xml"></include>
+	<include file="struts-hscloud-bss-sla-om.xml"></include>
+	<include file="struts-hscloud-bss-sla-sc.xml"></include> 
+	<include file="struts-hscloud-bss-billing.xml"></include>
+	<include file="struts-hscloud-message.xml"></include>
+	<include file="struts-hscloud-vpdc-oss-monitor.xml"></include>
+    <include file="struts-hscloud-mss-report.xml"></include>
+    <include file="struts-hscloud-log4cloud.xml"></include>
+    <include file="struts-hscloud-message.xml"></include>	
+</struts>

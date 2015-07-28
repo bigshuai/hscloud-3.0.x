@@ -1,0 +1,177 @@
+html,body {
+	font-family: 微软雅黑;
+	background-color: #F2F2F3;
+	height: 100%;
+	width: 100%;
+}
+
+#content {
+	background-color: #F2F2F3;
+	float: left;
+	height: 500px;
+	width: 100%;
+}
+
+#forgetPasswordDiv {
+	border: 1px solid #919AA6;
+	border-radius: 5px 5px 0 0;
+	font-size: 14px;
+	font-weight: normal;
+	height: 420px;
+	margin: 30px auto 50px auto;
+	width: 940px;
+}
+
+.forget_passwd_content {
+	position: relative;
+	top: 100px;
+	left: 60px;
+}
+
+#forgetPassword {
+	color: #FFFFFF;
+	font-family: "微软雅黑";
+	font-size: 15px;
+	padding-top: 12px;
+	cursor: pointer;
+	float: left;
+	line-height: 10px;
+	padding-left: 20px;
+}
+
+.get_passwd_button {
+	cursor: pointer;
+	background: repeat scroll 0 0 #00A1CB;
+	border: 1px solid #007998;
+	color: #FFFFFF;
+	text-shadow: 0 -1px 1px rgba(0, 40, 50, 0.35);
+	border-radius: 3px;
+	box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5) inset, 0 1px 2px
+		rgba(0, 0, 0, 0.2);
+	display: inline-block;
+	font-family: "HelveticaNeue-Light", "Helvetica Neue Light",
+		"Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+	font-size: 14px;
+	font-weight: 300;
+	height: 32px;
+	line-height: 32px;
+	margin-left: 206px;
+	margin-top: 140px;
+	padding: 0 25px;
+	text-align: center;
+	text-decoration: none;
+	vertical-align: middle;
+}
+
+.get_passwd_button:hover {
+	background: repeat scroll 0 0 #00B1CB;
+}
+
+.input_email {
+	border: 1px solid #CCCCCC;
+	border-radius: 5px;
+	cursor: text;
+	width: 232px;
+	padding-left: 10px;
+	height: 32px;
+	background-color: #fff;
+	color: #313131;
+	font-family: 微软雅黑;
+	font-size: 14px;
+	line-height: 32px;
+	margin-left: 5px;
+}
+
+.input_email:focus {
+	background-color: #FFFFFF;
+	border-color: rgba(15, 161, 253, 0.8);
+	box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset, 0 0 6px
+		rgba(155, 216, 255, 0.8);
+	outline: 0 none;
+}
+
+.input_email_tip {
+	color: #3A71CD;
+	position: relative;
+	left: 146px;
+	top: 20px;
+	font-weight: 600;
+	font-size: 13px;
+}
+
+#registerSubDiv {
+	color: #4D6587;
+	float: left;
+	font-size: 13px;
+	font-weight: lighter;
+	height: 300px;
+	line-height: 14px;
+	margin-left: 50px;
+	margin-top: 100px;
+	width: 840px;
+}
+
+#registerTable {
+	width: 100%;
+	border: 0;
+	color: #4D6587;
+	font-size: 13px;
+	font-weight: lighter;
+	line-height: 14px;
+	cellspacing: 1px;
+	cellpadding: 0;
+}
+
+.registerTd1 {
+	width: 200px;
+	height: 38px;
+	text-align: right;
+}
+
+.registerTd2 {
+	vertical-align: middle;
+}
+
+.findPasswd_success_content {
+	position: relative;
+	left: 20px;
+	font-size: 18px;
+	font-weight: 600;
+	color: #3A71CD;
+}
+
+#submitDiv {
+	float: left;
+	height: 40px;
+	line-height: 40px;
+	margin-left: 224px;
+	margin-top: 10px;
+	padding-right: 10px;
+}
+
+#loginEmail {
+	cursor: pointer;
+	background: repeat scroll 0 0 #00A1CB;
+	border: 1px solid #007998;
+	color: #FFFFFF;
+	text-shadow: 0 -1px 1px rgba(0, 40, 50, 0.35);
+	border-radius: 3px;
+	box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5) inset, 0 1px 2px
+		rgba(0, 0, 0, 0.2);
+	display: inline-block;
+	font-family: "HelveticaNeue-Light", "Helvetica Neue Light",
+		"Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+	font-size: 14px;
+	font-weight: 300;
+	height: 32px;
+	line-height: 32px;
+	margin: 0;
+	padding: 0 25px;
+	text-align: center;
+	text-decoration: none;
+	vertical-align: middle;
+}
+
+#loginEmail:hover {
+	background: repeat scroll 0 0 #00B1CB;
+}

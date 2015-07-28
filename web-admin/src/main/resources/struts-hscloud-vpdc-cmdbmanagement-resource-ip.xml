@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE struts PUBLIC
+    "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+    "http://struts.apache.org/dtds/struts-2.0.dtd">
+<struts>
+	<constant name="struts.objectFactory" value="spring" />
+	<constant name="struts.i18n.encoding" value="UTF-8" />
+	<package namespace="/ip" name="hscloud-vpdc-cmdbmanagement-resource-ip" extends="hscloud-default">
+		<interceptors><!-- /system/cmdbmanagement -->
+            <interceptor name="authorInterceptor" class="com.hisoft.hscloud.web.interceptor.AuthorInterceptor"/>
+            <interceptor-stack name="authorStack">
+                <interceptor-ref name="authorInterceptor"/>
+                <interceptor-ref name="hscloudStack"/>
+            </interceptor-stack>
+        </interceptors>
+		<action name="findAllIPRange"
+			class="com.hisoft.hscloud.web.action.IPAction">
+			 <interceptor-ref name="authorStack"/>
+		</action>
+		<action name="createIP"
+			class="com.hisoft.hscloud.web.action.IPAction">
+			<interceptor-ref name="authorStack"/>
+		</action>
+		<action name="deleteIP"
+			class="com.hisoft.hscloud.web.action.IPAction">
+			 <interceptor-ref name="authorStack"/>
+		</action>
+		<action name="findAllIPDetail"
+			class="com.hisoft.hscloud.web.action.IPAction">
+		</action>
+		<action name="updateIPStatus"
+			class="com.hisoft.hscloud.web.action.IPAction">
+			<interceptor-ref name="authorStack"/>
+		</action>
+		<action name="findAllFreeIPDetail"
+			class="com.hisoft.hscloud.web.action.IPAction">
+			<interceptor-ref name="authorStack"/>
+		</action>
+		<action name="network" class="com.hisoft.hscloud.web.action.NetworkAction">
+            <interceptor-ref name="authorStack"/>
+        </action>
+	</package>
+</struts>

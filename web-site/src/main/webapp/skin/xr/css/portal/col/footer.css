@@ -1,0 +1,13 @@
+.footer {
+	position:relative;
+	width: 100%;
+	height: 50px;
+	margin: 0px;
+	padding: 0px;
+	bottom: 0px;
+	line-height: 50px;
+	text-align: center;
+	color: #3369c3;
+	font-size: 12px;
+	font-family: 宋体, Arial, Helvetica, sans-serif;
+}

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE struts PUBLIC
+    "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+    "http://struts.apache.org/dtds/struts-2.0.dtd">
+
+<struts>
+	<constant name="struts.objectFactory" value="spring" />
+	<package name="hicloud-order" extends="hscloud-default"
+		namespace="/order">
+		<interceptors>
+            <interceptor name="authorInterceptor" class="com.hisoft.hscloud.web.interceptor.AuthorInterceptor"/>
+            <interceptor-stack name="authorStack">
+                <interceptor-ref name="authorInterceptor"/>
+                <interceptor-ref name="hscloudStack"/>
+            </interceptor-stack>
+        </interceptors>
+
+		<action name="order" class="com.hisoft.hscloud.web.action.OrderAction" >
+			<interceptor-ref name="authorStack"/> 
+		</action>
+		<action name="refundManagement" class="com.hisoft.hscloud.web.action.RefundManagementAction" ></action>
+		<action name="invoice" class="com.hisoft.hscloud.web.action.InvoiceAction" >
+        </action>
+	</package>
+</struts>

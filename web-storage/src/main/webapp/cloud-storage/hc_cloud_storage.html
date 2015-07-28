@@ -1,0 +1,97 @@
+<html>
+<head>
+<title>hc_cloud_storage</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<!--<link rel="stylesheet" type="text/css" href="../extjs-4.2/resources/css/ext-all.css" />-->
+<!--<script type="text/javascript" src="../extjs-4.2/ext-all.js"></script>-->
+<!--<script type="text/javascript" src="../extjs-4.2/ext-theme-neptune.js"></script>-->
+<style type='text/css'>
+.titleCss {text-decoration:none;color:#ffffff;}
+</style>
+
+<script type="text/javascript" src="../extjs-4.2/include-ext.js"></script>
+<script type="text/javascript" src="../extjs-4.2/options-toolbar.js"></script>
+<script type="text/javascript" src="../extjs-4.2/ux/form/SearchField.js"></script>
+<script type="text/javascript" src="../common/jquery.js"></script>
+<script type="text/javascript" src="../common/i18n.js" charset="utf-8"></script>
+<script type="text/javascript" src="../common/common.js"></script>
+<script type="text/javascript" src="dateTime.js" charset="utf-8"></script>
+<script type="text/javascript" src="cloudStorage.js" charset="utf-8"></script>
+<script type="text/javascript">
+  Ext.onReady(function(){
+		var params;
+    MultiLang = (function() {
+        return {
+            init: function() {
+                // load ExtJS locale
+                params = getCookie("lang");
+                i18n.set({
+  				  lang: params, 
+  				  path: '../resources'
+  				});
+                if (params) {
+                    var url = Ext.util.Format.format('../extjs-4.2/locale/ext-lang-{0}.js', params);
+                    Ext.Ajax.request({
+                        url: url,
+                        success: this.onLoadExtLocaleSuccess,
+                        failure: this.onLoadExtLocaleFailure,
+                        scope: this
+                    });
+                } else {
+                	this.setup();
+                }
+            },
+            onLoadExtLocaleSuccess: function(response) {
+                try {
+                    eval(response.responseText);
+                } catch (e) {
+                    Ext.Msg.alert('Failure', e.toString());
+                }
+                this.setup();
+            },
+            onLoadExtLocaleFailure: function() {
+                Ext.Msg.alert('Failure', 'Failed to load locale file.');
+                this.setup();
+            },
+            setup: function() {	            	
+				Ext.create('Ext.Viewport',{
+					layout:'border',
+					border:5,
+					bodyStyle: {
+						background: '#FFFFFF',
+						padding: '5px'
+					},
+					items:[		
+					{
+						region:'west',
+						xtype:'panel',
+						border:false,
+						width:160,
+						minWidth:160,
+						maxWidth:200,
+						bodyStyle: {
+							background: '#bbe2ff',
+							padding: '5px'
+						},
+						items:[aitem1, aitem2]
+					},//left		
+					{
+						region:'center',
+						border:false,
+						xtype:'panel',
+						id:'mainPanel',
+						//padding:'10 10 0 10 ',
+						layout:'fit',
+						items:[storageGrid]
+					}]
+				});//页面布局
+			}
+		};
+	})();
+    MultiLang.init();    
+});
+</script>
+</head>
+<body>
+</body>
+</html>

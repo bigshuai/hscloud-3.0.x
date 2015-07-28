@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE struts PUBLIC
+    "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+    "http://struts.apache.org/dtds/struts-2.0.dtd">
+
+<struts>
+    <constant name="struts.objectFactory" value="spring" />
+    <package name="hicloud-message" extends="hscloud-default"
+        namespace="/message">
+        <interceptors>
+            <interceptor name="authorInterceptor" class="com.hisoft.hscloud.web.interceptor.AuthorInterceptor"/>
+            <interceptor-stack name="authorStack">
+                <interceptor-ref name="authorInterceptor"/>
+                <interceptor-ref name="hscloudStack"/>
+            </interceptor-stack>
+        </interceptors>
+        
+        <action name="announcement" class="com.hisoft.hscloud.web.action.AnnouncementAction">
+        	<interceptor-ref name="authorStack"/>
+        </action>
+        <action name="smsMessage" class="com.hisoft.hscloud.web.action.SMSMessageAction">
+        	<interceptor-ref name="authorStack"/>
+        </action>
+    </package>
+</struts>

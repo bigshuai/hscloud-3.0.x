@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>虚拟中心</title>
+<script src="../../../resources/config/config.js" type="text/javascript"></script>
+<script>document.write("<link rel='stylesheet' type='text/css' href='../../../skin/"+customerPath+"/js/common/jquery/ui-lightness/jquery-ui-1.10.3.custom.css'/>");</script>
+<script>document.write("<script src='../../../skin/"+customerPath+"/js/common/jquery/jquery-1.10.2.min.js'><\/script>");</script>
+<script>document.write("<script src='../../../skin/"+customerPath+"/js/common/jquery/jquery-ui-1.10.3.custom.min.js'><\/script>");</script>
+<script>document.write("<script src='../../../skin/"+customerPath+"/js/common/jquery/jquery.cookie.js'><\/script>");</script>
+<script>document.write("<script src='../../../skin/"+customerPath+"/js/common/common.js'><\/script>");</script>
+<script>document.write("<script src='../../../skin/"+customerPath+"/js/common/i18n.js'><\/script>");</script>
+<script>document.write("<script src='../../../skin/"+customerPath+"/js/vpdc/vcenter/createVPDC.js'><\/script>");</script>
+</head>
+<body>
+	<div id="wapper" class="wapper">
+		<!-- header -->
+		<div id="header" class="header">
+			<div id="logoLoginDIV"></div>
+			<div id="menuDIV"></div>
+		</div>
+		
+		<!-- content -->
+		<div id="content" class="content">
+			<div id="tab"></div>
+			<div id="main">
+		        <table id="vpdcTable" cellpadding="0" cellspacing="0">
+		            <tr><td colspan="2" style="height: 40px;"></td></tr>
+		            <tr>
+		                <td id="vpdcNameLabel" class="vpdcTd1"><!-- VPDC名称： --></td>
+		                <td class="vpdcTd2"><input id="vpdcName" onblur="checkVpdcName()" type="text"/> <span id="vpdcName_message"></span></td>
+		            </tr>
+		            <tr><td colspan="2" style="height: 30px;"></td></tr>
+		            <tr>
+		                <td id="chooseModeLabel" class="vpdcTd1"><!-- 选择模式： --></td>
+		                <td class="vpdcTd2">
+		                    <span id="nonRoutingMode" onclick="chooseMode('nonRoutingMode')" class="vpdcMode lightedStyle"></span>
+		                    <span id="routingMode" onclick="chooseMode('routingMode')" class="vpdcMode"></span>
+		                </td>
+		            </tr>
+		            <tr>
+		                <td class="vpdcTd1"></td>
+		                <td class="vpdcTd2">
+		                    <span id="nonRoutingModeDesc" class="vpdcModeDesc"><!-- 非路由模式 --></span>
+		                    <span id="routingModeDesc" class="vpdcModeDesc"><!-- 路由模式 --></span>
+		                </td>
+		            </tr>
+		            <tr>
+		                <td colspan="2">
+		                    <!-- 1.非路由模式数据div -->
+		                    <div id="nonRoutingModeDiv">
+		                        <table style="width: 100%;" cellpadding="0" cellspacing="0">
+						            <tr>
+						                <td id="selectRoom1" class="vpdcTd1"><!-- 选择机房： --></td>
+						                <td class="vpdcTd2"><select id="nonRoutingModeZoneSelect" class="select_long"></select> <span id="nonRouting_message"></span></td>
+						            </tr>
+		                        </table>
+		                    </div>
+		                    <!-- 2.路由模式数据div -->
+		                    <div id="routingModeDiv" style="display: none;">
+		                        <table style="width: 100%;" cellpadding="0" cellspacing="0">
+						            <tr>
+						                <td id="selectRoom2" class="vpdcTd1"><!-- 选择机房： --></td>
+						                <td class="vpdcTd2"><select id="routingModeZoneSelect" class="select_long"></select> <span id="routing_message"></span></td>
+						            </tr>
+						            <tr><td colspan="2" style="height: 30px;"></td></tr>
+						            <tr>
+						                <td id="purchaseTime" class="vpdcTd1"><!-- 购买时长： --></td>
+						                <td class="vpdcTd2"><select id="timer-select" class="select_long"></select></td>
+						            </tr>
+						            <tr><td colspan="2" style="height: 25px;"></td></tr>
+						            <tr>
+						                <td id="chooseBandWidth" class="vpdcTd1"><!-- 选择带宽： --></td>
+						                <td class="vpdcTd2">
+											<div id="slider-range-min" style="width:304px;height:15px;float:left;margin-top:5px;margin-left:10px;">
+												<span class="ui-slider-handle ui-state-default ui-corner-all" href="#" style="width:18px;height:21px;"></span>
+											</div>
+											<span>
+											    <input id="net_itemid" type="hidden" />
+												<input id="bandWidth" disabled="disabled"/><span style="margin-top:10px;margin-left:10px;">Mbps</span>
+											</span>
+						                </td>
+						            </tr>		
+						            <tr><td colspan="2" style="height: 23px;"></td></tr>
+						            <tr>
+						                <td id="addVLAN" class="vpdcTd1"><!-- 添加VLAN： --></td>
+						                <td class="vpdcTd2">
+							                <div style="float:left;width:500px;height:40px;line-height:26px;border: 2px solid #84C020;padding-top:10px;padding-left:5px;border-radius: 5px;">
+							                	<font class="DNS">DNS1</font><input id="DNS1" onblur="checkDns1()" type="text" value="114.114.114.114"/>
+								                <font class="DNS">DNS2</font><input id="DNS2" onblur="checkDns2()" type="text" value="8.8.8.8"/>
+								                <font id="scale" class="DNS"><!-- 规模 --></font>
+								                <input id="amount" value="32" type="text" readonly="readonly"/>
+								                <font id="tai" style="font-size: 14px;font-family: 微软雅黑;color: black;margin-top: 2px;"><!-- 台 --></font>
+							                </div>
+							                <div style="float:left;margin-left:5px;margin-top:15px;"> <span id="dns_message"></span></div>
+						                </td>
+						            </tr>						            				            
+						            <tr><td colspan="2" style="height: 22px;"></td></tr>                    
+						            <tr>
+						                <td class="vpdcTd1"></td>
+						                <td class="vpdcTd2">
+											<div class="cost-div">
+							                	<span id="btn-count" onclick="calculatePrice()" class="button button-rounded button-action button-small btn-count"><!-- 计算价格 --></span>
+												<span id="price-label"><!-- 费用： --></span>
+												<span id="price">0.0</span>
+												<span id="price-unit-label"></span>
+												<span id="price-tip-label"><!-- 元/小时 --></span>		
+											</div>
+						                </td>
+						            </tr>
+		                        </table>
+		                    </div>
+		                </td>
+		            </tr>
+		            <tr><td colspan="2" style="height: 30px;"></td></tr>
+		            <tr>
+		                <td class="vpdcTd1"></td>
+		                <td class="vpdcTd2">
+		                    <span id="create" onclick="createVpdc()" class="button button-rounded button-primary" style="cursor:pointer"><!-- 创建 --></span>
+		                    <span id="cancel" class="button button-rounded button-action" style="margin-left:20px;cursor:pointer"><!-- 取消 --></span>
+		                </td>
+		            </tr>
+		        </table>
+			</div>
+		</div>
+		
+		<!-- footer -->
+		<div id="footer" class="footer"></div>
+	</div>
+</body>
+</html>

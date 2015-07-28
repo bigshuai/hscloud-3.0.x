@@ -1,0 +1,279 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link rel="stylesheet" href="css/ui-lightness/jquery-ui-1.8.23.custom.css">
+<link href="css/shared.css" rel="stylesheet">
+<link rel="stylesheet" href="index.css">
+<link rel="shortcut icon" href="images/favicon.ico" >
+<script type="text/javascript" src="js/jquery.js"></script>
+<script type="text/javascript" src="js/jquery.cookie.js"></script>
+<script type="text/javascript" src="js/config.js"></script>
+<script type="text/javascript" src="js/pagination.js"></script>
+<script type="text/javascript" src="js/jquery-ui-1.8.23.custom.min.js"></script>
+<script type="text/javascript" src="js/shared.js"></script>
+<script type="text/javascript" src="js/jquery.md5.js"></script>
+<script type="text/javascript">
+	document.write("<" + "script " + "language=\"javaScript\" src=\"resources/" + i18n.checkLocale() + ".js\" " + ">" + "<" + "/" + "script" + ">");
+</script>
+<title>登录</title>
+<script>
+	$("document").ready(gotoInit);
+	function gotoInit(){	
+		$("#name").val(lang.hscommon.loginUser).addClass("gray").addClass("username");		
+		$("#showPwd").val(lang.hscommon.loginPassword).addClass("gray").addClass("password");
+		$("#validCode").val(lang.hscommon.loginvalidcode).addClass("gray").addClass("validCode");
+		tran();		
+		$("#name").focus(function() {
+			$("#name").removeClass().addClass("black");
+			if($("#name").attr("value") == lang.hscommon.loginUser) {
+				$("#name").attr("value", "");
+			}
+		});
+		
+		$("#name").blur(function() {
+			
+			if($("#name").attr("value") == "") {
+				$("#name").attr("value", lang.hscommon.loginUser);
+				$("#name").removeClass("black").addClass("gray").addClass("username");
+			}
+		});	
+		
+		$("#showPwd").focus(function() {  
+	        var text_value = $(this).val();  
+	        if (text_value == lang.hscommon.loginPassword) {  
+	            $("#showPwd").hide();  
+	            $("#pass").show().focus();  
+	        }  
+	    });  
+	    $("#pass").blur(function() {  
+	        var text_value = $(this).val();  
+	        if (text_value == "") {  
+	            $("#showPwd").show();  
+	            $("#pass").hide();  
+	        }  
+	    });
+		
+		$("#validCode").focus(function() {
+			$("#validCode").removeClass().addClass("black");
+			if($("#validCode").attr("value") == lang.hscommon.loginvalidcode) {
+				$("#validCode").attr("value", "");
+			}
+		});
+		
+		$("#validCode").blur(function() {
+			if($("#validCode").attr("value") == "") {
+				$("#validCode").attr("value", lang.hscommon.loginvalidcode);
+				$("#validCode").removeClass("black").addClass("gray").addClass("validCode");
+			}
+		});
+		
+		if(i18n.checkLocale() != 'en_US'){
+			var imgs = $("img");
+			$.each(imgs,function(index,value){
+				
+				 if($(value).attr("id") != "imageCode"){
+					 var src = $(value).attr("src");
+					 src = src.replace('en_US',i18n.checkLocale());
+					 $(value).attr('src',src); 
+				 }
+				 
+			});
+		}
+	};
+	function  tran(){
+		var $submit = $("#submit");
+		$submit.click(function() {
+			login();
+		});
+		
+		$(document).keydown(function(event){
+			if(event.keyCode==13){
+				login();
+			}
+		});		
+		//看不清换一个验证码。
+		$("#imageCode").click(function(){
+			var time = Math.random();
+			var url = "console/login!getImageCode.action"+"?time="+time;
+			$(this).attr("src", url);
+		});
+	};
+	
+	/*
+	 * 验证码输入框获取焦点时，更新验证码
+	 */
+	function getImageCode(){
+		var time = Math.random();
+		var url = "console/login!getImageCode.action"+"?time="+time;
+	    $("#imageCode").attr("src", url);
+	}
+	function login(){
+		var loginName = $('#name').val();
+		var loginPass = $('#pass').val();
+		var enloginPass=$.md5(loginPass);
+		var validCode = $("#validCode").val();
+		if("" == loginName || lang.hscommon.loginUser == loginName){
+			hsAlert("loginfailmsg",lang.hscommon.username+lang.hscommon.notnull,null);
+			return false;
+		}
+		if("" == loginPass || lang.hscommon.loginPassword == loginPass){
+			hsAlert("loginfailmsg",lang.hscommon.password+lang.hscommon.notnull,null);
+			return false;
+		}
+		if("" == validCode || lang.hscommon.loginvalidcode == validCode){
+			hsAlert("loginfailmsg",lang.hscommon.validcode+lang.hscommon.notnull,null);
+			return false;
+		}
+		
+	    //var url ="controlpanel/login!login.action?userName="+loginName+"&password="+loginPass+"&code="+validCode;
+	    var url ="controlpanel/login!login.action";
+	    var data ={'userName':loginName,'password':enloginPass,'code':validCode};
+		//$.ajax({
+		//	  url: url,
+		//	  type: 'POST',
+		//	  dataType: 'json',
+		//	  contentType: "application/json; charset=utf-8",
+		//	  data: null,
+		//	  success: function(data){
+		//		  if(data['success']){
+		//				if(data["resultObject"] != null){
+		//					window.location = data["resultObject"];
+		//				}else{
+		//					window.location.href = "console/index.html";
+		//				}
+		//			}else{
+		//				hsAlert("loginfailmsg",data['resultMsg'],null);
+		//			}
+		//      }
+		//});
+
+		$.ajax({
+			  url: url,
+			  type: 'POST',
+			  dataType: 'json',
+			  //contentType: "application/json; charset=utf-8",
+			  data: data,
+			  success: function(data){
+				  if(data['success']){
+						if(data["resultObject"] != null){
+							window.location = data["resultObject"];
+						}else{
+							window.location.href = "console/index.html";
+						}
+					}else{
+					    hsAlert("loginfailmsg",data['resultMsg'],null);
+					}
+			   }
+		 });
+		
+	};
+</script>
+</head>
+<body bgcolor="#FFFFFF" leftmargin="0" topmargin="0" marginwidth="0" marginheight="0">
+<div style="height:100%;width:100%;background-color:#1e4a95;">
+	<div style="background-color:#041c30;background-image: url(images/login_bg.png);background-repeat:no-repeat;	height:507px;min-width:1024px;">
+		<!-- <img src="images/login_bg.png"  style="float:left;"/> -->		
+		<div style="float:left;padding-top:230px;padding-left:240px;">
+			<div style="float:left;"><img src="images/login_logo1.png" /></div>
+			<div  style="float:left;margin-left:20px;"><img src="images/login_logo2.png" /></div>
+			<div>
+				<div style="padding-top:80px;padding-left:30px;">
+					<div style="float:left;color:#93a8ce;padding-top: 10px;">用户名：</div>
+					<div  style="float:left;margin-left:20px;">
+						<input type="text" id="name" style="width:240px; height:40px;" />
+					</div>
+				</div>
+				<div style="padding-top:60px;padding-left:30px;">
+					<div style="float:left;color:#93a8ce;padding-top: 10px;word-spacing:8px;width:64px;">密 码：</div>
+					<div  style="float:left;margin-left:20px;">
+						<input type="password" id="pass" style="width:240px;height:40px;display: none;" />
+						<input id="showPwd" type="text" id="showPwd" style="width:240px;height:40px"  />
+					</div>
+				</div>		
+				<div style="padding-top:60px;padding-left:30px;">
+					<div style="float:left;color:#93a8ce;padding-top: 10px;">验证码：</div>
+					<div  style="float:left;margin-left:20px;">
+						<input type="text" id="validCode" style="width:120px;height:40px;margin-right:12px;" onFocus="getImageCode()"/>
+						<img id="imageCode" alt="验证码" title="看不清，换一个！" src="console/login!getImageCode.action" style="cursor: pointer;vertical-align:middle;height: 28px;">
+					</div>
+				</div>
+			</div>	
+		</div>			
+		<div id="submit"  class="button">登&nbsp;录</div>
+	</div>
+	<div style="background-color:#FFF;height:5px;">
+	</div>
+	<div style="background-color:#1e4a95;height:10%;min-width:1024px;">
+	</div>
+</div>
+<!-- <table id="__01" style="width:100%; height:100%; border:0; margin:0; padding:0" cellpadding="0" cellspacing="0">
+	<tr>
+		<td colspan="3" bgcolor="#000000">&nbsp;</td>
+	</tr>
+	<tr>
+		<td bgcolor="#000">&nbsp;</td>
+		<td bgcolor="#000000">
+			<table align="center" cellpadding="0" cellspacing="0">
+				<tr>
+					<td>
+						<table>
+							<tr>
+								<td><img src="images/logo.png" width="200" height="60" /></td>
+							</tr>
+						</table>
+					</td>				
+				</tr>
+				<tr>
+					<td>
+						<table align="center" bgcolor="#FFFFFF" cellpadding="0" cellspacing="0">
+							<tr><td colspan="3"><img src="images/index_03.png" width="582" height="84" alt=""></td></tr>
+							<tr>
+								<td>   padding:30px 10px 50px 10px;
+									<table id="loginForm" align="center" style="" cellpadding="0" cellspacing="15px">
+										<tr>
+											<td>&nbsp;</td>
+										</tr>
+										<tr>
+											<td><label>用户名：</label></td>
+											<td><input type="text" id="name" style="width:240px; height:40px;" /></td>
+										</tr>
+										<tr>
+											<td><label style="margin:0px 15px 0px 0px;">密</label><label>码：</label></td>
+											<td>
+												<input type="password" id="pass" style="width:240px;height:40px;display: none;" />
+												<input id="showPwd" type="text" id="showPwd" style="width:240px;height:40px"  />
+											</td>
+										</tr>
+										<tr>											
+											<td><label>验证码：</label></td>
+											<td>
+												<input type="text" id="validCode" style="width:120px;height:40px" onFocus="getImageCode()"/>
+												<img id="imageCode" alt="验证码" title="看不清，换一个！" src="console/login!getImageCode.action" style="cursor: pointer;vertical-align:middle;">
+											</td>
+										</tr>								
+										<tr>
+											<td>&nbsp;</td>
+											<td  align="center"><div id="submit"  class="button">登录</div></td>
+										</tr>
+										<tr>
+											<td>&nbsp;</td>
+										</tr>					
+								  </table>
+								</td>								
+							</tr>											
+						</table>
+					</td>
+				</tr>
+			</table>
+		</td>
+		<td bgcolor="#000000">&nbsp;</td>
+	</tr>
+	<tr>
+		<td colspan="3" bgcolor="#000000">&nbsp;</td>
+	</tr>
+</table> -->
+	 <div id="loginfailmsg" style="display: none">
+	</div>
+	
+</body>
+</html>

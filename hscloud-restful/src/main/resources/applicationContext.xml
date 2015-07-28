@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+		http://www.springframework.org/schema/context 
+		http://www.springframework.org/schema/context/spring-context-3.0.xsd
+		http://www.springframework.org/schema/tx
+		http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+		http://www.springframework.org/schema/aop
+		http://www.springframework.org/schema/aop/spring-aop-3.0.xsd" default-lazy-init="false">
+	<context:annotation-config />
+	<context:component-scan base-package="com.hisoft.hscloud" />
+	<bean
+		class="com.hisoft.hscloud.common.util.PropertyPlaceholderConfigurerExt">
+		<property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE" />
+		<property name="ignoreResourceNotFound" value="true" />
+		<property name="locations">
+			<list>
+				<value>classpath:/jdbc.properties</value>
+			<!--    <value>classpath:/loginOpst.properties</value>--> 
+				<!-- <value>classpath:/rabbitmq.properties</value> --> 
+				<!-- <value>classpath:/jbpm.properties</value> --> 
+			<!--	<value>classpath:/mail.properties</value> --> 
+			</list>
+		</property>
+	</bean>
+
+	<bean id="myDataSource" class="org.apache.commons.dbcp.BasicDataSource"
+		destroy-method="close">
+		<property name="driverClassName" value="${jdbc.driver}" />
+		<property name="url" value="${jdbc.url}" />
+		<property name="username" value="${jdbc.username}" />
+		<property name="password" value="${jdbc.password}" />
+		<!-- ###################### -->
+		<property name="initialSize" value="${dataSource.initialSize}" />
+        <property name="maxIdle" value="${dataSource.maxIdle}" />
+        <property name="minIdle" value="${dataSource.minIdle}" />
+        <property name="maxActive" value="${dataSource.maxActive}" />
+        <property name="logAbandoned" value="${dataSource.logAbandoned}" />
+        <property name="removeAbandoned" value="${dataSource.removeAbandoned}" />
+        <property name="removeAbandonedTimeout" value="${dataSource.removeAbandonedTimeout}" />
+        <property name="maxWait" value="${dataSource.maxWait}" />
+        <property name="minEvictableIdleTimeMillis" value="${dataSource.minEvictableIdleTimeMillis}" />
+        <property name="poolPreparedStatements" value="${dataSource.poolPreparedStatements}" />
+        <property name="maxOpenPreparedStatements" value="${dataSource.maxOpenPreparedStatements}" />
+        <property name="validationQuery" value="${dataSource.validationQuery}" />
+        <property name="testOnBorrow" value="${dataSource.testOnBorrow}" />
+        <property name="testOnReturn" value="${dataSource.testOnReturn}" />
+        <property name="testWhileIdle" value="${dataSource.testWhileIdle}" />
+        <property name="timeBetweenEvictionRunsMillis" value="${dataSource.timeBetweenEvictionRunsMillis}" />
+        <property name="numTestsPerEvictionRun" value="${dataSource.numTestsPerEvictionRun}" />
+		<!-- #################### -->
+	</bean>
+
+	<bean id="sessionFactory"
+		class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
+		<property name="dataSource" ref="myDataSource" />
+		<property name="hibernateProperties">
+			<props>
+				<prop key="hibernate.dialect">${hibernate.dialect}</prop>
+				<prop key="hibernate.show_sql">${hibernate.show_sql}</prop>
+				<prop key="hibernate.hbm2ddl.auto">${hibernate.hbm2ddl.auto}</prop>
+			</props>
+		</property>
+		<property name="packagesToScan">
+			<list>
+				<value>com.hisoft.hscloud.crm.usermanager.entity</value>
+				<value>com.hisoft.hscloud.vpdc.ops.entity</value>
+				<value>com.hisoft.hscloud.bss.sla.sc.entity</value>
+			  	<value>com.hisoft.hscloud.bss.sla.om.entity</value>
+				<value>com.hisoft.hscloud.bss.billing.entity</value>				
+                <value>com.hisoft.hscloud.mss.report.entity</value>
+                <value>com.hisoft.hscloud.vpdc.cmdbmanagement.resource.ip.entity</value>
+                <value>com.hisoft.hscloud.vpdc.cmdbmanagement.resource.image.entity</value>
+                <value>com.hisoft.hscloud.mail.entity</value>
+                <value>com.hisoft.hscloud.systemmanagement.entity</value>
+                <value>com.hisoft.hscloud.message.entity</value>
+                <value>com.hisoft.hscloud.common.entity</value>
+                <value>com.hisoft.hscloud.controlpanel.entity</value>
+                <value>com.hisoft.hscloud.payment.alipay.entity</value>
+			</list>
+		</property>
+		 
+	</bean>
+
+	<bean id="transactionManager"
+		class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+		<property name="sessionFactory" ref="sessionFactory" />
+	</bean>
+	
+	<bean
+        class="org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping" />
+	
+	<!-- <bean id="clientFactory" class="com.hisoft.hscloud.vpdc.opts.api.impl.ClientFactory">
+	<property name="auth_url" value="${login.auth_url}"></property>
+		<property name="userName" value="${login.userName}"></property>
+		<property name="password" value="${login.password}"></property>
+		<property name="tenantName" value="${login.tenant}"></property>
+	</bean> -->
+	
+	<!-- <bean id="qFactory" class="com.rabbitmq.client.ConnectionFactory">		
+		<property name="username" value="${rabbitmq.username}" />
+		<property name="password" value="${rabbitmq.password}" />	
+		<property name="virtualHost" value="${rabbitmq.virtualHost}" />
+		<property name="host" value="${rabbitmq.host}" />
+		<property name="port" value="${rabbitmq.port}" />	
+	</bean> -->
+	
+	
+	<tx:annotation-driven proxy-target-class="true"/>
+</beans>

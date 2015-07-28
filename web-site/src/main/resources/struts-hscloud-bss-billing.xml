@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE struts PUBLIC
+    "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+    "http://struts.apache.org/dtds/struts-2.0.dtd">
+
+<struts>
+	<constant name="struts.objectFactory" value="spring" />
+	<package name="hscloud-billing" extends="hscloud-default"
+		namespace="/bss">
+		<interceptors>
+			<interceptor name="authorInterceptor"
+				class="com.hisoft.hscloud.web.interceptor.AuthorInterceptor" />
+			<interceptor-stack name="authorStack">
+				<interceptor-ref name="authorInterceptor" />
+				<interceptor-ref name="hscloudStack" />
+			</interceptor-stack>
+		</interceptors>
+
+		<global-results>
+			<result name="login" type="redirect">/index.jsp?err=1</result>
+		</global-results>
+		<global-exception-mappings>
+			<exception-mapping result="input" exception="java.lang.Exception"></exception-mapping>
+		</global-exception-mappings>
+		<action name="account" class="com.hisoft.hscloud.web.action.AccountAction"></action>
+		<action name="log" class="com.hisoft.hscloud.web.action.TranscationLogAction"></action>
+		<action name="payment" class="com.hisoft.hscloud.web.action.PayOnlineAction"></action>
+		<action name="paymentResponse" class="com.hisoft.hscloud.web.action.PayOnlineAction" method="verifyAlipayResponse">
+		   <result name="success" type="redirect">/portal/pay_success.html</result>
+		   <result name="failure" type="redirect">/portal/pay_failure.html</result>
+		</action>
+		<action name="paymentAsynResponse" class="com.hisoft.hscloud.web.action.PayOnlineAction" method="verifyAlipayAsynResponse">
+		</action>
+	</package>
+</struts>

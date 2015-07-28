@@ -1,0 +1,1 @@
+java -cp .:lib/*:JobServer.jar com.pactera.hscloud.hscloudhandler.server.HscloudServer

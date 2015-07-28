@@ -1,0 +1,30 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>crm</artifactId>
+    <groupId>com.hisoft.hscloud</groupId>
+    <version>3.0.3</version>
+  </parent>
+  <groupId>com.hisoft.hscloud.crm</groupId>
+  <artifactId>icp</artifactId>
+  <version>3.0.3</version>
+  <name>icp</name>
+  <dependencies>
+        <dependency>
+		    <groupId>com.springsource</groupId>
+		    <artifactId>org.apache.commons.httpclient</artifactId>
+		    <version>3.1.0</version>
+		</dependency>
+		
+		<dependency>
+            <groupId>com.hisoft.hscloud</groupId>
+            <artifactId>common</artifactId>
+	        <version>${project.version}</version>
+	    </dependency>
+	    <dependency>
+	        <groupId>com.hisoft.hscloud.crm</groupId>
+	        <artifactId>usermanager</artifactId>
+	        <version>${project.version}</version>
+	    </dependency>
+  </dependencies>
+</project>

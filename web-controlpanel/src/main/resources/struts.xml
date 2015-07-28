@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE struts PUBLIC
+    "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+    "http://struts.apache.org/dtds/struts-2.0.dtd">
+
+<struts>
+	<constant name="struts.objectFactory" value="spring" />
+	<package name="hscloud-default" extends="struts-default" namespace="/">
+		<interceptors>
+		    <interceptor name="i18n" class="com.opensymphony.xwork2.interceptor.I18nInterceptor"/>
+            <interceptor name="localMessage" class="com.hisoft.hscloud.common.util.LocalMessageInterceptior"/>
+            <interceptor name="operationLog" class="com.hisoft.hscloud.common.util.OperationLogInterceptior"/>
+            <interceptor name="author" class="com.hisoft.hscloud.web.interceptor.AuthorInterceptor"/>
+            <interceptor-stack name="hscloudStack">
+            	<interceptor-ref name="i18n"/>
+                <interceptor-ref name="localMessage"/>
+                <interceptor-ref name="defaultStack"/>
+            </interceptor-stack>
+		</interceptors>
+		<default-interceptor-ref name="hscloudStack"/><!--这句是设置所有Action自动调用的拦截器堆栈 -->
+		<global-results>
+			<result name="commonLogin">hc_user_login.html</result>
+			<result name="systemLogin">hc_admin_login.html</result>
+		</global-results>
+	</package>
+	<include file="struts-hscloud-vpdc-ops.xml"></include>
+	<include file="struts-hscloud-controlpanel.xml"></include>
+	<include file="struts-hscloud-crm-icp.xml"></include>
+</struts>

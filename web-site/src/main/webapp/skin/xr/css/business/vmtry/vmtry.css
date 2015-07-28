@@ -1,0 +1,70 @@
+.message_title{
+	margin-top:10px;
+}
+.query_div {
+	float: left;
+	margin-left: 50px;
+	margin-top: 20px;
+	height: 44px;
+	width: 840px;
+}
+
+#query {
+	border: 1px solid #CCCCCC;
+	border-radius: 16px 16px 16px 16px;
+	color: #555555;
+	display: inline-block;
+	font-family: Arial, Helvetica, sans-serif;
+	color: #999;
+	line-height: 18px;
+	padding-left: 10px;
+	padding-right: 10px;
+	width: 280px;
+	height: 22px;
+	float:right;
+	margin-right:10px;
+	vertical-align: middle;
+}
+
+#query:focus {
+	border-color: rgba(15, 161, 253, 0.8);
+	box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset, 0 0 6px
+		rgba(155, 216, 255, 0.8);
+	outline: 0 none;
+}
+
+#search {
+	background-image: url("../../../images/common/search.png");
+	cursor: pointer;
+	height: 22px;
+	left: 790px;
+    position: relative;
+    top: -17px;
+	width: 22px;
+	z-index: 99;
+}
+.button_margin_left {
+	margin-left: 5px;
+}
+.button_margin_center {
+	margin-left: 45px;
+}
+.vm_status a{
+	width:70px;
+	margin-right:10px;
+	cursor:pointer;
+}
+
+a:hover {color: #FF00FF}	/* 鼠标移动到链接上 */
+
+#doUseCoupon{
+	position:relative;
+	top:3px;
+}
+.font_bold{
+	font-weight:bold;
+	color:blue;
+}
+#queryType{
+	float:right;
+}

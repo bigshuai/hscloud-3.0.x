@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>虚拟中心</title>
+<script src="../../../resources/config/config.js" type="text/javascript"></script>
+<script>document.write("<link rel='stylesheet' type='text/css' href='../../../skin/"+customerPath+"/css/common/pageUtil.css' />");</script>
+<script>document.write("<link rel='stylesheet' type='text/css' href='../../../skin/"+customerPath+"/js/common/jquery/Timepicker/jquery-ui-timepicker-addon.css' />");</script>
+<script>document.write("<link rel='stylesheet' type='text/css' href='../../../skin/"+customerPath+"/js/common/jquery/ui-lightness/jquery-ui-1.10.3.custom.css' />");</script>
+<script>document.write("<script src='../../../skin/"+customerPath+"/js/vpdc/center/ext-all.js'><\/script>");</script>
+<script>document.write("<script src='../../../skin/"+customerPath+"/js/common/jquery/jquery-1.10.2.min.js'><\/script>");</script>
+<script>document.write("<script src='../../../skin/"+customerPath+"/js/common/jquery/jquery-ui-1.10.3.custom.min.js'><\/script>");</script>
+<script>document.write("<script src='../../../skin/"+customerPath+"/js/common/jquery/jquery.md5.js'><\/script>");</script>
+<script>document.write("<script src='../../../skin/"+customerPath+"/js/common/jquery/jquery.cookie.js'><\/script>");</script>
+<script>document.write("<script src='../../../skin/"+customerPath+"/js/common/common.js'><\/script>");</script>
+<script>document.write("<script src='../../../skin/"+customerPath+"/js/common/i18n.js'><\/script>");</script>
+<script>document.write("<script src='../../../skin/"+customerPath+"/js/common/pageUtil.js'><\/script>");</script>
+<script>document.write("<script src='../../../skin/"+customerPath+"/js/common/jquery/Timepicker/jquery-ui-timepicker-addon.js'><\/script>");</script>
+<script>document.write("<script src='../../../skin/"+customerPath+"/js/vpdc/center/vmList.js'><\/script>");</script>
+<script type="text/javascript">
+    if (getCookie("lang") == "zh_CN" || getCookie("lang") == null) {//当选择中文时，才显示timepicker的中文国际化
+        document.write("<script src='../../../skin/"+customerPath+"/js/common/jquery/Timepicker/localization/jquery-ui-timepicker-zh-CN.js'><\/script>");
+    }
+</script>
+</head>
+<body>
+	<div id="wapper" class="wapper">
+		<!-- header -->
+		<div id="header" class="header">
+			<div id="logoLoginDIV"></div>
+			<div id="menuDIV"></div>
+		</div>
+		
+		<!-- content -->
+		<div id="content" class="content">
+			<div id="tab"></div>
+			<div id="main">
+			    <!-- 1.公共资源menu -->
+			    <div id="publicResourcesMenu" style="display: none;">
+			        <table style="width: 100%;" cellpadding="0" cellspacing="0">
+			            <tr>
+			                <td width="200"><span id="addHost" onclick="addHost()" class="button button-rounded button-primary button-small"><!-- 添加云主机 --></span></td>
+			                <td width="445" align="right">
+								<div class="container">
+									<input id="query" onkeydown="if(event.keyCode == 13)queryHostInfo()" type="text" /> 
+									<div id="search" onclick="queryHostInfo()"></div>
+								</div>        
+			                </td>
+			                <td width="54" align="right"><span id="hostSort"><!-- 排序： --></span></td>
+			                <td width="76">
+								<select id="sort" class="form_select" onchange="queryHostInfo()">
+							        <option id="openingTime" value="0"><!-- 开通时间 --></option>
+									<option id="expirationTime" value="1"><!-- 到期时间 --></option>
+								</select>			                
+			                </td>
+			                <td width="70" align="right"><span id="showStyle"><!--  显示方式： --></span></td>
+			                <td width="95"><a id="showway1" onclick="changeShowWay(1)" class="showway1"></a><a id="showway2" onclick="changeShowWay(2)" class="showway2"></a></td>
+			            </tr>
+			        </table>
+			    </div>
+			    <!-- 2.公共资源content(包含分页pager) -->
+			    <div id="publicResourcesContent" style="display: none;">
+			        <!-- 2.1公共资源content:图例显示(包含分页pager) -->
+			        <div id="publicResourcesLegend">
+					    <!-- 2.1.1公共资源图例显示content -->
+					    <div id="legendContent">
+					        <div id="tableId2">
+					            <div id="templateId1" class="singleHost" onmouseover="selectCurrentHost(this)" onmouseout="restoreCurrentHost(this)">
+						    		<div id="$indexPage$" class="divLeft">$vmtype$</div>
+						            <div class="divRight">
+						                <div style="float: left;width: 64px;text-align: center;margin-top: 8px;">
+						                    <img class="statusImage" /><span style="color:#157fcc;">$status$</span>
+						                </div>
+						                <div style="float: left;width: 64px;text-align: center;margin-top: 2px;">
+						                    <span style="color:#157fcc;">$task$</span>
+						                </div>
+						            </div>
+						            <div class="divRightHidden">
+						                <div onclick="getHostDetailInfo()" class="detailInfo"></div>
+			                            <div class="container">
+			                                <img class="buttonImage" onmouseover="legendOperateShow(1)" src="../../../skin/xr/images/vpdc/center/1.png">
+			                                <div class="leftTriangle1"></div>
+			                                <div class="legendOperateDiv1">
+			                                    <table cellspacing="0" cellpadding="0" style="font-family: 微软雅黑;font-size: 14px;margin-top: 4px;">
+			                                        <tr onclick="refreshHost()" onmouseover="highlightLowlight('operate1_',this)" onmouseout="highlightLowlight('operate1',this)" style="cursor: pointer;">
+			                                            <td class="operateImage"><img src="../../../skin/xr/images/vpdc/center/operate1.png" />&nbsp;</td>
+			                                            <td id="refreshVM" align="left"><!-- 刷新云主机 --></td>
+			                                        </tr>
+			                                        <tr onclick="operateHost('startVM')" onmouseover="highlightLowlight('operate2_',this)" onmouseout="highlightLowlight('operate2',this)" style="cursor: pointer;">
+			                                            <td class="operateImage"><img src="../../../skin/xr/images/vpdc/center/operate2.png" />&nbsp;</td>
+			                                            <td id="startVM" align="left"><!-- 启动云主机 --></td>
+			                                        </tr>
+			                                        <tr onclick="operateHost('closeVM')" onmouseover="highlightLowlight('operate3_',this)" onmouseout="highlightLowlight('operate3',this)" style="cursor: pointer;">
+			                                            <td class="operateImage"><img src="../../../skin/xr/images/vpdc/center/operate3.png" />&nbsp;</td>
+			                                            <td id="stopVM" align="left"><!-- 关闭云主机 --></td>
+			                                        </tr>
+			                                        <tr onclick="operateHost('rebootVM')" onmouseover="highlightLowlight('operate4_',this)" onmouseout="highlightLowlight('operate4',this)" style="cursor: pointer;">
+			                                            <td class="operateImage"><img src="../../../skin/xr/images/vpdc/center/operate4.png" />&nbsp;</td>
+			                                            <td id="restartVM" align="left"><!-- 重启云主机 --></td>
+			                                        </tr>
+			                                    </table>
+			                                </div>
+			                            </div>
+			                            <div class="container">
+			                                <img class="buttonImage" onmouseover="legendOperateShow(2)" src="../../../skin/xr/images/vpdc/center/2.png">
+			                                <div class="leftTriangle2"></div>
+			                                <div class="legendOperateDiv2">
+			                                    <table cellspacing="0" cellpadding="0" style="font-family: 微软雅黑;font-size: 14px;margin-top: 4px;">
+			                                        <tr onclick="remoteMonitoring()" onmouseover="highlightLowlight('operate5_',this)" onmouseout="highlightLowlight('operate5',this)" style="cursor: pointer;">
+			                                            <td class="operateImage"><img src="../../../skin/xr/images/vpdc/center/operate5.png" />&nbsp;</td>
+			                                            <td id="remoteMonitor" align="left"><!-- 远程监控 --></td>
+			                                        </tr>
+			                                        <tr onclick="eventMonitoring()" onmouseover="highlightLowlight('operate6_',this)" onmouseout="highlightLowlight('operate6',this)" style="cursor: pointer;">
+			                                            <td class="operateImage"><img src="../../../skin/xr/images/vpdc/center/operate6.png" />&nbsp;</td>
+			                                            <td id="eventMonitor" align="left"><!-- 事件监控 --></td>
+			                                        </tr>
+			                                    </table>
+			                                </div>
+			                            </div>
+			                            <div class="container">
+			                                <img class="buttonImage" onmouseover="legendOperateShow(3)" src="../../../skin/xr/images/vpdc/center/3.png">
+			                                <div class="leftTriangle3"></div>
+			                                <div class="legendOperateDiv3">
+			                                    <table cellspacing="0" cellpadding="0" style="font-family: 微软雅黑;font-size: 14px;margin-top: 4px;">
+			                                        <tr onclick="modifyHostName()" onmouseover="highlightLowlight('operate7_',this)" onmouseout="highlightLowlight('operate7',this)" style="cursor: pointer;">
+			                                            <td class="operateImage"><img src="../../../skin/xr/images/vpdc/center/operate7.png" />&nbsp;</td>
+			                                            <td id="modifyName" align="left"><!-- 修改云主机名 --></td>
+			                                        </tr>
+			                                        <tr onclick="resetOperatingSystem()" onmouseover="highlightLowlight('operate8_',this)" onmouseout="highlightLowlight('operate8',this)" style="cursor: pointer;">
+			                                            <td class="operateImage"><img src="../../../skin/xr/images/vpdc/center/operate8.png" />&nbsp;</td>
+			                                            <td id="resetSystem" align="left"><!-- 重置操作系统 --></td>
+			                                        </tr>
+			                                        <tr onclick="resetSystemPassword()" onmouseover="highlightLowlight('operate9_',this)" onmouseout="highlightLowlight('operate9',this)" style="cursor: pointer;">
+			                                            <td class="operateImage"><img src="../../../skin/xr/images/vpdc/center/operate9.png" />&nbsp;</td>
+			                                            <td id="resetPassword" align="left"><!-- 重置系统密码 --></td>
+			                                        </tr>
+			                                        <tr onclick="repairHost()" onmouseover="highlightLowlight('operate10_',this)" onmouseout="highlightLowlight('operate10',this)" style="cursor: pointer;">
+			                                            <td class="operateImage"><img src="../../../skin/xr/images/vpdc/center/operate10.png" />&nbsp;</td>
+			                                            <td id="hostRepair" align="left"><!-- 修复云主机 --></td>
+			                                        </tr>
+			                                        <tr onclick="snapshotAndRestore()" onmouseover="highlightLowlight('operate11_',this)" onmouseout="highlightLowlight('operate11',this)" style="cursor: pointer;">
+			                                            <td class="operateImage"><img src="../../../skin/xr/images/vpdc/center/operate11.png" />&nbsp;</td>
+			                                            <td id="snapshotRestore" align="left"><!-- 快照和还原 --></td>
+			                                        </tr>
+			                                        <tr onclick="setControlPanelPassword()" onmouseover="highlightLowlight('operate13_',this)" onmouseout="highlightLowlight('operate13',this)" style="cursor: pointer;">
+			                                            <td class="operateImage"><img src="../../../skin/xr/images/vpdc/center/operate13.png" />&nbsp;</td>
+			                                            <td id="setCPPassword" align="left"><!-- 控制面板密码 --></td>
+			                                        </tr>
+			                                        <tr onclick="setSecurityPolicy()" onmouseover="highlightLowlight('operate14_',this)" onmouseout="highlightLowlight('operate14',this)" style="cursor: pointer;">
+			                                            <td class="operateImage"><img src="../../../skin/xr/images/vpdc/center/operate14.png" />&nbsp;</td>
+			                                            <td id="securityPolicy" align="left"><!-- 设置安全策略 --></td>
+			                                        </tr>
+			                                    </table>
+			                                </div>
+			                            </div>
+						            </div>
+						    		<div class="divBottom">
+						        		<span id="hostName2"><!-- 云主机名： --></span><span>$name$</span><br/>
+						        		<span id="ipAddress2"><!-- IP地址： --></span><span>$ip$</span>
+						    		</div>
+					            </div>
+					        </div>
+					    </div>		        
+					    <!-- 2.1.2.公共资源图例显示pager -->
+					    <div id="legendPager">
+							<div id="pageDivId" class="page_div2" style="margin-top: 2px;width: 910px;">
+							    <div id='totalPages2'></div>
+								<div class="page_last" onclick='pageObje2.pageLast()'></div>
+								<div class="page_next" onclick='pageObje2.pageRight()'></div>
+								<div id='templateButton2'>
+							      	<div class="page" onclick='pageChangeService(pageObje2, $pageNum$)'>$pageNum$</div>
+							    </div>
+							    <div class="page_before" onclick='pageObje2.pageLeft()'></div>
+							    <div class="page_first" onclick='pageObje2.pageFirst()'></div> 
+							</div>					    
+					    </div>		        
+			        </div>
+			        <!-- 2.2公共资源content:列表显示(包含分页pager) -->
+			        <div id="publicResourcesList" style="display: none;">
+					    <!-- 2.2.1公共资源列表显示content -->
+					    <div id="listContent">
+		                    <table id='tableId' cellspacing="0" cellpadding="0" style="width: 880px;float: left;cursor: auto;">
+			                    <tr valign="middle" height="36px" align="center">
+			                        <td width="50" align="right"><span id="history1" class="tableHeader"><!-- 序号 --></span>&nbsp;</td>
+			                        <td width="130"><span id="hostName" class="tableHeader"><!-- 云主机名 --></span></td>
+			                        <td width="170"><span id="refundManagement_ipAddress" class="tableHeader"><!-- IP地址 --></span></td>
+			                        <td width="150"><span id="OS2" class="tableHeader"><!-- 操作系统 --></span></td>
+			                        <td width="100"><span id="remaining" class="tableHeader"><!-- 剩余时间 --></span></td>
+			                        <td width="90"><span id="status" class="tableHeader"><!-- 状态 --></span></td>
+			                        <td width="90"><span id="task" class="tableHeader"><!-- 任务 --></span></td>
+			                        <td width="100"><span id="vmbuss_operate" class="tableHeader"><!-- 操作 --></span></td>
+			                    </tr>
+			                    <tr id='templateId1' class="list cn_blue_mormal" onmouseover="selectCurrentHost(this)" onmouseout="restoreCurrentHost(this)" ondblclick="getCurrentHostDetailInfo(this)">
+			                        <td width="50" align="right"><span class="vpdcIndex">$indexPage$</span></td>
+			                        <td width="130">$name$</td>
+			                        <td width="170" align="left">$ip$</td>
+			                        <td width="150">$osName$</td>
+			                        <td width="100">$spare$</td>
+			                        <td width="90"><span>$status$</span><br/><span>$isEnable$</span></td>
+			                        <td width="90">$task$</td>
+			                        <td width="100" style="color: white;">
+			                            <div onmouseover="listOperateShow(1, this)" class="container" style="width: 29px;height: 24px;float: left;">
+			                                <img class="buttonImage2" src="../../../skin/xr/images/vpdc/center/1.png">
+			                                <div class="topTriangle1"></div>
+			                                <div class="listOperateDiv1">
+			                                    <table cellspacing="0" cellpadding="0" style="font-family: 微软雅黑;font-size: 14px;margin-top: 4px;">
+			                                        <tr onclick="refreshHost()" onmouseover="highlightLowlight('operate1_',this)" onmouseout="highlightLowlight('operate1',this)" style="cursor: pointer;">
+			                                            <td class="operateImage"><img src="../../../skin/xr/images/vpdc/center/operate1.png" />&nbsp;</td>
+			                                            <td id="refreshVM2" align="left"><!-- 刷新云主机 --></td>
+			                                        </tr>
+			                                        <tr onclick="operateHost('startVM')" onmouseover="highlightLowlight('operate2_',this)" onmouseout="highlightLowlight('operate2',this)" style="cursor: pointer;">
+			                                            <td class="operateImage"><img src="../../../skin/xr/images/vpdc/center/operate2.png" />&nbsp;</td>
+			                                            <td id="startVM2" align="left"><!-- 启动云主机 --></td>
+			                                        </tr>
+			                                        <tr onclick="operateHost('closeVM')" onmouseover="highlightLowlight('operate3_',this)" onmouseout="highlightLowlight('operate3',this)" style="cursor: pointer;">
+			                                            <td class="operateImage"><img src="../../../skin/xr/images/vpdc/center/operate3.png" />&nbsp;</td>
+			                                            <td id="stopVM2" align="left"><!-- 关闭云主机 --></td>
+			                                        </tr>
+			                                        <tr onclick="operateHost('rebootVM')" onmouseover="highlightLowlight('operate4_',this)" onmouseout="highlightLowlight('operate4',this)" style="cursor: pointer;">
+			                                            <td class="operateImage"><img src="../../../skin/xr/images/vpdc/center/operate4.png" />&nbsp;</td>
+			                                            <td id="restartVM2" align="left"><!-- 重启云主机 --></td>
+			                                        </tr>
+			                                    </table>
+			                                </div>
+			                            </div>
+			                            <div onmouseover="listOperateShow(2, this)" class="container" style="width: 29px;height: 24px;float: left;">
+			                                <img class="buttonImage2" src="../../../skin/xr/images/vpdc/center/2.png">
+			                                <div class="topTriangle2"></div>
+			                                <div class="listOperateDiv2">
+			                                    <table cellspacing="0" cellpadding="0" style="font-family: 微软雅黑;font-size: 14px;margin-top: 4px;">
+			                                        <tr onclick="remoteMonitoring()" onmouseover="highlightLowlight('operate5_',this)" onmouseout="highlightLowlight('operate5',this)" style="cursor: pointer;">
+			                                            <td class="operateImage"><img src="../../../skin/xr/images/vpdc/center/operate5.png" />&nbsp;</td>
+			                                            <td id="remoteMonitor2" align="left"><!-- 远程监控 --></td>
+			                                        </tr>
+			                                        <tr onclick="eventMonitoring()" onmouseover="highlightLowlight('operate6_',this)" onmouseout="highlightLowlight('operate6',this)" style="cursor: pointer;">
+			                                            <td class="operateImage"><img src="../../../skin/xr/images/vpdc/center/operate6.png" />&nbsp;</td>
+			                                            <td id="eventMonitor2" align="left"><!-- 事件监控 --></td>
+			                                        </tr>			                                    
+			                                    </table>
+			                                </div>
+			                            </div>			                                               
+			                            <div onmouseover="listOperateShow(3, this)" class="container" style="width: 29px;height: 24px;float: left;">
+			                                <img class="buttonImage2" src="../../../skin/xr/images/vpdc/center/3.png">
+			                                <div class="topTriangle3"></div>
+			                                <div class="listOperateDiv3">
+			                                    <table cellspacing="0" cellpadding="0" style="font-family: 微软雅黑;font-size: 14px;margin-top: 4px;">
+			                                        <tr onclick="modifyHostName()" onmouseover="highlightLowlight('operate7_',this)" onmouseout="highlightLowlight('operate7',this)" style="cursor: pointer;">
+			                                            <td class="operateImage"><img src="../../../skin/xr/images/vpdc/center/operate7.png" />&nbsp;</td>
+			                                            <td id="modifyName2" align="left"><!-- 修改云主机名 --></td>
+			                                        </tr>
+			                                        <tr onclick="resetOperatingSystem()" onmouseover="highlightLowlight('operate8_',this)" onmouseout="highlightLowlight('operate8',this)" style="cursor: pointer;">
+			                                            <td class="operateImage"><img src="../../../skin/xr/images/vpdc/center/operate8.png" />&nbsp;</td>
+			                                            <td id="resetSystem2" align="left"><!-- 重置操作系统 --></td>
+			                                        </tr>
+			                                        <tr onclick="resetSystemPassword()" onmouseover="highlightLowlight('operate9_',this)" onmouseout="highlightLowlight('operate9',this)" style="cursor: pointer;">
+			                                            <td class="operateImage"><img src="../../../skin/xr/images/vpdc/center/operate9.png" />&nbsp;</td>
+			                                            <td id="resetPassword2" align="left"><!-- 重置系统密码 --></td>
+			                                        </tr>
+			                                        <tr onclick="repairHost()" onmouseover="highlightLowlight('operate10_',this)" onmouseout="highlightLowlight('operate10',this)" style="cursor: pointer;">
+			                                            <td class="operateImage"><img src="../../../skin/xr/images/vpdc/center/operate10.png" />&nbsp;</td>
+			                                            <td id="hostRepair2" align="left"><!-- 修复云主机 --></td>
+			                                        </tr>
+			                                        <tr onclick="snapshotAndRestore()" onmouseover="highlightLowlight('operate11_',this)" onmouseout="highlightLowlight('operate11',this)" style="cursor: pointer;">
+			                                            <td class="operateImage"><img src="../../../skin/xr/images/vpdc/center/operate11.png" />&nbsp;</td>
+			                                            <td id="snapshotRestore2" align="left"><!-- 快照和还原 --></td>
+			                                        </tr>
+			                 			            <tr onclick="getHostDetailInfo()" onmouseover="highlightLowlight('operate12_',this)" onmouseout="highlightLowlight('operate12',this)" style="cursor: pointer;">
+			                                            <td class="operateImage"><img src="../../../skin/xr/images/vpdc/center/operate12.png" />&nbsp;</td>
+			                                            <td id="getDetailInfo2" align="left"><!-- 云主机详情 --></td>
+			                                        </tr>                       
+			                                        <tr onclick="setControlPanelPassword()" onmouseover="highlightLowlight('operate13_',this)" onmouseout="highlightLowlight('operate13',this)" style="cursor: pointer;">
+			                                            <td class="operateImage"><img src="../../../skin/xr/images/vpdc/center/operate13.png" />&nbsp;</td>
+			                                            <td id="setCPPassword2" align="left"><!-- 控制面板密码 --></td>
+			                                        </tr>
+			                                        <tr onclick="setSecurityPolicy()" onmouseover="highlightLowlight('operate14_',this)" onmouseout="highlightLowlight('operate14',this)" style="cursor: pointer;">
+			                                            <td class="operateImage"><img src="../../../skin/xr/images/vpdc/center/operate14.png" />&nbsp;</td>
+			                                            <td id="securityPolicy2" align="left"><!-- 设置安全策略 --></td>
+			                                        </tr>			                                        
+			                                    </table>
+			                                </div>
+			                            </div>			                                               
+			                        </td>
+			                    </tr>
+			                </table>
+					    </div>		        
+					    <!-- 2.2.2.公共资源列表显示pager -->
+					    <div id="listPager">
+							<div id="pageDivId" class="page_div" style="width: 910px;">
+							    <div id='totalPages'></div>
+								<div class="page_last" onclick='pageObje.pageLast()'></div>
+								<div class="page_next" onclick='pageObje.pageRight()'></div>
+								<div id='templateButton'>
+							      	<div class="page" onclick='pageChangeService(pageObje, $pageNum$)'>$pageNum$</div>
+							    </div>
+							    <div class="page_before" onclick='pageObje.pageLeft()'></div>
+							    <div class="page_first" onclick='pageObje.pageFirst()'></div> 
+							</div>		    
+					    </div>		        
+			        </div>
+			    </div>			    
+			</div>
+		</div>
+
+		<!-- footer -->
+		<div id="footer" class="footer"></div>
+	</div>
+</body>
+</html>

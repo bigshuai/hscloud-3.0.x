@@ -1,0 +1,343 @@
+.message_title{
+	margin-top:10px;
+}
+.query_div {
+	float: left;
+	margin-left: 50px;
+	margin-top: 20px;
+	height: 44px;
+	width: 840px;
+}
+
+#query {
+	border: 1px solid #CCCCCC;
+	border-radius: 16px 16px 16px 16px;
+	color: #555555;
+	display: inline-block;
+	font-family: Arial, Helvetica, sans-serif;
+	color: #999;
+	line-height: 18px;
+	padding-left: 10px;
+	padding-right: 10px;
+	width: 280px;
+	height: 22px;
+	float:right;
+	margin-right:10px;
+	vertical-align: middle;
+}
+
+#query:focus {
+	border-color: rgba(15, 161, 253, 0.8);
+	box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset, 0 0 6px
+		rgba(155, 216, 255, 0.8);
+	outline: 0 none;
+}
+
+#search {
+	background-image: url("../../../images/common/search.png");
+	cursor: pointer;
+	height: 22px;
+	left: 790px;
+    position: relative;
+    top: 1px;
+	width: 22px;
+	z-index: 99;
+}
+.button_margin_left {
+	margin-left: 15px;
+}
+.button_margin_center {
+	margin-left: 45px;
+}
+.vm_status a{
+	width:70px;
+	margin-right:10px;
+	cursor:pointer;
+}
+
+a:hover {color: #FF00FF}	/* 鼠标移动到链接上 */
+
+#doUseCoupon{
+	position:relative;
+	top:3px;
+}
+.font_bold{
+	font-weight:bold;
+	color:blue;
+}
+#queryType{
+	float:right;
+}
+
+td a{
+	margin-right:10px;
+}
+
+/* 蓝色外发光选择按钮 */
+.cpu-btn{
+	border: 1px solid #CCCCCC;
+    border-radius: 5px 5px 5px 5px;
+    color: #555555;
+	background-color:#F2F2F2;
+    display: inline-block;
+    font-family: 微软雅黑;
+	font-size:16px;
+	color:#1A1A1A;
+	float:left;
+    line-height: 40px;
+	margin-left:10px;
+    width: 60px;
+    height: 40px;
+	vertical-align: middle;
+	text-align: center;
+	cursor:pointer;	
+}
+.cpu-btn:hover{
+	background-color:#fff;
+    border-color: rgba(15, 161, 253, 0.8);
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset, 0 0 6px rgba(155, 216, 255, 0.8);
+    outline: 0 none;
+}
+.cpu-selected-btn{
+	border: 1px solid #9bd8ff;
+    border-radius: 5px 5px 5px 5px;
+    color: #555555;
+	background-color:#FFF;
+    display: inline-block;
+    font-family: 微软雅黑;
+	font-size:16px;
+	color:#1A1A1A;
+    line-height: 40px;
+	margin-left:10px;
+    width: 60px;
+    height: 40px;
+	vertical-align: middle;
+	text-align: center;
+	/* border-color: rgba(15, 161, 253, 0.8); */
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset, 0 0 6px rgba(155, 216, 255, 0.8);
+    outline: 0 none;
+}
+.ui-state-default, .ui-widget-content .ui-state-default, .ui-widget-header .ui-state-default {
+	border: 1px solid #bebebe;
+	background:#cecece;
+	font-weight: normal;
+}
+.ui-widget-header {
+	border: 1px solid #aaaaaa;
+	background: #8ecd00;
+}
+.add-btn{
+	border: 1px solid #CCCCCC;
+    border-radius: 3px 3px 3px 3px;
+    color: #555555;
+	background-color:#F2F2F2;
+    display: inline-block;
+    font-family: 微软雅黑;
+    line-height: 25px;
+    width: 25px;
+    float:left;
+    height: 25px;
+	vertical-align: middle;
+	text-align: center;
+	cursor:pointer; 
+	font-size:18px; 
+	font-weight:bold;
+}
+.add-btn:hover{
+	background-color:#fff;
+    border-color: rgba(15, 161, 253, 0.8);
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset, 0 0 6px rgba(155, 216, 255, 0.8);
+    outline: 0 none;
+}
+.select {
+	background: #fff;
+	border: 1px solid #bbb;
+	-webkit-border-radius: 5px;
+	border-radius: 5px;
+	box-sizing: border-box;
+	height: 30px;
+	margin: 0px 0px 0px 10px;
+	padding: 4px;
+	width:300px;
+	font-family: Tahoma,Geneva,sans-serif;
+	font-size: 12px;
+	line-height: 18px;
+}
+.pic_sys{
+	border:0px solid #CCCCCC;
+	height:112px;
+	width:112px;
+	cursor:pointer;
+}
+
+.pic_sys:hover{
+	border-color:#70a8ff;
+	box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset, 0 0 6px rgba(155, 216, 255, 0.8);
+}
+.bx_wrap{
+	width:590px;
+}
+.bx_container {  
+    float:none;  
+    width:460px;
+} 
+.bx_wrap ul {
+	text-align:center;
+}
+.bx_wrap ul a:hover{
+	text-decoration:none; 
+	color:#f30;
+}
+.bx_wrap li {
+	width:112px;
+}
+.bx_wrap a.prev { 
+	float:left;
+	margin-left:-10px; 
+	margin-top:80px;
+	width:20px;
+	height:24px; 
+	/* position:absolute; */
+	left:380px;
+	top:580px; 
+	line-height:24px;
+	text-indent:-999em;
+	background:url(../../images/shop/demand/arr_left.gif) no-repeat;
+}
+.bx_wrap a.next {
+	float:right;
+	margin-top:80px;
+	margin-left:60px;
+	width:20px;
+	height:24px;
+	line-height:24px; 
+	/* position:relative; */
+	left:860px;
+	top:660px; 
+	text-indent:-999em; 
+	background:url(../../images/shop/demand/arr_right.gif) no-repeat;
+}
+.bx_container{
+	width:500px;
+}
+.btn-try{
+	float:left;
+	margin-top:20px;
+	margin-left:30px;
+	cursor:pointer;
+}
+.btn-count{
+	float:left;
+	margin-top:-4px;
+	margin-left:-4px;
+	margin-right:7px;
+	cursor:pointer;
+}
+.btn-add{
+	float:left;
+	margin-top:20px;
+	margin-left:30px;
+	cursor:pointer;
+	width: 50px;
+}
+.cost-div{
+	float:left;
+	background-color:#f5f6fa; 
+	border-radius:5px 5px 5px 5px; 
+	border:2px solid; 
+	border-color:#84c020;
+	height:30px;
+	padding:10px 10px 0px 10px; 
+	font-family:微软雅黑; 
+	font-size:14px;
+	margin-top:20px;
+	margin-left:160px;
+}
+.damand-label{
+	float:left;
+	width:100px;
+	color:#666666; 
+	font-size:16px; 
+	font-weight:normal;
+	font-family: "微软雅黑";
+	margin-left:40px;
+	padding-top:5px;
+	padding-right:10px;
+	text-align:right;
+}
+.slider-div{
+	width:400px; 
+	height:15px;
+	float:left; 
+	margin-top:5px; 
+	margin-left:20px;
+}
+.slider-input{
+	border:1px solid #bbb;
+	color:#72b205; 
+	height:25px; 
+	width:35px; 
+	float:left;
+	font-family:微软雅黑; 
+	font-size:13px; 
+	margin-left:20px; 
+	text-align: center;
+}
+
+#reduce_IP-btn{
+	margin-left:10px;
+	margin-right:5px;
+}
+
+#add_IP-btn{
+	margin-left:5px;
+}
+#renew4Need{
+	font-size:13px;
+	width:400px;
+	height:100px;
+	margin-top:15px;
+	margin-left:15px;
+	padding-left:5px;
+}
+
+#renew_for_need_label{
+	margin-left:5px;
+	float:left;
+	width:
+}
+
+#buy_period{
+	float:left;
+	font-size:12px;
+}
+
+#renew_for_need_price{
+	float:left;
+	margin-left:5px;
+	margin-top:10px;
+	width:380px;
+}
+
+#price_label{
+	float:left;
+}
+#price_amount{
+	float:left;
+}
+#price_unit{
+	float:left;
+}
+#account_balance_amount{
+	float:left;
+}
+#account_balance_label{
+	float:left;
+}
+
+#account_balance_div{
+	width:380px;
+	float:left;
+	margin-left:5px;
+	margin-top:10px;
+}

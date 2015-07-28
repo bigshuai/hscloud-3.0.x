@@ -1,0 +1,15 @@
+<html>
+    <head>
+            
+    </head>
+    <body>        
+        <div>            
+        <table cellspacing="0" style="border:1px solid #368">            
+            <tr>
+                <td style="padding:3px 8px">{params:body}</td>                 
+            </tr>
+        </table>		
+        <span style="background:#FF8000;color:#fff">此邮件为系统自动发送，无需回复。</span>
+        </div> 
+    <body>
+</html>
