@@ -279,18 +279,47 @@ public class WorkOrderAction extends HSCloudAction {
     }
 
     /**
-     * 获取工单类型
+     * 获取Vm工单类型
      * <功能详细描述>  
      * @see [类、类#方法、类#成员]
      */
-    public void getWorkOrderTypes() {
+    public void getVmWorkOrderTypes() {
     	long beginRunTime = 0;
 		if(logger.isDebugEnabled()){
 			beginRunTime = System.currentTimeMillis();
 			logger.debug("enter getAllDomain method.");			
 		}
         try{
-        	List<AppWorkOrderType> list = facade.getWorkOrderTpye();
+        	Map<String,String> paramMap = new HashMap<String,String>();
+    		paramMap.put("website", "houtai");
+    		paramMap.put("vm_or_app", "vm");
+        	List<AppWorkOrderType> list = facade.getWorkOrderTpye(paramMap);
+            this.fillActionResult(list);
+        } catch(Exception ex) {
+            this.dealThrow(Constants.DOMAIN_GET_ALL_EXCEPTION,ex, logger);
+        }
+        if(logger.isDebugEnabled()){
+			long takeTime = System.currentTimeMillis() - beginRunTime;
+			logger.debug("exit getAllDomain method.takeTime:" + takeTime + "ms");
+		}
+    }
+    
+    /**
+     * 获取app工单类型
+     * <功能详细描述>  
+     * @see [类、类#方法、类#成员]
+     */
+    public void getAppWorkOrderTypes() {
+    	long beginRunTime = 0;
+		if(logger.isDebugEnabled()){
+			beginRunTime = System.currentTimeMillis();
+			logger.debug("enter getAllDomain method.");			
+		}
+        try{
+        	Map<String,String> paramMap = new HashMap<String,String>();
+    		paramMap.put("website", "houtai");
+    		paramMap.put("vm_or_app", "app");
+        	List<AppWorkOrderType> list = facade.getWorkOrderTpye(paramMap);
             this.fillActionResult(list);
         } catch(Exception ex) {
             this.dealThrow(Constants.DOMAIN_GET_ALL_EXCEPTION,ex, logger);

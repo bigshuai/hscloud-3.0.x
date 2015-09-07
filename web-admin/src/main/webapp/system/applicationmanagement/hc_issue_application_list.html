@@ -115,7 +115,7 @@ Ext.onReady(function() {
             		          'id','appName','appCategoryName','appStatus',{name:'createTime',type: 'date', dateFormat: 'time'},
             		          'buyNum','browseNum','score','isCommend','supplierId','categoryId','logoFileName','logoMaterialId',
             		          'wechatFileName','wechatMaterialId','wechatQrcode','weiboQrcode','officialUrl','payMethod','introduction',
-            		          'applicationDetailId','logoFilePath','wechatFilePath','appDivideId','appProportion','refuseReason','needVm'
+            		          'applicationDetailId','logoFilePath','wechatFilePath','appDivideId','appProportion','refuseReason','needVm','supplierName'
             		          ]
             	});
             	//发布应用列表Store
@@ -325,7 +325,14 @@ Ext.onReady(function() {
 									dataIndex: 'refuseReason',
 									flex:0.2
 									
+								},
+								{
+									header:'供应商', //供应商
+									dataIndex: 'supplierName',
+									flex:0.4
+									
 								}
+								
             		],
             		bbar: Ext.create('Ext.toolbar.Paging', {
             	          store:issueApplicationStore,
@@ -494,8 +501,8 @@ Ext.onReady(function() {
 		        							}else{
 		        								Ext.MessageBox.show({
 				        							title : i18n._('Prompt'),
-				        							//msg : '只有未申请状态的应用才能发布！',
-				        							msg:'请先给应用添加价格体系再发布！',
+				        							msg : '只有未申请状态的应用才能发布！',
+				        							//msg:'请先给应用添加价格体系再发布！',
 				        							icon : Ext.MessageBox.INFO,
 				        							buttons : Ext.MessageBox.OK
 				        						});
@@ -907,7 +914,7 @@ Ext.onReady(function() {
 		        						var appStatus;
 		        						if (rows.length > 0){
 		        							Id = rows[0].get('id');
-		        							window.open('http://117.122.193.11/wg-dawn-admin/appInfo/appDetail/'+Id);
+		        							window.open('http://101.204.243.101/wg-dawn-admin/appInfo/appDetail/'+Id);
 									    }else{
 									    	Ext.MessageBox.show({
 			        							title : i18n._('Prompt'),
@@ -1207,6 +1214,8 @@ Ext.onReady(function() {
             		height : 550,
             		closable : false,
             		constrain : true,
+            		autoScroll:true,
+            		bodyStyle:'overflow-y:auto;overflow-x:hidden;',
             		modal : true,
             		tools : [ {
             			type : 'close',
@@ -1264,12 +1273,29 @@ Ext.onReady(function() {
             				maxLength: 20,
             				enforceMaxLength:true,
             				allowBlank: false,
-            				id:'applicationDivideProportion'
+            				id:'applicationDivideProportion',
+            				validator : validProportion
             			}
             	       ]
             	    
             	});
             	
+            	
+            	function validProportion(text){
+            	    if(ltrim(rtrim(text)) == '') {
+            	        return i18n._('cannotBeNull');
+            	    } else {
+            	    	if(!isNaN(text)){
+            	    		if(parseFloat(text) > 1||parseFloat(text)<0){
+               	    		     return '只能输入大于等于0小于等于1的小数';
+               	    	    }else{
+               	    	    	 return true;
+               	    	    }
+            	    	}else{
+            	    		return '只能输入大于等于0小于等于1的小数';
+            	    	}
+            	    }
+            	}
             	//审核按钮弹出框
             	var auditApplicationWin = Ext.create('Ext.window.Window', {
             		width : 400,// 400

@@ -186,7 +186,7 @@ var buildAppForm=Ext.create('Ext.form.FormPanel', {
 			fieldLabel:'官方微博',
 			style:'margin-left:10px;margin-right:70px',
 			name:'applicationDetail.weiboQrcode',
-			maxLength: 20,
+			maxLength: 50,
 			enforceMaxLength:true,
 			//allowBlank: false,
 			id:'weiboQrcode'
@@ -198,12 +198,12 @@ var buildAppForm=Ext.create('Ext.form.FormPanel', {
 			name:'applicationDetail.introduction',
 			width:400,
     	    height:150,
-			maxLength: 500,
+			maxLength: 1500,
 			enforceMaxLength:true,
 			//allowBlank: false,
 			id:'introduction'
 		},
-	     {
+	    {
     	    style:'margin-left:10px;margin-right:70px',
 			fieldLabel:'应用类型',
 			name:'applicationVo.categoryId',

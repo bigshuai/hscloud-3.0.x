@@ -54,7 +54,13 @@ public class ApplicationOrderAction extends HSCloudAction{
 				queryMap.put("fuzzy", query);
 			}
 			if(queryVO != null){
-				queryMap.put("orderStatus", queryVO.getTransactionType());
+				if(queryVO.getTransactionType()==4){
+					queryMap.put("orderStatus","");
+				}else if(queryVO.getTransactionType()==0){
+					queryMap.put("orderStatus","0");
+				}else{
+					queryMap.put("orderStatus",queryVO.getTransactionType());
+				}
 			}
 			queryMap.put("start",(page - 1) * limit);
 			queryMap.put("size", limit);
@@ -124,6 +130,33 @@ public class ApplicationOrderAction extends HSCloudAction{
 		}
 	}
 
+	
+	/**
+	 * 取消订单
+	 */
+	public void auditAppOrder(){
+		long beginRunTime = 0;
+		if(logger.isDebugEnabled()){
+			beginRunTime = System.currentTimeMillis();
+			logger.debug("enter auditAppOrder method.");
+		}
+		try {
+			Map<String,Object> queryMap = new HashMap<String,Object>();
+			queryMap.put("id", appOrderId);
+			queryMap.put("availableStatus", 1);
+			appOrderService.auditAppOrderInfo(queryMap);
+		} catch(HsCloudException hce){
+			dealThrow(hce,hce.getCode());
+		} catch (Exception e) {
+			dealThrow(new HsCloudException("",
+					"取消订单异常", logger, e),Constants.APPORDER_CANCEL_EXCEPTION,true);
+		}
+		if(logger.isDebugEnabled()){
+			long takeTime = System.currentTimeMillis() - beginRunTime;
+			logger.debug("exit auditAppOrder method.takeTime:" + takeTime + "ms");
+		}
+	}
+	
 	public int getPage() {
 		return page;
 	}

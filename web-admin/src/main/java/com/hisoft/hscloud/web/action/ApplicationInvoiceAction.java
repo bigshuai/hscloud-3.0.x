@@ -12,7 +12,9 @@ package com.hisoft.hscloud.web.action;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -149,23 +151,16 @@ public class ApplicationInvoiceAction extends HSCloudAction {
 		}
         Admin admin = (Admin) this.getCurrentLoginUser();
         
-        
-        System.out.println("No.1ApplicationInvoiceAction_id======================="+id);
-        
         if (admin == null) {
             fillActionResult(Constants.ACCOUNT_IS_LOGOUT);
         } else {
             try{
             	   if(null!=applicationInvoiceRecord){
-            		   applicationInvoiceRecord.setBillingTime(new Date());
-            		   
+            		   Date today = Calendar.getInstance().getTime();
+            		   applicationInvoiceRecord.setBillingTime(today);
+            		   System.out.println("applicationInvoiceRecord.getBillingTime()===="+applicationInvoiceRecord.getBillingTime());
             		   applicationInvoiceRecord.setUserId(Constants.ADMINISTRATOR_ID);//管理员id为0
             		   applicationInvoiceRecord.setStatus("1");//上架
-            		   System.out.println("2ApplicationInvoiceAction_getId======================="+applicationInvoiceRecord.getId());
-            		   System.out.println("2ApplicationInvoiceAction_getInnerDescription======================="+applicationInvoiceRecord.getInnerDescription());
-            		   System.out.println("2ApplicationInvoiceAction_getInvoiceNo======================="+applicationInvoiceRecord.getInvoiceNo());
-            		   System.out.println("2ApplicationInvoiceAction_getStatus======================="+applicationInvoiceRecord.getStatus());
-            		   System.out.println("2ApplicationInvoiceAction_getSendTime======================="+applicationInvoiceRecord.getSendTime());
             		   applicationInvoiceRecordService.updateApplicationInvoiceInfo(applicationInvoiceRecord);
             	   }
             } catch(Exception e) {
@@ -192,20 +187,13 @@ public class ApplicationInvoiceAction extends HSCloudAction {
 		}
         Admin admin = (Admin) this.getCurrentLoginUser();
         
-        
-        System.out.println("No.modifyApplicationInvoiceInfo======================="+id);
-        
         if (admin == null) {
             fillActionResult(Constants.ACCOUNT_IS_LOGOUT);
         } else {
             try{
             	   if(null!=applicationInvoiceRecord){
             		  applicationInvoiceRecord.setUserId(Constants.ADMINISTRATOR_ID);//管理员id为0
-            		   
-            		   System.out.println("2appmodifyApplicationInvoice_getId======================="+applicationInvoiceRecord.getId());
-            		   System.out.println("2appmodifyApplicationInvoice_getInnerDescription======================="+applicationInvoiceRecord.getInnerDescription());
-            		   System.out.println("2appmodifyApplicationInvoice_getInvoiceNo======================="+applicationInvoiceRecord.getInvoiceNo());
-            		   applicationInvoiceRecordService.modifyApplicationInvoiceInfo(applicationInvoiceRecord);
+            		  applicationInvoiceRecordService.modifyApplicationInvoiceInfo(applicationInvoiceRecord);
             	   }
             } catch(Exception e) {
                 facade.insertOperationLog(admin,"审核应用发票错误:"+e.getMessage(),"审核应用发票错误",Constants.RESULT_FAILURE);
@@ -236,7 +224,13 @@ public class ApplicationInvoiceAction extends HSCloudAction {
         } else {
             try{
             	   if(null!=applicationInvoiceRecord){
-            		   applicationInvoiceRecord.setBillingTime(new Date());
+            		   	SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");  
+            			Date date = new Date();  
+           	        	String today = f.format(date);  
+           	        	applicationInvoiceRecord.setBillingTime(date);
+           	        	System.out.println("applicationInvoiceRecord.getBillingTime()===="+applicationInvoiceRecord.getBillingTime());
+            		  
+            		   
             		   applicationInvoiceRecord.setUserId(Constants.ADMINISTRATOR_ID);//管理员id为0
             		   applicationInvoiceRecord.setStatus("2");//上架
             		   applicationInvoiceRecordService.updateApplicationInvoiceInfo(applicationInvoiceRecord);

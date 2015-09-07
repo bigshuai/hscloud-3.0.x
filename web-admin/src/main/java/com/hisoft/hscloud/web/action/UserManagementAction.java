@@ -23,6 +23,8 @@ import com.hisoft.hscloud.crm.usermanager.util.Utils;
 import com.hisoft.hscloud.crm.usermanager.vo.UserProfileVo;
 import com.hisoft.hscloud.crm.usermanager.vo.UserVO;
 import com.hisoft.hscloud.web.facade.Facade;
+import com.wgdawn.persist.more.model.center.AppUserProfileSupplierVO;
+import com.wgdawn.service.ApplicationReportService;
 
 /**
  * 
@@ -68,6 +70,8 @@ public class UserManagementAction extends HSCloudAction {
 	}
 	@Autowired
 	private Facade facade;
+	@Autowired
+	private ApplicationReportService applicationReportService;
 	private static Logger logger = Logger.getLogger(UserManagementAction.class
 			.getName());
 	/**
@@ -250,6 +254,7 @@ public class UserManagementAction extends HSCloudAction {
 			facade.approvedUser(user.getId());
 			long userId=user.getId();
 			Object result = facade.synchroExternalUser2(userId);
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -268,6 +273,9 @@ public class UserManagementAction extends HSCloudAction {
 		}
 		try {
 			facade.supplieApproved(userId,supplieStatus);
+			AppUserProfileSupplierVO appUserProfileSupplierVO = new AppUserProfileSupplierVO();
+			appUserProfileSupplierVO.setId(userId);
+			applicationReportService.insertAppUserProfileSupplier(appUserProfileSupplierVO);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

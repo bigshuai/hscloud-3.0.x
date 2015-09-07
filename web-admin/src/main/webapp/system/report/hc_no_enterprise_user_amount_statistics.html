@@ -101,7 +101,7 @@ Ext.onReady(function () {
 var grid = Ext.create('Ext.panel.Panel', {
     id:'button-grid',
     store: store,
-    title:i18n._('报表管理')+'&nbsp;&nbsp;>&nbsp;&nbsp;'+i18n._('用户统计')+'&nbsp;&nbsp;>&nbsp;&nbsp;'+i18n._('个人用户月增长数量统计'),
+    title:i18n._('报表管理')+'&nbsp;&nbsp;>&nbsp;&nbsp;'+i18n._('用户统计')+'&nbsp;&nbsp;>&nbsp;&nbsp;'+i18n._('非成都企业用户月增长数量统计'),
 	layout:'fit',
 
     width:'100%',
@@ -152,6 +152,7 @@ Ext.getCmp('searchAppyear').setValue(nowYear);
 	Ext.create('Ext.chart.Chart', {
 	    renderTo: Ext.getBody(),
 		margin:'0 0 0 200px',
+		padding:'10px 0 0 0',
 	    width: 600,
 	    height: 400,
 	    animate: true,
@@ -187,7 +188,7 @@ Ext.getCmp('searchAppyear').setValue(nowYear);
 	            label: {
 	              display: 'insideEnd',
 	              'text-anchor': 'middle',
-	                field: 'data1',
+	                field: 'userNum',
 	                renderer: Ext.util.Format.numberRenderer('0'),
 	                orientation: 'vertical',
 	                color: '#333'

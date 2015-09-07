@@ -28,6 +28,10 @@ var  uploadMirrorModel = Ext.define('uploadMirrorModel', {
 var uploadMirrorStore = Ext.create('Ext.data.Store', {
 	model : 'uploadMirrorModel',
 	pageSize : 16,//每页显示16条数据
+	sorters : [ {
+		property : 'id',
+		direction : 'DESC'
+	} ],
 	autoLoad : true,
 	proxy : new Ext.data.proxy.Ajax({
 		url : path + '/../application_mgmt/application!findAppUploadMirrorListPage.action',

@@ -130,6 +130,8 @@ public class ApplicationManagementAction extends HSCloudAction {
 	
 	private Integer appId;
 	
+	private String duration;
+	
 	private Material material;
 	
 	private AppApplicationDivide applicationDivideVo;
@@ -218,6 +220,75 @@ public class ApplicationManagementAction extends HSCloudAction {
         if(logger.isDebugEnabled()){
 			long takeTime = System.currentTimeMillis() - beginRunTime;
 			logger.debug("exit ifPriceSystemInfo method.takeTime:" + takeTime + "ms");
+		}
+    }
+    
+    /**
+     * 查询该应用最低的价格
+     * <功能详细描述>  
+     * @see [类、类#方法、类#成员]
+     */
+    public void findMinPriceByAppId() {
+    	long beginRunTime = 0;
+		if(logger.isDebugEnabled()){
+			beginRunTime = System.currentTimeMillis();
+			logger.debug("enter findMinPriceByAppId method.");			
+		}
+        Admin admin = (Admin) this.getCurrentLoginUser();
+        if (admin == null) {
+            fillActionResult(Constants.ACCOUNT_IS_LOGOUT);
+        } else {
+            try{
+        		Integer i=issueApplicationService.findMinPriceByAppId(appId);
+        	    if(i==null){
+        	    	fillActionResult(null);
+        	    }else{
+        	    	fillActionResult(i);
+        	    }
+            } catch(Exception e) {
+                this.dealThrow(Constants.ANNOUNCEMENT_EXCEPTION, e, logger);
+            }
+        }
+        if(logger.isDebugEnabled()){
+			long takeTime = System.currentTimeMillis() - beginRunTime;
+			logger.debug("exit findMinPriceByAppId method.takeTime:" + takeTime + "ms");
+		}
+    }
+    
+    /**
+     * 查询该应用是否添加了时长管理
+     * <功能详细描述>  
+     * @see [类、类#方法、类#成员]
+     */
+    public void ifDurationSystemInfo() {
+    	long beginRunTime = 0;
+		if(logger.isDebugEnabled()){
+			beginRunTime = System.currentTimeMillis();
+			logger.debug("enter ifDurationSystemInfo method.");			
+		}
+        Admin admin = (Admin) this.getCurrentLoginUser();
+        if (admin == null) {
+            fillActionResult(Constants.ACCOUNT_IS_LOGOUT);
+        } else {
+            try{
+            	
+        		Map<String,Object> countMap = new HashMap<String,Object>();
+        		countMap.put("appId",appId);
+        		countMap.put("duration",duration);
+        		int i=issueApplicationService.ifDrationExistById(countMap);
+        	    if(i>0){
+        	    	fillActionResult(false);
+        	    }else{
+        	    	fillActionResult(true);
+        	    }
+            	
+            } catch(Exception e) {
+                this.dealThrow(Constants.ANNOUNCEMENT_EXCEPTION, e, logger);
+            }
+        }
+        if(logger.isDebugEnabled()){
+			long takeTime = System.currentTimeMillis() - beginRunTime;
+			logger.debug("exit ifDurationSystemInfo method.takeTime:" + takeTime + "ms");
 		}
     }
     
@@ -1322,6 +1393,7 @@ public class ApplicationManagementAction extends HSCloudAction {
             		   applicationVo.setUpdateTime(new Date());
             		   applicationVo.setUpdateId(Constants.ADMINISTRATOR_ID);//管理员id为0
             		   applicationVo.setStatus(Constants.APPLIACTION_UP);//上架
+            		   applicationVo.setAuditTime(new Date());
             		   issueApplicationService.updateApplicationInfo(applicationVo);
             	   }
             } catch(Exception e) {
@@ -1762,6 +1834,18 @@ public class ApplicationManagementAction extends HSCloudAction {
 
 	public void setAppIsCommend(String appIsCommend) {
 		this.appIsCommend = appIsCommend;
+	}
+
+
+
+	public String getDuration() {
+		return duration;
+	}
+
+
+
+	public void setDuration(String duration) {
+		this.duration = duration;
 	}
 	
 	

@@ -12,198 +12,199 @@
 <script type="text/javascript" src="../systemmanagement/common.js"></script>
 
 <script>
-Ext.require('Ext.chart.*');
-Ext.require([
-	'Ext.form.field.ComboBox',
-    'Ext.form.FieldSet',
-	'Ext.Window', 
-    'Ext.data.*',
-    'Ext.panel.Panel',
-    'Ext.layout.container.Fit',
-    'Ext.ux.form.SearchField',
-	'Ext.fx.target.Sprite',
-	'Ext.ux.data.PagingMemoryProxy'
-]);
+	Ext.require('Ext.chart.*');
+	Ext.require([ 'Ext.form.field.ComboBox', 'Ext.form.FieldSet', 'Ext.Window', 'Ext.data.*', 'Ext.panel.Panel', 'Ext.layout.container.Fit',
+			'Ext.ux.form.SearchField', 'Ext.fx.target.Sprite', 'Ext.ux.data.PagingMemoryProxy' ]);
 
-Ext.onReady(function () {
+	Ext.onReady(function() {
 
+		var appReportModel = Ext.define('appReportModel', {
+			extend : 'Ext.data.Model',
+			fields : [ 'appCount', 'appYear', 'appMonth', 'creatTime' ]
+		});
 
+		var yearStore = Ext.create('Ext.data.Store', {
+			fields : [ 'id', 'year' ],
+			proxy : new Ext.data.proxy.Ajax({
+				url : path + '/../report_mgmt/userReport!findReoprtYear.action',
+				reader : {
+					type : 'json',
+					root : 'resultObject'
+				},
+				listeners : {
+					exception : function(reader, response, error, eOpts) {
+						v_mask.hide();
+						ajaxException(reader, response, error, eOpts);
+					}
+				}
+			})
+		});
+		yearStore.load();
 
-
-var appReportModel = Ext.define('appReportModel', {
-		extend : 'Ext.data.Model',
-		fields : [
-		          'appCount','appYear','appMonth','creatTime'
-		          ]
-	});
-
-
-var yearStore = Ext.create('Ext.data.Store', {
-	    fields: ['id', 'year'],
-	    proxy : new Ext.data.proxy.Ajax(
-				{
-					url:path + '/../report_mgmt/userReport!findReoprtYear.action',
-					reader : {
-						type : 'json',
-						root : 'resultObject'									
-					},
-					listeners:{
-						exception:function(reader, response, error, eOpts){
-							v_mask.hide();
-							ajaxException(reader, response, error, eOpts );										
-						}
-					}							
-				})
-	    
-	    
-	});
-	yearStore.load();
-
-	var appReportStore = Ext.create('Ext.data.Store', {
-		model : 'appReportModel',
-		autoLoad : true,
-		proxy : new Ext.data.proxy.Ajax({
-			url : path + '/../report_mgmt/cloudApplicationReport!getShelvesOfAppliedStatistics.action',
-			 reader : {
-				type : 'json',
-				root : 'resultObject'
-			},
-			listeners:{
-				exception:function(reader, response, error, eOpts){
-					ajaxException(reader, response, error, eOpts );
+		var appReportStore = Ext.create('Ext.data.JsonStore', {
+			model : 'appReportModel',
+			autoLoad : true,
+			proxy : new Ext.data.proxy.Ajax({
+				url : path + '/../report_mgmt/cloudApplicationReport!getShelvesOfAppliedStatistics.action',
+				reader : {
+					type : 'json',
+					root : 'resultObject'
+				},
+				listeners : {
+					exception : function(reader, response, error, eOpts) {
+						ajaxException(reader, response, error, eOpts);
+					}
+				}
+			}),
+			listeners : {
+				beforeload : function(store, operation, eOpts) {
+					v_mask = new Ext.LoadMask(Ext.getBody(), {
+						msg : i18n._('please wait'),
+						removeMask : true
+					});
+					v_mask.show();
+				},
+				load : function(store, records, successful, eOpts) {
+					v_mask.hide();
 				}
 			}
-		}),	
-		listeners : {
-			beforeload : function(store,operation, eOpts ){	
-				v_mask = new Ext.LoadMask(Ext.getBody(), {
-					msg : i18n._('please wait'),
-					removeMask : true			
-				});
-				v_mask.show();
-			},
-			load : function(store, records, successful, eOpts ){
-				v_mask.hide();
+		});
+	    appReportStore.load();
+		var imgb = new Ext.Button({
+			text : '<font color="#ee7700">' + i18n._('Search') + '</font>',
+			icon : "images/search.png",
+			handler : function(btn) {
+				var proxy = appReportStore.getProxy();
+				var searchAppyear = Ext.getCmp('searchAppyear').getValue();
+				proxy.setExtraParam('searchAppyear', searchAppyear);
+				proxy.extraParams.start = 0;
+				appReportStore.loadPage(1, null);
 			}
-		}
-	});	
-	appReportStore.load();
-	var imgb = new Ext.Button({  
-    		        text: '<font color="#ee7700">'+i18n._('Search')+'</font>',
-    		        icon: "images/search.png",
-    		        handler :function(btn) { 
-    		        	var proxy = appReportStore.getProxy();
-    		        	var searchAppyear = Ext.getCmp('searchAppyear').getValue();
-						proxy.setExtraParam('searchAppyear',searchAppyear);
-						proxy.extraParams.start = 0;
-						appReportStore.loadPage(1,null);
-    	            }
-    		    }); 
+		});
 
- 
-var grid = Ext.create('Ext.panel.Panel', {
-    id:'button-grid',
-    title:i18n._('报表管理')+'&nbsp;&nbsp;>&nbsp;&nbsp;'+i18n._('云应用')+'&nbsp;&nbsp;>&nbsp;&nbsp;'+i18n._('月收入统计'),
-	layout:'fit',
-    width:'100%',
-	height:'100%',
-    frame: true,
-	border:false,
-	simpleSelect :true,
-    iconCls: 'icon-grid',
-	renderTo: Ext.getBody(),
-	//自适应
-    viewConfig: {
-        stripeRows: true,
-		forceFit: true
-    }
-});
+		var grid = Ext.create('Ext.panel.Panel', {
+			id : 'button-grid',
+			//store: appyearStore,
+			title : i18n._('报表管理') + '&nbsp;&nbsp;>&nbsp;&nbsp;' + i18n._('云应用') + '&nbsp;&nbsp;>&nbsp;&nbsp;' + i18n._('下架的应用统计'),
+			layout : 'fit',
+			width : '100%',
+			height : '100%',
+			frame : true,
+			border : false,
+			simpleSelect : true,
+			iconCls : 'icon-grid',
+			renderTo : Ext.getBody(),
+			//自适应
+			viewConfig : {
+				stripeRows : true,
+				forceFit : true
+			}
+		});
 
+		Ext.create('Ext.form.Panel', {
+			width : 400,
+			margin : '10px 0 20px 320px',
+			bodyPadding : 10,
+			renderTo : Ext.getBody(),
+			layout : {
+				type : 'hbox',
+				align : 'middle'
+			},
+			items : [ {
+				xtype : 'label',
+				forId : 'myFieldId',
+				text : '年份',
+				margins : '0 10px 0 10px'
+			}, {
+				xtype : 'combobox',
+				margins : '0 10px 0 0 ',
+				name : 'searchAppyear',
+				id : 'searchAppyear',
+				store : yearStore, //       这里的store为combox的数据源                   
+				queryMode : 'local',
+				displayField : 'year', // 显示在前台的名字                    
+				valueField : 'id', // 具体的值                   
+				emptyText : '全部', //为空的状态下显示的内容                    
+				hideLabel : true
+			}, imgb ]
+		});
 
-Ext.create('Ext.form.Panel', {
-    width: 400,
-	margin:'10px 0 20px 320px',
-    bodyPadding: 10,
-    renderTo: Ext.getBody(),
-    layout: {
-        type: 'hbox',
-        align: 'middle'
-    },
-    items: [{
-        xtype: 'label',
-        forId: 'myFieldId',
-        text: '年份',
-        margins: '0 10px 0 10px'
-    },{
-        xtype:'combobox',
- 	    margins: '0 10px 0 0 ',
- 		name:'searchAppyear', 
- 		id:'searchAppyear', 
- 		store:yearStore,         //       这里的store为combox的数据源                   
- 		queryMode: 'local',                    
- 		displayField: 'year',   // 显示在前台的名字                    
- 		valueField: 'id',                // 具体的值                   
- 		emptyText:'全部',                //为空的状态下显示的内容                    
- 		hideLabel:true
-     },imgb]
-});
-
-var myDate = new Date();
-var nowYear=myDate.getFullYear()
-Ext.getCmp('searchAppyear').setValue(2015);
+		var myDate = new Date();
+		var nowYear = myDate.getFullYear()
+		Ext.getCmp('searchAppyear').setValue(nowYear);
 
 
+		appReportStore.load({
 
+			callback : function(r, options, success) {
+				if (success == false) {
+				} else {
+					var win = Ext.create('widget.panel', {
+						margin:'0 0 0 200px',
+						width : 800,
+						height : 450,
+						hidden : false,
+						maximizable : true,
+						renderTo : Ext.getBody(),
+						layout : 'fit',
+						items : {
+							id : 'chartCmp',
+							xtype : 'chart',
+							style : 'background:#fff',
+							animate : true,
+							shadow : true,
+							store : appReportStore,
+							
+							axes : [ {
+								type : 'Numeric',
+								position : 'left',
+								fields : [ 'appCount'],
+								minimum : 0,
+								label : {
+									renderer : Ext.util.Format.numberRenderer('0')
+								},
+								grid : true,
+								title : '下架数量（单位：个）'
+							}, {
+								type : 'Category',
+								position : 'bottom',
+								fields : [ 'appMonth' ],
+								title : '月份（单位：月）'
+							} ],
+							series : [
+									{
+										type : 'column',
+										axis : 'bottom',
+										highlight: true,
+										xField : 'appMonth',
+										yField : [ 'appCount'],
+										style: { width: 20 },
+										tips : {
+											trackMouse : true,
+											width : 140,
+											height : 45,
+											renderer : function(storeItem, item) {
+												this.setTitle(storeItem.get('appMonth') + '月 : ' + storeItem.get('appCount') + ' 个');
+											}
+										}
+									}, ],
+							label : {
+								display : 'insideEnd',
+								'text-anchor' : 'middle',
+								field : 'appMonth',
+								renderer : Ext.util.Format.numberRenderer('0'),
+								orientation : 'vertical',
+								color : '#333'
+							},
+							xField : 'appMonth',
+							yField : [ 'appCount']
+						}
+					});
+				}
+			}
+		});
 
-	Ext.create('Ext.chart.Chart', {
-	    renderTo: Ext.getBody(),
-		margin:'30px 0 0 200px',
-	    width: 600,
-	    height: 500,
-	    animate: true,
-	    store: appReportStore,
-	    axes: [{
-	            type: 'Numeric',
-	            position: 'left',
-	            fields: ['appCount'],
-	            label: {
-	               renderer: Ext.util.Format.numberRenderer('0.0')
-	            },
-	          	title: '下架数量（单位：台）',
-	            grid: true,
-	            minimum: 0
-	        }, {
-	            type: 'Category',
-	            position: 'bottom',
-	            fields: ['appMonth'],
-	           	title: '月份（单位：月）'
-	        }],
-	        series: [{
-	            type: 'column',
-	            axis: 'left',
-	            highlight: true,
-	            tips: {
-	              trackMouse: true,
-	              width: 140,
-	              height: 28,
-	              renderer: function(storeItem, item) {
-	                this.setTitle(storeItem.get('appMonth') + ': ' + storeItem.get('appCount') + ' 台');
-	              }
-	            },
-	            label: {
-	              display: 'insideEnd',
-	              'text-anchor': 'middle',
-	                field: 'appCount',
-	                renderer: Ext.util.Format.numberRenderer('0'),
-	                orientation: 'vertical',
-	                color: '#333'
-	            },
-	            xField: 'appMonth',
-	            yField: 'appCount'
-	        }]
 	});
-   
-});
 </script>
 </head>
 <body>

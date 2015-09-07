@@ -1,0 +1,423 @@
+<html>
+<head>
+  <title>hc_user_industry_statistics_list</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <link rel='stylesheet' type='text/css' href='../../extjs-4.1.0/resources/css/ext-all-gray.css' />
+  <script type='text/javascript' src='../../extjs-4.1.0/ext-all.js'></script>
+  <script type="text/javascript" src="../../js/head.js"></script>
+  <script type="text/javascript" src="../../js/ux/data/PagingMemoryProxy.js"></script>
+  <script type="text/javascript" src="../../js/ux/form/SearchField.js"></script>
+  <script src="../../js/jquery-1.7.2.min.js" type="text/javascript"></script>
+  <script type="text/javascript" charset="utf-8" src="../../js/i18n.js"></script>
+  <script type="text/javascript" src="../systemmanagement/common.js"></script>
+  <script>
+  Ext.Loader.setConfig({enabled: true});
+  Ext.require([       
+    'Ext.data.*',
+    'Ext.form.*',
+    'Ext.panel.Panel',
+    'Ext.view.View',
+    'Ext.layout.container.Fit',
+    'Ext.toolbar.Paging',
+    'Ext.selection.CheckboxModel',
+    'Ext.tip.QuickTipManager',
+    'Ext.ux.data.PagingMemoryProxy',
+    'Ext.ux.form.SearchField'
+    ]);
+
+  function ltrim(s) {
+    if (s == null) return "";
+    var whitespace = new String(" \t\n\r");
+    var str = new String(s);
+    if (whitespace.indexOf(str.charAt(0)) != -1) {
+      var j = 0, i = str.length;
+      while (j < i && whitespace.indexOf(str.charAt(j)) != -1) {
+        j++;
+      }
+      str = str.substring(j, i);
+    }
+    return str;
+  }
+
+//去掉字符串右边的空格 
+function rtrim(s) {
+  if (s == null) return "";
+  var whitespace = new String(" \t\n\r");
+  var str = new String(s);
+  if (whitespace.indexOf(str.charAt(str.length - 1)) != -1) {
+    var i = str.length - 1;
+    while (i >= 0 && whitespace.indexOf(str.charAt(i)) != -1) {
+      i--;
+    }
+    str = str.substring(0, i + 1);
+  }
+  return str;
+} 
+
+Ext.onReady(function() {    
+  Ext.QuickTips.init();
+  MultiLang = (function() {
+    return {
+      init: function() {
+        params = getCookie("lang");
+        i18n.set({
+          lang: params, 
+          path: '../../resources'
+        });
+        if (params) {
+          var url = Ext.util.Format.format('../../extjs-4.1.0/locale/ext-lang-{0}.js', params);
+          Ext.Ajax.request({
+            url: url,
+            success: this.onLoadExtLocaleSuccess,
+            failure: this.onLoadExtLocaleFailure,
+            scope: this
+          });
+        } else {
+          this.setup();
+        }
+      },
+      onLoadExtLocaleSuccess: function(response) {
+        try {
+          eval(response.responseText);
+        } catch (e) {
+        }
+        this.setup();
+      },
+      onLoadExtLocaleFailure: function() {
+        this.setup();
+      },
+      setup: function() { 
+       var v_mask = null;
+
+       var appReportModel =    Ext.define('appReportModel', {
+        extend : 'Ext.data.Model',
+        fields : [
+        {name: 'enterpriseName'},
+        {name: 'bandwidth'},
+        {name: 'ip'  },
+        {name: 'storageHigh' },
+        {name: 'storageOptimization'},
+        {name: 'firewall'},
+        {name: 'sqlserver'},
+        {name: 'mysql'},
+        {name: 'otherDatabase'},
+        {name: 'cpu'},
+        {name: 'memory'}
+        ]
+      });
+       var appReportStore = Ext.create('Ext.data.Store', {
+        model : 'appReportModel',
+        autoLoad : true,
+        proxy : new Ext.data.proxy.Ajax({
+          url : path + '/../report_mgmt/report!selectAppResourceDeploymentSituation.action',
+          reader : {
+            type : 'json',
+            root : 'resultObject'
+          },
+          listeners:{
+            exception:function(reader, response, error, eOpts){
+              ajaxException(reader, response, error, eOpts );
+            }
+          }
+        }), 
+        listeners : {
+          beforeload : function(store,operation, eOpts ){ 
+            v_mask = new Ext.LoadMask(Ext.getBody(), {
+              msg : i18n._('please wait'),
+              removeMask : true     
+            });
+            v_mask.show();
+          },
+          load : function(store, records, successful, eOpts ){
+            v_mask.hide();
+          }
+        }
+      });
+       function change(val) {
+         if (val > 0) {
+/*            return '<span style="color:green;">' + val + '</span>'; */
+           return '<span >' + val + '</span>';
+         } else if (val < 0) {
+           return '<span >' + val + '</span>';
+         }
+         return val;
+       }
+
+       var yearStore = Ext.create('Ext.data.Store', {
+         fields: ['id', 'year'],
+         proxy : new Ext.data.proxy.Ajax(
+         {
+           url:path + '/../report_mgmt/userReport!findReoprtYear.action',
+           reader : {
+            type : 'json',
+            root : 'resultObject'									
+          },
+          listeners:{
+            exception:function(reader, response, error, eOpts){
+             v_mask.hide();
+             ajaxException(reader, response, error, eOpts );										
+           }
+         }							
+       })
+
+
+       });
+       yearStore.load();
+       var monthStore = Ext.create('Ext.data.Store', {
+        fields: ['id','month'],
+        data:[{'id':'1','month':'1'},
+        {'id':'2','month':'2'},
+        {'id':'3','month':'3'},
+        {'id':'4','month':'4'},
+        {'id':'5','month':'5'},
+        {'id':'6','month':'6'},
+        {'id':'7','month':'7'},
+        {'id':'8','month':'8'},
+        {'id':'9','month':'9'},
+        {'id':'10','month':'10'},
+        {'id':'11','month':'11'},
+        {'id':'12','month':'12'}
+        ]
+
+      });
+       monthStore.load();
+
+
+       var imgb = new Ext.Button({  
+        text: '<font color="#ee7700">'+i18n._('Search')+'</font>',
+        icon: "images/search.png",
+        handler :function(btn) { 
+         var proxy = appReportStore.getProxy();
+         var searchAppyear = Ext.getCmp('searchAppyear').getValue();
+         var searchAppmonth = Ext.getCmp('searchAppmonth').getValue();
+         proxy.setExtraParam('searchAppyear',searchAppyear);
+         proxy.setExtraParam('searchAppmonth',searchAppmonth);
+         proxy.extraParams.start = 0;
+         appReportStore.loadPage(1,null);
+       }
+     }); 
+
+            	//分页序号
+            	Ext.grid.PageRowNumberer = Ext.extend(Ext.grid.RowNumberer, { 
+            		baseCls:Ext.baseCSSPrefix + 'column-header ' + Ext.baseCSSPrefix + 'unselectable',
+            		cls:Ext.baseCSSPrefix + 'row-numberer',
+            		tdCls:Ext.baseCSSPrefix+"grid-cell-special",
+               renderer:function(value, cellmeta, record, rowIndex, columnIndex, store){   
+                 return (store.currentPage - 1) * store.pageSize + rowIndex + 1;  
+               }       
+             });
+            	
+            	var workOrderGrid=Ext.create('Ext.grid.Panel', {
+               layout:'fit',            		
+               store:appReportStore,
+               simpleSelect:true,
+               selModel: Ext.create('Ext.selection.RowModel'),
+               columns: [
+               
+               {
+                 header:'企业名称',
+                 dataIndex: 'enterpriseName',
+                 width    : 200,
+                 flex:0.2
+               },
+               {
+                 header:'互联网带宽',	
+                 columns: [{
+                   text     : '带宽',
+                   width    : 75,
+                   sortable : true,
+                   renderer : change,
+                   dataIndex: 'bandwidth'
+                 }, {
+                   text     : 'IP地址',
+                   width    : 150,
+                   sortable : true,
+                   renderer : change,
+                   dataIndex: 'ip'
+                 }],
+                 flex:0.2
+               },
+               {
+                 header:'存储资源',
+                 columns: [{
+                   text     : '高性能型',
+                   width    : 80,
+                   sortable : true,
+                   renderer : change,
+                   dataIndex: 'storageHigh'
+                 }, {
+                   text     : '容量优化型',
+                   width    : 90,
+                   sortable : true,
+                   renderer : change,
+                   dataIndex: 'storageOptimization'
+                 }],
+                 flex:0.2
+
+               },
+               {
+                 header:'网络',
+                 columns: [{
+                   text     : '虚拟防火墙',
+                   width    : 90,
+                   sortable : true,
+                   renderer : change,
+                   dataIndex: 'firewall'
+                 }],
+                 flex:0.2
+               },
+               {
+                 header:'数据库',
+                 columns: [{
+                   text     : 'SQLServer',
+                   width    : 85,
+                   sortable : true,
+                   renderer : change,
+                   dataIndex: 'sqlserver'
+                 }, {
+                   text     : 'MySQL',
+                   width    : 70,
+                   sortable : true,
+                   renderer : change,
+                   dataIndex: 'mysql'
+                 }, {
+                   text     : '非关系型数据库',
+                   width    : 115,
+                   sortable : true,
+                   renderer : change,
+                   dataIndex: 'otherDatabase'
+                 }],
+                 flex:0.2
+               },
+               {
+                 header:'其它', 	
+                 columns: [{
+                   text     : 'CPU',
+                   width    : 70,
+                   sortable : true,
+                   renderer : change,
+                   dataIndex: 'cpu'
+                 }, {
+                   text     : '内存',
+                   width    : 70,
+                   sortable : true,
+                   renderer : change,
+                   dataIndex: 'memory'
+                 }],
+                 flex:0.2
+               }
+
+               ],
+               bbar: Ext.create('Ext.toolbar.Paging', {
+                 store:appReportStore,
+                 displayInfo: true,
+            	          beforePageText:i18n._('beforePageText'),//"第"
+            	          firstText: i18n._('firstText'),//"第一页"
+            	          prevText: i18n._('prevText'),//"上一页"
+            	          nextText: i18n._('nextText'),//"下一页"
+            	          lastText: i18n._('lastText'),//"最后页"
+            	          refreshText: i18n._('refreshText')//"刷新"
+                     }),           	
+               viewConfig: {
+                stripeRows: true
+              },            		
+              dockedItems:[
+              {
+               xtype:'toolbar',
+               cls: 'toolbarCSS',
+               dock: 'top',			
+               items:[			
+               {xtype:'tbfill'},
+               {
+                 xtype:'displayfield',
+                 hideLabel:true,
+                 value:'<span style="bottom:3px;position:relative;"><font color="white">'+"年份"+':'+'</font></span>'
+               },
+               { 
+                xtype:'combobox',                    
+                name:'searchAppyear', 
+                id:'searchAppyear',
+		            				store: yearStore,         //       这里的store为combox的数据源                   
+		            				queryMode: 'local',                    
+		            				displayField: 'year',   // 显示在前台的名字                    
+		            				valueField: 'id',                // 具体的值                   
+		            				emptyText:'全部',                //为空的状态下显示的内容                    
+		            				fieldLabel:'年份',
+		            				hideLabel:true,
+		            			},{
+                       xtype:'displayfield',
+                       hideLabel:true,
+                       value:'<span style="bottom:3px;position:relative;"><font color="white">'+"月份"+':'+'</font></span>'
+                     },
+                     { 
+                      xtype:'combobox',                    
+                      name:'searchAppmonth', 
+                      id:'searchAppmonth',
+                        store: monthStore,         //       这里的store为combox的数据源                   
+                        queryMode: 'local',                    
+                        displayField: 'month',   // 显示在前台的名字                    
+                        valueField: 'month',                // 具体的值                   
+                        emptyText:'全部',                //为空的状态下显示的内容                    
+                        fieldLabel:'月份',
+                        hideLabel:true,
+                      },
+                      imgb
+                      ]
+                    }]
+                  });
+var myDate = new Date();
+var nowYear=myDate.getFullYear()
+var nowMonth = myDate.getMonth()+1;
+Ext.getCmp('searchAppyear').setValue(nowYear);
+Ext.getCmp('searchAppmonth').setValue(nowMonth);
+
+
+function vd(text){
+ if(ltrim(rtrim(text)) == '') {
+   return i18n._('cannotBeNull');
+ } else {
+   return true;
+ }
+}
+
+            	Ext.create('Ext.Viewport',{//Ext.Viewport
+                layout:'border',
+                width:'100%',                   
+                items:[
+                {
+                  region:'center',
+                  xtype:'panel',
+                  id:'panel_one',
+                  title:'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+i18n._('reportManagement')+'&nbsp;&nbsp;>&nbsp;&nbsp;'+i18n._('cloudApplication')+'&nbsp;&nbsp;>&nbsp;&nbsp;'+i18n._('resourceDeploymentSituation'),
+                  width:'60%',
+                  layout:'fit',
+                  autoScroll:true,
+                  items:[
+                  {
+                    xtype:'panel',
+                    layout:'fit',
+                    autoScroll:true,
+                    items:workOrderGrid
+                  }
+                  ]
+                }
+                    ]//panel
+                  });         
+
+            }
+          };
+        })();
+
+        MultiLang.init();
+      });
+function getCookie(name){
+ var arr = document.cookie.match(new RegExp("(^| )"+name+"=([^;]*)(;|$)"));
+ if(arr != null) return unescape(arr[2]);
+ return null;
+};
+
+</script>
+</head>
+<body>
+</body>
+</html>

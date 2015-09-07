@@ -20,7 +20,7 @@ Ext.apply(Ext.QuickTips.getQuickTip(), {
 //价格体系列表模板
 var priceSystemModel = Ext.define('priceSystemVo', {
 	extend : 'Ext.data.Model',
-	fields : [ 'id','appId','name','peopleNum','price','serviceCatalogDescription','serviceCatalogName','serviceCatalogId'
+	fields : [ 'id','appId','name','peopleNum','price','serviceCatalogDescription','serviceCatalogName','serviceCatalogId','createTime'
 	],//
 	idProperty : 'id'
 });
@@ -31,6 +31,10 @@ var priceSystemModel = Ext.define('priceSystemVo', {
 var priceSystemStore = Ext.create('Ext.data.Store', {
 	model : 'priceSystemVo',
 	pageSize : 16,//每页显示16条数据
+	sorters : [ {
+		property : 'id',
+		direction : 'DESC'
+	} ],
 	//remoteSort : true,
 	autoLoad : false,
 	proxy : new Ext.data.proxy.Ajax({
@@ -272,29 +276,8 @@ var scStore = Ext.create('Ext.data.Store', {
 
 scStore.load();
 
-/*var scCombox = Ext.create('Ext.form.field.ComboBox',{
-	    multiSelect: false,
-	    fieldLabel:'推荐配置',
-	    displayField: 'name',
-		valueField:'id',
-	    width: 230,
-	    editable:false,
-	    allowBlank: false,
-	    labelWidth: 80,
-	    store: scStore,
-	    emptyText:'请选择',
-	 listeners:{
-	    	select:function( combo, records, eOpts ){
-	    		if(combo != null || combo != ""){
-	    			Ext.getCmp('configMes').setText(records[0].data.description);
-	    		}
-	    	}
-	    }
-});*/
-
 //保存价格体系
 function savePriceSystem(){
-	
 		 if(!addPriceSystemForm.form.isValid()){
 			 return;
 		 }
@@ -303,6 +286,30 @@ function savePriceSystem(){
 	    var priceSystemValue = Ext.getCmp('priceSystemValue').getValue();
 	    var priceSystemUnit = Ext.getCmp('priceSystemUnit').getValue();
 	    var scId =Ext.getCmp('priceSystemConfig').getValue();
+	    //var type="^[1-9]([0-9])*$"; 
+	    //var re =new RegExp(type); 
+	    if(isNaN(priceSystemPeople)||priceSystemPeople<=0||!(/^\d+$/.test(priceSystemPeople))){
+	    //if(isNaN(priceSystemPeople)){
+	    	Ext.MessageBox.show({
+            	title: i18n._('notice'),
+                msg: '小于等于只能输入整数！',
+                buttons: Ext.MessageBox.OK,
+                icon: Ext.MessageBox.INFO,
+                fn: reLoadDrationData
+            });
+	    	return;
+	    }
+	    // if(isNaN(priceSystemValue)){
+	    if(isNaN(priceSystemValue)||priceSystemValue<0||!(/^\d+$/.test(priceSystemValue))){
+	    	Ext.MessageBox.show({
+            	title: i18n._('notice'),
+                msg: '元/月只能输入整数！',
+                buttons: Ext.MessageBox.OK,
+                icon: Ext.MessageBox.INFO,
+                fn: reLoadDrationData
+            });
+	    	return;
+	    }
 	    Ext.getCmp('addPriceSystemBtn').setDisabled(true);
 	    var progress=Ext.Ajax.request({
 	        url:path+"/../application_mgmt/application!savePriceSysteminfo.action",
@@ -428,16 +435,6 @@ var addPriceSystemForm=Ext.create('Ext.form.FormPanel', {
 			allowBlank: false,
 			id:'priceSystemValue'
 		},
-		/*{
-	    	xtype:'panel',
-	    	style:'margin-left:10px;margin-right:70px',
-	    	border:false,
-	    	fieldLabel:'推荐配置',
-	    	width:300,
-	    	height:30,
-	    	layout:'hbox',
-	    	items:[scCombox]
-	   },*/
 	  {
 	     	   
   			fieldLabel:'推荐配置',

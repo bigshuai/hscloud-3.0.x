@@ -1,0 +1,604 @@
+<html>
+<head>
+<title>hc_admin_networkMappingManagement</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel='stylesheet' type='text/css' href='../../../extjs-4.1.0/resources/css/ext-all-gray.css' />
+<script type='text/javascript' src='../../../extjs-4.1.0/ext-all.js'></script>
+<script type="text/javascript" src="../../../js/head.js"></script>
+<script type="text/javascript" src="../../../js/ux/data/PagingMemoryProxy.js"></script>
+<script type="text/javascript" src="../../../js/ux/form/SearchField.js"></script>
+<script type="text/javascript" src="../../../js/ux/ProgressBarPager.js"></script>
+<script type="text/javascript" src="../../../js/ux/RowExpander.js"></script>
+<script src="../../../js/jquery-1.7.2.min.js" type="text/javascript"></script>
+
+<script type="text/javascript" charset="utf-8" src="../../../js/i18n.js"></script>
+
+
+
+
+<script>
+Ext.Loader.setConfig({enabled: true});
+Ext.require([       
+    'Ext.data.*',
+    'Ext.form.*',
+    'Ext.panel.Panel',
+    'Ext.view.View',
+    'Ext.layout.container.Fit',
+    'Ext.toolbar.Paging',
+    'Ext.selection.CheckboxModel',
+    'Ext.tip.QuickTipManager',
+    'Ext.ux.data.PagingMemoryProxy',
+    'Ext.ux.form.SearchField'
+]);
+ 
+function ltrim(s) {
+    if (s == null) return "";
+    var whitespace = new String(" \t\n\r");
+    var str = new String(s);
+    if (whitespace.indexOf(str.charAt(0)) != -1) {
+        var j = 0, i = str.length;
+        while (j < i && whitespace.indexOf(str.charAt(j)) != -1) {
+            j++;
+        }
+        str = str.substring(j, i);
+    }
+    return str;
+}
+
+//去掉字符串右边的空格 
+function rtrim(s) {
+    if (s == null) return "";
+    var whitespace = new String(" \t\n\r");
+    var str = new String(s);
+    if (whitespace.indexOf(str.charAt(str.length - 1)) != -1) {
+        var i = str.length - 1;
+        while (i >= 0 && whitespace.indexOf(str.charAt(i)) != -1) {
+            i--;
+        }
+        str = str.substring(0, i + 1);
+    }
+    return str;
+} 
+
+
+Ext.onReady(function() {    
+    Ext.QuickTips.init();
+    MultiLang = (function() {
+        return {
+            init: function() {
+                // load ExtJS locale
+                params = getCookie("lang");
+                i18n.set({
+                  lang: params, 
+                  path: '../../../resources'
+                });
+                if (params) {
+                    var url = Ext.util.Format.format('../../../extjs-4.1.0/locale/ext-lang-{0}.js', params);
+                    Ext.Ajax.request({
+                        url: url,
+                        success: this.onLoadExtLocaleSuccess,
+                        failure: this.onLoadExtLocaleFailure,
+                        scope: this
+                    });
+                } else {
+                    this.setup();
+                }
+            },
+            onLoadExtLocaleSuccess: function(response) {
+                try {
+                    eval(response.responseText);
+                } catch (e) {
+                }
+                this.setup();
+            },
+            onLoadExtLocaleFailure: function() {
+                this.setup();
+            },
+            setup: function() { 
+            	var v_mask = null;
+            	//应用工单列表Model
+            	var networkMappingModel = Ext.define('networkMappingModel', {
+            		extend : 'Ext.data.Model',
+            		fields : [
+            	'id','networkType','insideNetwork','outsideNetwork',
+				{name:'createTime',type: 'date', dateFormat: 'time'},'updateId'
+             ]
+            	});
+            	//应用工单列表Store
+            	var appWorkOrderStore = Ext.create('Ext.data.Store', {
+            		model : 'networkMappingModel',
+            		autoLoad : true,//true
+            		pageSize : pageSize,//每页显示16条数据
+            		sorters : [ {
+            			property : 'id',
+            			direction : 'DESC'
+            		} ],
+            		remoteSort : true,
+            		proxy : new Ext.data.proxy.Ajax({
+            			//type : 'ajax',
+            			url:path+"/../../report_mgmt/networkMapping!selectNetworkMappingList.action",
+            			reader : {
+            				type : 'json',
+            				root : 'resultObject.result',
+            				totalProperty : 'resultObject.totalCount'
+            			},
+            			listeners:{
+            				exception:function(reader, response, error, eOpts){
+            					ajaxException(reader, response, error, eOpts );
+            				}
+            			}
+            		}),	
+            		listeners : {
+            			beforeload : function(store,operation, eOpts ){	
+            				//遮罩层
+            				v_mask = new Ext.LoadMask(Ext.getBody(), {
+            					msg : i18n._('please wait'),
+            					removeMask : true			
+            				});
+            				v_mask.show();
+            			},
+            			load : function(store, records, successful, eOpts ){
+            				v_mask.hide();
+            			}
+            		}
+            	});
+            	
+	function uploadWin() { 
+        formUpload.getForm().reset();
+        winUpload.show();  
+    }
+    
+    var formUpload = new Ext.form.FormPanel({ 
+        fileUpload:true,  
+        defaultType: 'textfield',
+        items: [{
+            xtype: 'filefield',
+            id: 'file',
+            emptyText: i18n._('selectExcel'),
+            fieldLabel: i18n._('excelFile'),
+            labelAlign: 'right',
+            name: 'file',
+            buttonText: i18n._('browse'),
+            anchor: '90%',
+            allowBlank: false,
+            msgTarget: 'side',
+            labelWidth: 50
+        }]  
+    });
+		  
+    function showOk(title, msg) {
+        Ext.MessageBox.show({
+            title: title,
+            msg: msg,
+            icon:Ext.MessageBox.INFO,
+            buttons: Ext.MessageBox.OK
+        });
+    }
+    
+    var v_mask = new Ext.LoadMask(Ext.getBody(), {
+        msg: i18n._('uploading'),
+        removeMask: true //完成后移除
+    });
+    function maskShow() {
+        v_mask.show();
+        var mask = Ext.getBody().query('.x-mask')[0];
+        mask.style.zIndex = 60000;
+        var maskLoading = Ext.getBody().query('.x-mask-msg')[0];
+        maskLoading.style.zIndex = 100001;
+    }
+    
+    var myVar = null;
+    function waitForUpload(fileName) {
+		//console.log(fileName);
+    	Ext.Ajax.request({
+           	url : path + '/../../report_mgmt/networkMapping!insertNetworkMapping.action',
+            params: {
+           // "File": fileName
+            },
+            success: function(response){
+               
+               
+			  Ext.MessageBox.show({
+		        title : i18n._('notice'),
+		        msg : i18n._('导入成功！'),
+		        icon : Ext.MessageBox.INFO,
+		        buttons : Ext.MessageBox.OK,
+		        fn: reLoadData
+				
+		        });	 
+			   
+            }
+        });
+    }
+	
+	 var winUpload = new Ext.Window({  
+        title: i18n._('uploadExcel'),  
+        width: 400,  
+        height:110,  
+        minWidth: 300,  
+        minHeight: 100,  
+        layout: 'fit',  
+        constrain : true,
+        plain:true,  
+        bodyStyle:'padding:5px;',
+        buttonAlign:'center',  
+        items: formUpload,
+        closable:false,
+        modal:true,
+        tools:[{
+              type:'close',
+              handler:function(){
+                  winUpload.hide();
+              }
+        }],
+        buttons: [{  
+          text: i18n._('upload'),  
+          handler: function() {
+              if(formUpload.form.isValid()){
+            	  
+            	  var fileName = Ext.getCmp('file').getValue();
+
+            	
+                  winUpload.hide();
+                  formUpload.getForm().submit({      
+                	  url : path + '/../../report_mgmt/networkMappingUpload!insertNetworkMapping.action',
+                      success: function(form, action){
+                       // winUpload.hide();
+                         // v_mask.hide();
+                          //clearInterval(myVar);
+                          //Ext.MessageBox.updateProgress(0, '0%');
+                         // showOk(i18n._('Prompt'), i18n._('uploadSuccess'));
+                          appWorkOrderStore.load();
+                      },      
+                      failure: function(form, action){      
+                           Ext.Msg.alert('Error', action.result.msg);
+                      }  
+                  });
+                 /*  Ext.Msg.wait('请等待，操作正在进行中','Notice');
+                   Ext.MessageBox.show({   
+                     title: i18n._('uploading'),   
+                      //msg: 'Processing...',   
+                      width:240,   
+                      progress:true,   
+                      closable:false
+                 });  */
+               //   myVar=setInterval(function(){waitForUpload(fileName)},1);
+                  
+               }  
+           }  
+        },{  
+          text: i18n._('Cancel'),
+          handler:function(){winUpload.hide();}  
+        }]  
+    }); //winUpload end
+    
+    		 var imgb = new Ext.Button({  
+         		    text: '上传',
+         		    id:'buildAppInfoBtn',
+         		    handler: function() {
+         	            if(hcResourceUsageForm.form.isValid()){
+         	            	var fileName = Ext.getCmp('file').getValue();
+         	            	//var uploadFileType = Ext.getCmp('uploadFileType').getValue();
+         	            	console.log(fileName);
+         	            	//console.log(uploadFileType);
+         	            	if("" != fileName && null != fileName){
+         	            		var index = fileName.lastIndexOf(".");
+             	            	if(index < 0) {
+             	            		 Ext.Msg.alert('Error', '上传的文件格式不正确，请选择2007Excel文件(*.xlsx)！');
+             	            	} else {
+             	            	var ext = fileName.substring(index + 1, fileName.length);
+             	            	if(ext != "xlsx") {
+             	            		Ext.Msg.alert('Error', '上传的文件格式不正确，请选择2007Excel文件(*.xlsx)！');
+             	            	} else {
+             	            		hcResourceUsageForm.getForm().submit({      
+                 	              	 	url : path + '/../../report_mgmt/networkMapping!insertNetworkMapping.action',
+                 	              	    method:"POST", 
+                 	                    success: function(form, action){
+                 	                    	 Ext.Msg.alert('Error', 'uploadSuccess');
+                 	                    },      
+                 	                    failure: function(form, action){    
+                 	                       Ext.Msg.alert('Error', action.result.msg);
+                 	                    }  
+                 	                });
+             	            	}
+             	            	}
+         	            	}else{
+         	            		 Ext.Msg.alert('Error', '上传的文件格式不正确，请选择2007Excel文件(*.xlsx)！');
+         	            	}
+         	             }  
+         		     }  
+     		    }); 
+            	//分页序号
+            	Ext.grid.PageRowNumberer = Ext.extend(Ext.grid.RowNumberer, { 
+            		baseCls:Ext.baseCSSPrefix + 'column-header ' + Ext.baseCSSPrefix + 'unselectable',
+            		cls:Ext.baseCSSPrefix + 'row-numberer',
+            		tdCls:Ext.baseCSSPrefix+"grid-cell-special",
+            	    renderer:function(value, cellmeta, record, rowIndex, columnIndex, store){   
+            	        return (store.currentPage - 1) * store.pageSize + rowIndex + 1;  
+            	    }       
+            	});
+            	
+           /** 	//删除后刷新页面
+            	function afterDelete() {
+            	    var count = appWorkOrderStore.data.length;
+            	    var total = appWorkOrderStore.getTotalCount();
+            	    if(total != 1 && count == 1) {
+            	    	appWorkOrderStore.previousPage();
+            	    } else {
+            	    	appWorkOrderStore.load();
+            	    }
+            	}
+            
+            	var appWorkOrderType = Ext.create('Ext.data.Store', {
+            	    fields: ['id', 'name'],
+            	    proxy : new Ext.data.proxy.Ajax(
+            				{
+            					url:path+"/../ip/networkMapping!selectNetworkMappingList.action",
+            					reader : {
+            						type : 'json',
+            						root : 'resultObject'									
+            					},
+            					listeners:{
+            						exception:function(reader, response, error, eOpts){
+            							v_mask.hide();
+            							ajaxException(reader, response, error, eOpts );										
+            						}
+            					}							
+            				})
+            	    
+            	    
+            	});
+            	appWorkOrderType.load();
+          	*/	
+            	 var appWorkOrderStatusStore = new Ext.data.JsonStore( {  
+                     fields : [ 'id', 'name' ],  
+                     data : [ {  
+                         id : '1',  
+                         name : '未回复'  
+                     }, {  
+                         id : '2',  
+                         name : '已回复'  
+                     },{
+                    	 id:'0',
+                    	 name:'已撤销'
+                     } ]  
+                 }); 
+            	
+            
+			
+            	var appWorkOrderGrid=Ext.create('Ext.grid.Panel', {
+            	    layout:'fit',            		
+            	    store:appWorkOrderStore,
+            		simpleSelect:true,
+            		selModel: Ext.create('Ext.selection.RowModel'),
+            	    columns: [
+								Ext.create('Ext.grid.PageRowNumberer',{flex : 0.1}),
+								{
+									header: i18n._('Id'),
+									dataIndex:'id',
+									flex:0.1,
+									hidden:true
+								},
+								{
+									header:'网络类型',//工单类型
+									dataIndex: 'networkType',
+									flex:0.2,
+								
+								},
+								{
+									header:'内网IP', //内网IP	
+									dataIndex: 'insideNetwork',
+									flex:0.3,
+									renderer :function(data, metadata, record, rowIndex, columnIndex, store){
+							    			metadata.tdAttr = 'data-qtip="' + data + '"';
+							    		    return data;							
+							    		}
+								},
+								{
+									header:'外网IP',//外网IP
+									dataIndex: 'outsideNetwork',
+									flex:0.2,
+									renderer :function(data, metadata, record, rowIndex, columnIndex, store){
+							    			metadata.tdAttr = 'data-qtip="' + data + '"';
+							    		    return data;							
+							    		}
+								},
+								{
+									header:'创建时间', //创建时间	
+									dataIndex: 'createTime',
+									flex:0.5,
+									renderer: Ext.util.Format.dateRenderer("Y-m-d H:i:s")
+								}
+            		],
+            		bbar: Ext.create('Ext.toolbar.Paging', {
+            	          store:appWorkOrderStore,
+            	          displayInfo: true,
+            	          beforePageText:i18n._('beforePageText'),//"第"
+            	          firstText: i18n._('firstText'),//"第一页"
+            	          prevText: i18n._('prevText'),//"上一页"
+            	          nextText: i18n._('nextText'),//"下一页"
+            	          lastText: i18n._('lastText'),//"最后页"
+            	          refreshText: i18n._('refreshText')//"刷新"
+            	    }),           	
+            	    viewConfig: {
+            	    	stripeRows: true
+            	    },            		
+            		dockedItems:[
+            		{
+            			xtype:'toolbar',
+            			cls: 'toolbarCSS',
+            			dock: 'top',			
+            			items:[	
+		            			{
+									xtype:'button',//导出
+								    text:'<font id="exportApplication" color="white">'+i18n._('下载模板')+'</font>',
+								    listeners: {
+										 "mouseout" : function() {
+											 document.getElementById("exportApplication").style.color = "white";
+										 },
+										 "mouseover" : function() {
+											 document.getElementById("exportApplication").style.color = "black";
+										 }
+									
+									},
+								    tooltip:i18n._('下载模板'),
+								    shadow:false,
+								    icon:'images/export.png',
+								    handler:function(){
+                                         var downloadForm = Ext.create('Ext.form.Panel',{
+                                             frame:true,
+                                             standardSubmit:true
+                                         });
+                                         downloadForm.getForm().submit({
+                                             url:'../../../exceltemplete/NetworkMappingList.xlsx',
+                                             method:'post',
+                                             params:{
+                                            	
+                                                 } 
+                                         });
+								    	
+									}
+								},{                				   
+		            				xtype : 'button',									
+		        					text: '<font id="delIssueApplication" color="#ffffff" >' + '删除' + '</font>',
+		        					listeners: {
+		        						 "mouseout" : function() {
+		        							 document.getElementById("delIssueApplication").style.color = "white";
+		        						 },
+		        						 "mouseover" : function() {
+		        							 document.getElementById("delIssueApplication").style.color = "black";
+		        						 }
+		        							
+		        					},
+		        					icon : 'images/delete.png',
+		            				handler:function(){
+		            					var rows = appWorkOrderGrid.getSelectionModel().getSelection();
+		        						var Id;
+		        						
+		        						
+		        						if (rows.length > 0) {
+		        							Id = rows[0].get('id');
+		        							Ext.MessageBox.show({				                  
+		        								title: i18n._('notice'),
+		        								msg:i18n._('你确定要删除吗？'),
+		        								buttons: Ext.MessageBox.YESNO,
+		        								icon: Ext.MessageBox.QUESTION,
+		        								fn:function(e){
+		        									if(e=='yes'){
+		        										Ext.Ajax.request({
+		        											url : path + '/../../report_mgmt/networkMapping!delNetworkMapping.action',
+		        											method: 'POST',
+		        											params:{
+		        												'networkMappingVO.id':Id
+		        											},
+		        											success: function (response) {
+		        												var result=Ext.JSON.decode(response.responseText);
+		        												if(result.success==true){　　　　　　　
+		        													Ext.MessageBox.show({
+		        														title : i18n._('notice'),
+		        														msg : i18n._('删除成功！'),
+		        														icon : Ext.MessageBox.INFO,
+		        														buttons : Ext.MessageBox.OK,
+		        														fn: reLoadData
+		        													});																							
+		        												}else{
+		        													Ext.MessageBox.show({
+		        														title : i18n._('notice'),
+		        														msg : i18n._('网络忙,请稍后！'),
+		        														icon : Ext.MessageBox.INFO,
+		        														buttons : Ext.MessageBox.OK,
+																		fn: reLoadData
+		        													});
+		        													return;
+		        												}
+		        										
+		        											}
+		        										});
+		        									}
+		        								}
+		        				    		});	
+		        						} else {
+		        							Ext.MessageBox.show({
+		        								title : i18n._('Prompt'),
+		        								msg : i18n._('selectOne'),
+		        								icon : Ext.MessageBox.INFO,
+		        								buttons : Ext.MessageBox.OK
+		        							});
+		        							return;
+		        						}		
+		            				 
+										
+										
+		            				}            	   
+		            			},
+								{
+                 xtype:'button',
+                 text: '<font id="detailId" color="#ffffff" >' + i18n._('上传') + '</font>',
+                 tooltip:i18n._('上传'),
+                 icon: 'images/uploadImage.png',
+                 handler: uploadWin
+                     
+            }
+            				]
+            		}]
+            	});
+            	function reLoadData(){
+            		appWorkOrderStore.load();
+            	}
+            	function vd(text){
+            	    if(ltrim(rtrim(text)) == '') {
+            	        return i18n._('cannotBeNull');
+            	    } else {
+            	        return true;
+            	    }
+            	}
+            	
+            	function resetMethod() {
+            		appWorkOrderForm.getForm().reset();
+            	}
+            	
+            	function resetReplyMethod() {
+            		appWorkOrderReplyForm.getForm().reset();
+            	}
+            	
+            	Ext.create('Ext.Viewport',{
+                    layout:'border',
+                    width:'100%',                   
+                    items:[
+                        {
+                            region:'center',
+                            xtype:'panel',
+                            id:'panel_one',
+                            title:i18n._('applicationManagement')+'&nbsp;&nbsp;>&nbsp;&nbsp;'+i18n._('NetworkMappingManagement'),
+                            width:'60%',
+                            layout:'fit',
+                            autoScroll:true,
+                            items:[
+                                {
+                                    xtype:'panel',
+                                    layout:'fit',
+                                    autoScroll:true,
+                                    items:appWorkOrderGrid
+                                }
+                            ]
+                        }
+                    ]//panel
+                });         
+                
+            }
+        };
+    })();
+
+    MultiLang.init();
+});
+ function getCookie(name){
+         var arr = document.cookie.match(new RegExp("(^| )"+name+"=([^;]*)(;|$)"));
+         if(arr != null) return unescape(arr[2]);
+         return null;
+ };
+ 
+</script>
+</head>
+<body>
+</body>
+</html>

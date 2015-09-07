@@ -13,8 +13,6 @@
 
 <script>
 Ext.require('Ext.chart.*');
-//Ext.require(['Ext.Window', 'Ext.layout.container.Fit', 'Ext.fx.target.Sprite']);
-
 Ext.require([
 	'Ext.form.field.ComboBox',
     'Ext.form.FieldSet',
@@ -28,56 +26,12 @@ Ext.require([
 ]);
 
 Ext.onReady(function () {
-
-var appyearStore = new Ext.data.JsonStore( {  
-        fields : [ 'id', 'name' ],  
-        data : [ {  
-        	id : '0',  
-            name : '2015'  
-       },{  
-            id : '1',  
-           name : '2014'  
-       },{  
-            id : '2',  
-           name : '2013'  
-       },{  
-            id : '3',  
-           name : '2012'  
-       },{  
-            id : '4',  
-           name : '2011'  
-       }]  
-}); 
-
-
-
 var appReportModel = Ext.define('appReportModel', {
 		extend : 'Ext.data.Model',
 		fields : [
 		          'id','appSum','appYear','appMonth','deal_date'
 		          ]
 	});
-
-/*****
-	var store = Ext.create('Ext.data.JsonStore', {
-	    fields: ['name'],
-	    data: [
-	        {'name':'1月'},
-	        {'name':'2月'},
-	        {'name':'3月'},
-	        {'name':'4月'},
-			{'name':'5月'},
-			{'name':'6月'},
-			{'name':'7月'},
-			{'name':'8月'},
-			{'name':'9月'},
-			{'name':'10月'},
-			{'name':'11月'},
-	        {'name':'12月'}                                                
-	    ]
-	});
-
-**/
 var yearStore = Ext.create('Ext.data.Store', {
 	    fields: ['id', 'year'],
 	    proxy : new Ext.data.proxy.Ajax(
@@ -99,9 +53,9 @@ var yearStore = Ext.create('Ext.data.Store', {
 	});
 	yearStore.load();
 
-	var appReportStore = Ext.create('Ext.data.Store', {
+	var appReportStore = Ext.create('Ext.data.JsonStore', {
 		model : 'appReportModel',
-		autoLoad : true,
+		//autoLoad : true,
 		proxy : new Ext.data.proxy.Ajax({
 			url : path + '/../report_mgmt/cloudApplicationReport!getMonthlyIncomeReport.action',
 			 reader : {
@@ -127,7 +81,7 @@ var yearStore = Ext.create('Ext.data.Store', {
 			}
 		}
 	});	
-	appReportStore.load();
+	
 	var imgb = new Ext.Button({  
     		        text: '<font color="#ee7700">'+i18n._('Search')+'</font>',
     		        icon: "images/search.png",
@@ -191,59 +145,70 @@ Ext.create('Ext.form.Panel', {
 
 var myDate = new Date();
 var nowYear=myDate.getFullYear()
-Ext.getCmp('searchAppyear').setValue(2015);
+Ext.getCmp('searchAppyear').setValue(nowYear);
 
 
+appReportStore.load({
+	
+	callback :function(r, options, success) {
+		if (success == false) {
+			 
+			} else {
+				 
+				Ext.create('Ext.chart.Chart', {
+				    renderTo: Ext.getBody(),
+					margin:'30px 0 0 200px',
+				    width: 600,
+				    height: 400,
+				    animate: true,
+					shadow: true,
+					mask: 'horizontal',
+				    store: appReportStore,
+				    axes: [{
+				            type: 'Numeric',
+				            position: 'left',
+				            fields: ['appSum'],
+				            label: {
+				                renderer: Ext.util.Format.numberRenderer('0,0.00')
+				            },
+				          	title: '收入金额（单位：元）',
+				            grid: true,
+				            minimum: 0
+				        }, {
+				            type: 'Category',
+				            position: 'bottom',
+				            fields: ['appMonth'],
+				           	title: '月份（单位：月）'
+				        }],
+				        series: [{
+				            type: 'column',
+				            axis: 'left',
+				            highlight: true,
+				            tips: {
+				              trackMouse: true,
+				              width: 140,
+				              height: 28,
+				              renderer: function(storeItem, item) {
+				                this.setTitle(storeItem.get('appMonth') + ': ' + ' ￥ '+ storeItem.get('appSum').toFixed(2) );
+				              }
+				            },
+				            label: {
+				              display: 'insideEnd',
+				              'text-anchor': 'middle',
+				                field: 'appSum',
+				                renderer: Ext.util.Format.numberRenderer('0.00'),
+				                orientation: 'vertical',
+				                color: '#333'
+				            },
+				            xField: 'appMonth',
+				            yField: 'appSum'
+				        }]
+				});
+			}
+		  }
+});
 
-
-	Ext.create('Ext.chart.Chart', {
-	    renderTo: Ext.getBody(),
-		margin:'30px 0 0 200px',
-	    width: 600,
-	    height: 400,
-	    animate: true,
-	    store: appReportStore,
-	    
-	    axes: [{
-	            type: 'Numeric',
-	            position: 'left',
-	            fields: ['appSum'],
-	            label: {
-	                renderer: Ext.util.Format.numberRenderer('0,0')
-	            },
-	          	title: '收入金额（单位：元）',
-	            grid: true,
-	            minimum: 0
-	        }, {
-	            type: 'Category',
-	            position: 'bottom',
-	            fields: ['appMonth'],
-	           	title: '月份（单位：月）'
-	        }],
-	        series: [{
-	            type: 'column',
-	            axis: 'left',
-	            highlight: true,
-	            tips: {
-	              trackMouse: true,
-	              width: 140,
-	              height: 28,
-	              renderer: function(storeItem, item) {
-	                this.setTitle(storeItem.get('appMonth') + ': ' + storeItem.get('appSum') + ' ￥');
-	              }
-	            },
-	            label: {
-	              display: 'insideEnd',
-	              'text-anchor': 'middle',
-	                field: 'appSum',
-	                renderer: Ext.util.Format.numberRenderer('0'),
-	                orientation: 'vertical',
-	                color: '#333'
-	            },
-	            xField: 'appMonth',
-	            yField: 'appSum'
-	        }]
-	});
+	
    
 });
 </script>

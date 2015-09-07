@@ -2860,7 +2860,13 @@ function viewDetail(){
 						xtype:'displayfield',
 						id:'country2',
 						mode: 'local',
-						value:i18n._('c'+record.get('userProfile').country.nameCode)
+						value:function(){
+							if(record.get('userProfile').country != null && record.get('userProfile').country != ""){
+								return i18n._('c'+record.get('userProfile').country.nameCode);
+							}else{
+								return "";
+							}
+						}(),
 						},
 						{
 					    
@@ -2890,7 +2896,13 @@ function viewDetail(){
 						xtype:'displayfield',
 						id:'industry2',
 						mode: 'local',
-						value:i18n._('i'+record.get('userProfile').industry.nameCode)
+						value:function(){
+							if(record.get('userProfile').industry != null && record.get('userProfile').industry != ""){
+								return i18n._('c'+record.get('userProfile').industry.nameCode);
+							}else{
+								return "";
+							}
+						}(),
 						},
 						{
 						xtype:'displayfield',

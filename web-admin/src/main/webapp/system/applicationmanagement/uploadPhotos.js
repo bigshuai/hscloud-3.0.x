@@ -28,6 +28,10 @@ var  uploadPhotosModel = Ext.define('uploadPhotosModel', {
 var uploadPhotosStore = Ext.create('Ext.data.Store', {
 	model : 'uploadPhotosModel',
 	pageSize : 16,//每页显示16条数据
+	sorters : [ {
+		property : 'id',
+		direction : 'DESC'
+	} ],
 	autoLoad : true,
 	proxy : new Ext.data.proxy.Ajax({
 		url : path + '/../application_mgmt/application!findAppUploadPhotosListPage.action',

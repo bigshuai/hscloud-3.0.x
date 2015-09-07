@@ -58,8 +58,7 @@ Ext.onReady(function() {
                         scope: this
                     });
                 } else {
-                    // no language found, locale of ExtJS will be english as default
-                    //this.loadmyprojectLocale();
+                   
                 	this.setup();
                 }
             },
@@ -67,19 +66,19 @@ Ext.onReady(function() {
                 try {
                     eval(response.responseText);
                 } catch (e) {
-                    //Ext.Msg.alert('Failure', e.toString());
+                   
                 }
-                //this.loadmyprojectLocale();
+                
                 this.setup();
             },
             onLoadExtLocaleFailure: function() {
-                //Ext.Msg.alert('Failure', 'Failed to load locale file.');
+                
                 this.setup();
-                //this.loadmyprojectLocale();
+               
             },
             setup: function() {
   var fuzzy='';
-  var exportStatus=3  //默认导出所有状态
+  var exportStatus=4  //默认导出所有状态
   Ext.define('appOrderVO', {
       extend: 'Ext.data.Model',
       fields: [
@@ -93,7 +92,8 @@ Ext.onReady(function() {
           {name: 'totalPrice', type: 'double'},
           {name: 'orderStatus', type: 'int'},
           {name: 'orderContent', type: 'string'},
-          {name: 'remark', type: 'string'}
+          {name: 'remark', type: 'string'},
+          {name: 'available', type: 'int'}
       ]
   });
 
@@ -101,7 +101,7 @@ Ext.onReady(function() {
   var store = Ext.create('Ext.data.Store', {
       pageSize: pageSize,
       model: 'appOrderVO',
-      remoteSort: true,
+    //  remoteSort: true,
       listeners:{
       	beforeload:function(){
     		fuzzy=Ext.getCmp("searchfield").getValue();
@@ -122,6 +122,11 @@ Ext.onReady(function() {
       })
   });
  
+  
+  function reLoadAppOrderData(){
+		store.load();
+	}
+  
     ////////////////////////////////////////////////////////////////////////////////////////
     // Grid 4
     ////////////////////////////////////////////////////////////////////////////////////////
@@ -159,35 +164,49 @@ Ext.onReady(function() {
        {
             text: i18n._('order_id'),
             dataIndex: 'orderNo',
-            flex: 0.4,
-            sortable: true
+            flex: 0.4
+            //sortable: true
         },{
             text: i18n._('applicationName'),
             dataIndex: 'appName',
-            flex: 0.2,
-            sortable: true
+            flex: 0.2
+            //sortable: true
         },{
             text: i18n._('buyTime'),
             dataIndex: 'createDate',
             renderer: Ext.util.Format.dateRenderer('Y-m-d H:i:s'),
-            flex: 0.35,
-            sortable: true
+            flex: 0.35
+            //sortable: true
         },{
             text: i18n._('expireTime'),
             dataIndex: 'expireDate',
             renderer: Ext.util.Format.dateRenderer('Y-m-d H:i:s'),
-            flex: 0.35,
-            sortable: true
+            flex: 0.35
+           // sortable: true
         },{
             text: i18n._('username'),
             dataIndex: 'userName',
+            flex: 0.25
+            //sortable: false
+        },
+        {
+            text: '应用状态',
+            dataIndex: 'available',
             flex: 0.25,
-            sortable: false
-        },{
+           // sortable: false,
+            renderer:function(value){
+				if(value== '0'){
+					return "等待配置";
+				}else if(value== '1'){
+					return "可用";
+				}
+			}
+        },
+        {
             text: i18n._('supplier'),
             dataIndex: 'supplierName',
-            flex: 0.25,
-            sortable: false
+            flex: 0.25
+            //sortable: false
         },{
             text: i18n._('money')+"("+i18n._('cny')+")",
             //xtype:'templatecolumn', tpl:'{totalPrice} RMB',
@@ -201,25 +220,27 @@ Ext.onReady(function() {
             		return "0.00";
             	}
             		
-            },
-            sortable: true
+            }
+           // sortable: true
         },{
             text: i18n._('status'),
             dataIndex: 'orderStatus',
             flex: 0.15,
-            sortable: true,
+           // sortable: true,
             renderer: function(value){
             	switch(value){
+            	    case 0: return i18n._('Unpaid');break;
 			    	case 1: return i18n._('appPaid');break;
 			    	case 2: return i18n._('Canceled');break;
-			    	default:return i18n._('Unpaid');
+			    	case 3: return i18n._('RefundMoney');break;
+			    	default:'';
 	        	}
              }
         },{
         	text: i18n._('orderContent'),
             dataIndex: 'orderContent',
             flex: 0.6,
-            sortable: false,
+           // sortable: false,
             renderer: function(value,metaData,record,colIndex,store,view) {
            	if(value!=null){
    	         	metaData.tdAttr = 'data-qtip="' + value + '"';
@@ -230,7 +251,7 @@ Ext.onReady(function() {
     	    text: i18n._('Remark'),
             dataIndex: 'remark',
             flex: 0.6,
-            sortable: false,
+            //sortable: false,
             renderer: function(value,metaData,record,colIndex,store,view) {
         	if(value!=null){
 	        	var strLine=value.split(";");
@@ -403,6 +424,80 @@ Ext.onReady(function() {
                          });
 					}
             	},
+            	{                				   
+    				xtype : 'button',									
+					text: '<font id="auditOrderBtn" color="#ffffff" >' + '审核' + '</font>',
+					listeners: {
+						 "mouseout" : function() {
+							 document.getElementById("auditOrderBtn").style.color = "white";
+						 },
+						 "mouseover" : function() {
+							 document.getElementById("auditOrderBtn").style.color = "black";
+						 }
+					},
+					icon : 'images/toAudit.png',
+    				handler:function(){
+    					var rows = grid.getSelectionModel().getSelection();
+						if (rows.length > 0) {
+							var availableStatus = rows[0].get('available');
+							if(availableStatus==0){
+								Ext.MessageBox.show({				                  
+       								title: i18n._('notice'),
+       								msg:"确定要审核该应用订单吗？",
+       								buttons: Ext.MessageBox.YESNO,
+       								icon: Ext.MessageBox.QUESTION,
+       								fn:function(e){
+       									if(e=='yes'){
+       										Ext.Ajax.request({
+       											url:path+'/../application_mgmt/applicationOrder!auditAppOrder.action',
+       											method: 'POST',
+       											params:{
+       												'appOrderId':rows[0].get('id')
+       											},
+       											success: function (response) {
+       												var result=Ext.JSON.decode(response.responseText);
+       												if(result.success==true){
+       													Ext.MessageBox.show({
+       														title : i18n._('notice'),
+       														msg : i18n._('Operating')+i18n._('Successful'),
+       														icon : Ext.MessageBox.INFO,
+       														buttons : Ext.MessageBox.OK,
+       														fn:reLoadAppOrderData 
+       													});																							
+       												}else{
+       													Ext.MessageBox.show({
+       														title : i18n._('notice'),
+       														msg : result.resultMsg,
+       														icon : Ext.MessageBox.INFO,
+       														buttons : Ext.MessageBox.OK
+       													});
+       													return;
+       												}
+       											}
+       										});
+       									}
+       								}
+       				    		});																								
+							  }else{
+									Ext.MessageBox.show({
+	        							title : i18n._('Prompt'),
+	        							msg : '只有等待配置的应用订单才能审核！',
+	        							icon : Ext.MessageBox.INFO,
+	        							buttons : Ext.MessageBox.OK
+	        						});
+	        						return;
+								}
+							}else{
+    						Ext.MessageBox.show({
+    							title : i18n._('Prompt'),
+    							msg : i18n._('selectOne'),
+    							icon : Ext.MessageBox.INFO,
+    							buttons : Ext.MessageBox.OK
+    						});
+    						return;
+    					}
+    				}            	   
+    			},
             {xtype:'tbfill'},
             {
                 xtype:'splitbutton',
@@ -423,8 +518,8 @@ Ext.onReady(function() {
 						    text: i18n._('All'),//全部
 						    handler: function(){
 						        Ext.getCmp('orderStatebutton').setText('<font color="#ffffff" id="orderStateSplit">' + i18n._('All') + '</font>');
-						        var new_params={'queryVO.transactionType':3};
-						        exportStatus=3;
+						        var new_params={'queryVO.transactionType':4};
+						        exportStatus=4;
 								Ext.apply(store.proxy.extraParams,new_params);
 								store.loadPage(1,null);
 						    }
@@ -442,7 +537,7 @@ Ext.onReady(function() {
                         {
                             text: i18n._('appPaid'),//已支付
                             handler: function(){
-                            	Ext.getCmp('orderStatebutton').setText('<font color="#ffffff" id="orderStateSplit">' + i18n._('Paid') + '</font>');
+                            	Ext.getCmp('orderStatebutton').setText('<font color="#ffffff" id="orderStateSplit">' + i18n._('appPaid') + '</font>');
                             	var new_params={'queryVO.transactionType':1};
                             	exportStatus=1;
                 				Ext.apply(store.proxy.extraParams,new_params);
@@ -455,6 +550,16 @@ Ext.onReady(function() {
                                 Ext.getCmp('orderStatebutton').setText('<font color="#ffffff" id="orderStateSplit">' + i18n._('Canceled') + '</font>');
                                 var new_params={'queryVO.transactionType':2};
                                 exportStatus=2;
+                        		Ext.apply(store.proxy.extraParams,new_params);
+                        		store.loadPage(1,null);
+                            }
+                        },
+                        {
+                            text: i18n._('RefundMoney'),//已退款
+                            handler: function(){
+                                Ext.getCmp('orderStatebutton').setText('<font color="#ffffff" id="orderStateSplit">' + i18n._('RefundMoney') + '</font>');
+                                var new_params={'queryVO.transactionType':3};
+                                exportStatus=3;
                         		Ext.apply(store.proxy.extraParams,new_params);
                         		store.loadPage(1,null);
                             }
@@ -568,7 +673,7 @@ Ext.onReady(function() {
     	    		        title=i18n._('renewDetail');
     	    		        tempTime=i18n._('renewTime');
     	    		    }
-    	    		    if(store1.getAt(i).get('orderType')==18){
+    	    		    if(store1.getAt(i).get('orderType')==3){
     	    		        title=i18n._('refundDetail');
     	    		        tempTime=i18n._('refundTime');
     	    		    }
@@ -692,7 +797,7 @@ Ext.create('Ext.Viewport',{
 	 items: grid
 	});
 
-		var new_params={'queryVO.transactionType':3};
+		var new_params={'queryVO.transactionType':4};
 		Ext.apply(store.proxy.extraParams,new_params);
     	store.load();
 		
@@ -722,6 +827,7 @@ function getCookie(name){
          if(arr != null) return unescape(arr[2]);
 		 return null;
  }
+ 
 
 </script>
  </head>

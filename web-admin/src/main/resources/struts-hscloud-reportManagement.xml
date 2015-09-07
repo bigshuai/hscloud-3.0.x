@@ -5,22 +5,37 @@
 
 <struts>
 	<constant name="struts.objectFactory" value="spring" />
-	<package name="hicloud-report-new" extends="hscloud-default"
-		namespace="/report_mgmt">
+	<package name="hicloud-report-new" extends="hscloud-default" namespace="/report_mgmt">
 		<interceptors>
-            <interceptor name="authorInterceptor" class="com.hisoft.hscloud.web.interceptor.AuthorInterceptor"/>
-            <interceptor-stack name="authorStack">
-                <interceptor-ref name="authorInterceptor"/>
-                <interceptor-ref name="hscloudStack"/>
-            </interceptor-stack>
-        </interceptors>
+			<interceptor name="authorInterceptor" class="com.hisoft.hscloud.web.interceptor.AuthorInterceptor" />
+			<interceptor-stack name="authorStack">
+				<interceptor-ref name="authorInterceptor" />
+				<interceptor-ref name="hscloudStack" />
+			</interceptor-stack>
+		</interceptors>
 
-		<action name="cloudApplicationReport" class="com.hisoft.hscloud.web.action.ApplicationReportManagementAction" >
+		<action name="cloudApplicationReport" class="com.hisoft.hscloud.web.action.ApplicationReportManagementAction">
 		</action>
-		
-		<action name="userReport" class="com.hisoft.hscloud.web.action.UserReportAction" >
+
+		<action name="userReport" class="com.hisoft.hscloud.web.action.UserReportAction">
 		</action>
-		
-		
+
+		<action name="report" class="com.hisoft.hscloud.web.action.ReportAction">
+		</action>
+
+		<action name="hcResourceUsage" class="com.hisoft.hscloud.web.action.HcResourceUsageAction">
+		</action>
+		<action name="networkMapping" class="com.hisoft.hscloud.web.action.NetworkMappingAction">
+
+		</action>
+		<action name="networkMappingUpload" class="com.hisoft.hscloud.web.action.NetworkMappingAction">
+			<interceptor-ref name="defaultStack" />
+		</action>
+		<action name="cloudApplicationReportAjax" class="com.hisoft.hscloud.web.action.ApplicationReportManagementAction">
+			<interceptor-ref name="defaultStack" />
+		</action>
+		<action name="hcResourceUsageAjax" class="com.hisoft.hscloud.web.action.HcResourceUsageAction">
+			<interceptor-ref name="defaultStack" />
+		</action>
 	</package>
 </struts>

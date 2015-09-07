@@ -5463,7 +5463,9 @@ public class FacadeImpl implements Facade {
 						Constants.DEFAULT_SECURITY_KEY);
 				dateKey = URLEncoder.encode(dateKey);
 				String domainPublishUrl=user.getDomain().getPublishingAddress();
-				String appUrl =domainPublishUrl+ "/user_mgmt/loginByUrl!userLoginByUrl.action?";
+//				String domainPublishUrl="http://localhost:8080/web-site";
+//				String appUrl =domainPublishUrl+ "/user_mgmt/loginByUrl!userLoginByUrl.action?";
+				String appUrl =domainPublishUrl+ "/login/userLoginByUrl?";
 				result = appUrl + "authorKey=" + authorKey + "&userId="
 						+ userId + "&dateKey=" + dateKey+"&operator="+admin.getEmail();
 			}
@@ -6176,8 +6178,8 @@ public class FacadeImpl implements Facade {
 	}
 	
 	@Override
-	public List<AppWorkOrderType> getWorkOrderTpye(){
-		return workOrderService.getTypes();
+	public List<AppWorkOrderType> getWorkOrderTpye(Map<String,String> paramMap){
+		return workOrderService.getTypes(paramMap);
 	}
 	@Override
 	public Page<ApplicationTranscationLogVO> getAppTransactionByPage(

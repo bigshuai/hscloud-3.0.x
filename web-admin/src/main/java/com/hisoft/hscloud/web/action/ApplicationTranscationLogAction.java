@@ -73,6 +73,9 @@ public class ApplicationTranscationLogAction extends HSCloudAction{
 				if(queryVO.getEndTime()!=null){
 					queryMap.put("endTime", queryVO.getEndTime());
 				}
+				if(queryVO.getBillType()!=null){
+					queryMap.put("billType", queryVO.getBillType());
+				}
 				queryMap.put("transcationType", queryVO.getTransactionType());
 			}
 			queryMap.put("start",(page - 1) * limit);
@@ -107,14 +110,18 @@ public class ApplicationTranscationLogAction extends HSCloudAction{
 		try {
 			if(appBill!=null){
 				User user=facade.getUserByEmail(appBill.getUserEmail());
-				appBill.setCreateDate(new Date());
-				appBill.setDealDate(new Date());
-				appBill.setUserName(user.getName());
-				appBill.setUserId((int)user.getId());
+				if(user!=null){
+					appBill.setCreateDate(new Date());
+					appBill.setDealDate(new Date());
+					appBill.setUserName(user.getName());
+					appBill.setUserId((int)user.getId());
+					appBillService.insertAppBillByAdmin(appBill);
+					facade.insertOperationLog(admin, "后台手动添加账单日志", "后台手动添加账单日志", Constants.RESULT_SUCESS);
+					fillActionResult(true);
+				}else{
+					fillActionResult(false);
+				}
 			}
-		appBillService.insertAppBillByAdmin(appBill);
-		facade.insertOperationLog(admin, "后台手动添加账单日志", "后台手动添加账单日志", Constants.RESULT_SUCESS);
-		fillActionResult(true);
 		} catch(HsCloudException hce){
 			dealThrow(hce,hce.getCode());
 			facade.insertOperationLog(admin, "后台手动添加账单日志", "后台手动添加账单日志", Constants.RESULT_FAILURE);

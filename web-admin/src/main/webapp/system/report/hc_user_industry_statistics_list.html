@@ -1,0 +1,570 @@
+<html>
+<head>
+<title>hc_user_industry_statistics_list</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel='stylesheet' type='text/css' href='../../extjs-4.1.0/resources/css/ext-all-gray.css' />
+<script type='text/javascript' src='../../extjs-4.1.0/ext-all.js'></script>
+<script type="text/javascript" src="../../js/head.js"></script>
+<script type="text/javascript" src="../../js/ux/data/PagingMemoryProxy.js"></script>
+<script type="text/javascript" src="../../js/ux/form/SearchField.js"></script>
+<script src="../../js/jquery-1.7.2.min.js" type="text/javascript"></script>
+<script type="text/javascript" charset="utf-8" src="../../js/i18n.js"></script>
+<script type="text/javascript" src="../systemmanagement/common.js"></script>
+<script>
+Ext.Loader.setConfig({enabled: true});
+Ext.require([       
+    'Ext.data.*',
+    'Ext.form.*',
+    'Ext.panel.Panel',
+    'Ext.view.View',
+    'Ext.layout.container.Fit',
+    'Ext.toolbar.Paging',
+    'Ext.selection.CheckboxModel',
+    'Ext.tip.QuickTipManager',
+    'Ext.ux.data.PagingMemoryProxy',
+    'Ext.ux.form.SearchField'
+]);
+
+function ltrim(s) {
+    if (s == null) return "";
+    var whitespace = new String(" \t\n\r");
+    var str = new String(s);
+    if (whitespace.indexOf(str.charAt(0)) != -1) {
+        var j = 0, i = str.length;
+        while (j < i && whitespace.indexOf(str.charAt(j)) != -1) {
+            j++;
+        }
+        str = str.substring(j, i);
+    }
+    return str;
+}
+
+//去掉字符串右边的空格 
+function rtrim(s) {
+    if (s == null) return "";
+    var whitespace = new String(" \t\n\r");
+    var str = new String(s);
+    if (whitespace.indexOf(str.charAt(str.length - 1)) != -1) {
+        var i = str.length - 1;
+        while (i >= 0 && whitespace.indexOf(str.charAt(i)) != -1) {
+            i--;
+        }
+        str = str.substring(0, i + 1);
+    }
+    return str;
+} 
+
+Ext.onReady(function() {    
+    Ext.QuickTips.init();
+    MultiLang = (function() {
+        return {
+            init: function() {
+                params = getCookie("lang");
+                i18n.set({
+                  lang: params, 
+                  path: '../../resources'
+                });
+                if (params) {
+                    var url = Ext.util.Format.format('../../extjs-4.1.0/locale/ext-lang-{0}.js', params);
+                    Ext.Ajax.request({
+                        url: url,
+                        success: this.onLoadExtLocaleSuccess,
+                        failure: this.onLoadExtLocaleFailure,
+                        scope: this
+                    });
+                } else {
+                    this.setup();
+                }
+            },
+            onLoadExtLocaleSuccess: function(response) {
+                try {
+                    eval(response.responseText);
+                } catch (e) {
+                }
+                this.setup();
+            },
+            onLoadExtLocaleFailure: function() {
+                this.setup();
+            },
+            setup: function() { 
+            	var v_mask = null;
+            	//行业统计
+            	var userIndustryModel = Ext.define('userIndustryModel', {
+            		extend : 'Ext.data.Model',
+            		fields : [
+            		          'id','name','nameCode','oneMonthNum',
+            		          'twoMonthNum','threeMonthNum','fourMonthNum',
+            		          'fiveMonthNum','sixMonthNum','sevenMonthNum',
+            		          'eightMonthNum','nineMonthNum','tenMonthNum',
+            		          'elevenMonthNum','twelveMonthNum'
+            		          ]
+            	});
+            	//行业统计Store
+            	var userIndustryStore = Ext.create('Ext.data.Store', {
+            		model : 'userIndustryModel',
+            		autoLoad : true,//true
+            		pageSize : pageSize,//每页显示16条数据
+            		sorters : [ {
+            			property : 'id',
+            			direction : 'DESC'
+            		} ],
+            		
+            		proxy : new Ext.data.proxy.Ajax({
+            			url : path + '/../report_mgmt/userReport!findUserIndustryStatisticsList.action',
+            			reader : {
+            				type : 'json',
+            				root : 'resultObject.result',
+            				totalProperty : 'resultObject.totalCount'
+            			},
+            			listeners:{
+            				exception:function(reader, response, error, eOpts){
+            					ajaxException(reader, response, error, eOpts );
+            				}
+            			}
+            		}),	
+            		listeners : {
+            			beforeload : function(store,operation, eOpts ){	
+            				//遮罩层
+            				v_mask = new Ext.LoadMask(Ext.getBody(), {
+            					msg : i18n._('please wait'),
+            					removeMask : true			
+            				});
+            				v_mask.show();
+            			},
+            			load : function(store, records, successful, eOpts ){
+            				v_mask.hide();
+            			}
+            		}
+            	});
+            	
+            	
+            	var yearStore = Ext.create('Ext.data.Store', {
+            	    fields: ['id', 'year'],
+            	    proxy : new Ext.data.proxy.Ajax(
+            				{
+            					url:path + '/../report_mgmt/userReport!findReoprtYear.action',
+            					reader : {
+            						type : 'json',
+            						root : 'resultObject'									
+            					},
+            					listeners:{
+            						exception:function(reader, response, error, eOpts){
+            							v_mask.hide();
+            							ajaxException(reader, response, error, eOpts );										
+            						}
+            					}							
+            				})
+            	    
+            	    
+            	});
+            	yearStore.load();
+            	
+            	var imgb = new Ext.Button({  
+    		        text: '<font color="#ee7700">'+i18n._('Search')+'</font>',
+    		        icon: "images/search.png",
+    		        handler :function(btn) { 
+    		        	var proxy = userIndustryStore.getProxy();
+    		        	var searchAppyear = Ext.getCmp('searchAppyear').getValue();
+						proxy.setExtraParam('searchAppyear',searchAppyear)
+						proxy.extraParams.start = 0;
+						userIndustryStore.loadPage(1,null);
+    	            }
+    		    }); 
+            	
+            	//分页序号
+            	Ext.grid.PageRowNumberer = Ext.extend(Ext.grid.RowNumberer, { 
+            		baseCls:Ext.baseCSSPrefix + 'column-header ' + Ext.baseCSSPrefix + 'unselectable',
+            		cls:Ext.baseCSSPrefix + 'row-numberer',
+            		tdCls:Ext.baseCSSPrefix+"grid-cell-special",
+            	    renderer:function(value, cellmeta, record, rowIndex, columnIndex, store){   
+            	        return (store.currentPage - 1) * store.pageSize + rowIndex + 1;  
+            	    }       
+            	});
+            	
+            	var myDate = new Date();
+            	var nowYear=myDate.getFullYear();
+            	var month=myDate.getMonth()+1;
+            	
+            	var workOrderGrid=Ext.create('Ext.grid.Panel', {
+            	    layout:'fit',            		
+            	    store:userIndustryStore,
+            		simpleSelect:true,
+            		selModel: Ext.create('Ext.selection.RowModel'),
+            	    columns: [
+								Ext.create('Ext.grid.PageRowNumberer',{flex : 0.1}),
+								{
+									header: i18n._('Id'),
+									dataIndex:'id',
+									flex:0.1,
+									hidden:true
+								},
+								{
+									header:'行业名称',
+									dataIndex: 'nameCode',
+									flex:0.5,
+									renderer:function(value){
+										if(value!=null&&value!=''){
+											return i18n._('i'+value);
+										}else{
+											return "";
+										}
+									}
+								},
+								{
+									header:'1月份',	
+									dataIndex: 'oneMonthNum',
+									flex:0.2,
+									renderer:function(value){
+										if ((Ext.getCmp('searchAppyear').getValue() == nowYear || Ext.getCmp('searchAppyear').getValue() == undefined) && 1 > month) {
+											return "";
+										} else if ((Ext.getCmp('searchAppyear').getValue() == nowYear || Ext.getCmp('searchAppyear').getValue() == undefined) && 1 <= month) {
+											if(value!=null&&value!=''){
+												return i18n._(value);
+											}else{
+												return "0";
+											}
+										} else if (Ext.getCmp('searchAppyear').getValue() < nowYear) {
+											if(value!=null&&value!=''){
+												return i18n._(value);
+											}else{
+												return "0";
+											}
+										}
+									}
+								},
+								{
+									header:'2月份',
+									dataIndex: 'twoMonthNum',
+									flex:0.2,
+									renderer:function(value){
+										if ((Ext.getCmp('searchAppyear').getValue() == nowYear || Ext.getCmp('searchAppyear').getValue() == undefined) && 2 > month) {
+											return "";
+										} else if ((Ext.getCmp('searchAppyear').getValue() == nowYear || Ext.getCmp('searchAppyear').getValue() == undefined) && 2 <= month) {
+											if(value!=null&&value!=''){
+												return i18n._(value);
+											}else{
+												return "0";
+											}
+										} else if (Ext.getCmp('searchAppyear').getValue() < nowYear) {
+											if(value!=null&&value!=''){
+												return i18n._(value);
+											}else{
+												return "0";
+											}
+										}
+									}
+									
+								},
+								{
+									header:'3月份',
+									dataIndex: 'threeMonthNum',
+									flex:0.2,
+									renderer:function(value){
+										if ((Ext.getCmp('searchAppyear').getValue() == nowYear || Ext.getCmp('searchAppyear').getValue() == undefined) && 3 > month) {
+											return "";
+										} else if ((Ext.getCmp('searchAppyear').getValue() == nowYear || Ext.getCmp('searchAppyear').getValue() == undefined) && 3 <= month) {
+											if(value!=null&&value!=''){
+												return i18n._(value);
+											}else{
+												return "0";
+											}
+										} else if (Ext.getCmp('searchAppyear').getValue() < nowYear) {
+											if(value!=null&&value!=''){
+												return i18n._(value);
+											}else{
+												return "0";
+											}
+										}
+									}
+								},
+								{
+									header:'4月份',
+									dataIndex: 'fourMonthNum',
+									flex:0.2,
+									renderer:function(value){
+										if ((Ext.getCmp('searchAppyear').getValue() == nowYear || Ext.getCmp('searchAppyear').getValue() == undefined) && 4 > month) {
+											return "";
+										} else if ((Ext.getCmp('searchAppyear').getValue() == nowYear || Ext.getCmp('searchAppyear').getValue() == undefined) && 4 <= month) {
+											if(value!=null&&value!=''){
+												return i18n._(value);
+											}else{
+												return "0";
+											}
+										} else if (Ext.getCmp('searchAppyear').getValue() < nowYear) {
+											if(value!=null&&value!=''){
+												return i18n._(value);
+											}else{
+												return "0";
+											}
+										}
+									}
+								},
+								{
+									header:'5月份', 	
+									dataIndex: 'fiveMonthNum',
+									flex:0.2,
+									renderer:function(value){
+										if ((Ext.getCmp('searchAppyear').getValue() == nowYear || Ext.getCmp('searchAppyear').getValue() == undefined) && 5 > month) {
+											return "";
+										} else if ((Ext.getCmp('searchAppyear').getValue() == nowYear || Ext.getCmp('searchAppyear').getValue() == undefined) && 5 <= month) {
+											if(value!=null&&value!=''){
+												return i18n._(value);
+											}else{
+												return "0";
+											}
+										} else if (Ext.getCmp('searchAppyear').getValue() < nowYear) {
+											if(value!=null&&value!=''){
+												return i18n._(value);
+											}else{
+												return "0";
+											}
+										}
+									}
+								},
+								{
+									header:'6月份',
+									dataIndex: 'sixMonthNum',
+									flex:0.2,
+									renderer:function(value){
+										if ((Ext.getCmp('searchAppyear').getValue() == nowYear || Ext.getCmp('searchAppyear').getValue() == undefined) && 6 > month) {
+											return "";
+										} else if ((Ext.getCmp('searchAppyear').getValue() == nowYear || Ext.getCmp('searchAppyear').getValue() == undefined) && 6 <= month) {
+											if(value!=null&&value!=''){
+												return i18n._(value);
+											}else{
+												return "0";
+											}
+										} else if (Ext.getCmp('searchAppyear').getValue() < nowYear) {
+											if(value!=null&&value!=''){
+												return i18n._(value);
+											}else{
+												return "0";
+											}
+										}
+									}
+								},
+								{
+									header:'7月份',
+									dataIndex: 'sevenMonthNum',
+									flex:0.2,
+									renderer:function(value){
+										if ((Ext.getCmp('searchAppyear').getValue() == nowYear || Ext.getCmp('searchAppyear').getValue() == undefined) && 7 > month) {
+											return "";
+										} else if ((Ext.getCmp('searchAppyear').getValue() == nowYear || Ext.getCmp('searchAppyear').getValue() == undefined) && 7 <= month) {
+											if(value!=null&&value!=''){
+												return i18n._(value);
+											}else{
+												return "0";
+											}
+										} else if (Ext.getCmp('searchAppyear').getValue() < nowYear) {
+											if(value!=null&&value!=''){
+												return i18n._(value);
+											}else{
+												return "0";
+											}
+										}
+									}
+								},
+								{
+									header:'8月份',
+									dataIndex: 'eightMonthNum',
+									flex:0.2,
+									renderer:function(value){
+										if ((Ext.getCmp('searchAppyear').getValue() == nowYear || Ext.getCmp('searchAppyear').getValue() == undefined) && 8 > month) {
+											return "";
+										} else if ((Ext.getCmp('searchAppyear').getValue() == nowYear || Ext.getCmp('searchAppyear').getValue() == undefined) && 8 <= month) {
+											if(value!=null&&value!=''){
+												return i18n._(value);
+											}else{
+												return "0";
+											}
+										} else if (Ext.getCmp('searchAppyear').getValue() < nowYear) {
+											if(value!=null&&value!=''){
+												return i18n._(value);
+											}else{
+												return "0";
+											}
+										}
+									}
+								},
+								{
+									header:'9月份',
+									dataIndex: 'nineMonthNum',
+									flex:0.2,
+									renderer:function(value){
+										if ((Ext.getCmp('searchAppyear').getValue() == nowYear || Ext.getCmp('searchAppyear').getValue() == undefined) && 9 > month) {
+											return "";
+										} else if ((Ext.getCmp('searchAppyear').getValue() == nowYear || Ext.getCmp('searchAppyear').getValue() == undefined) && 9 <= month) {
+											if(value!=null&&value!=''){
+												return i18n._(value);
+											}else{
+												return "0";
+											}
+										} else if (Ext.getCmp('searchAppyear').getValue() < nowYear) {
+											if(value!=null&&value!=''){
+												return i18n._(value);
+											}else{
+												return "0";
+											}
+										}
+									}
+								},
+								{
+									header:'10月份',
+									dataIndex: 'tenMonthNum',
+									flex:0.2,
+									renderer:function(value){
+										if ((Ext.getCmp('searchAppyear').getValue() == nowYear || Ext.getCmp('searchAppyear').getValue() == undefined) && 10 > month) {
+											return "";
+										} else if ((Ext.getCmp('searchAppyear').getValue() == nowYear || Ext.getCmp('searchAppyear').getValue() == undefined) && 10 <= month) {
+											if(value!=null&&value!=''){
+												return i18n._(value);
+											}else{
+												return "0";
+											}
+										} else if (Ext.getCmp('searchAppyear').getValue() < nowYear) {
+											if(value!=null&&value!=''){
+												return i18n._(value);
+											}else{
+												return "0";
+											}
+										}
+									}
+								},
+								{
+									header:'11月份',
+									dataIndex: 'elevenMonthNum',
+									flex:0.2,
+									renderer:function(value){
+										if ((Ext.getCmp('searchAppyear').getValue() == nowYear || Ext.getCmp('searchAppyear').getValue() == undefined) && 11 > month) {
+											return "";
+										} else if ((Ext.getCmp('searchAppyear').getValue() == nowYear || Ext.getCmp('searchAppyear').getValue() == undefined) && 11 <= month) {
+											if(value!=null&&value!=''){
+												return i18n._(value);
+											}else{
+												return "0";
+											}
+										} else if (Ext.getCmp('searchAppyear').getValue() < nowYear) {
+											if(value!=null&&value!=''){
+												return i18n._(value);
+											}else{
+												return "0";
+											}
+										}
+									}
+								},
+								{
+									header:'12月份',
+									dataIndex: 'twelveMonthNum',
+									flex:0.2,
+									renderer:function(value){
+										if ((Ext.getCmp('searchAppyear').getValue() == nowYear || Ext.getCmp('searchAppyear').getValue() == undefined) && 12 > month) {
+											return "";
+										} else if ((Ext.getCmp('searchAppyear').getValue() == nowYear || Ext.getCmp('searchAppyear').getValue() == undefined) && 12 <= month) {
+											if(value!=null&&value!=''){
+												return i18n._(value);
+											}else{
+												return "0";
+											}
+										} else if (Ext.getCmp('searchAppyear').getValue() < nowYear) {
+											if(value!=null&&value!=''){
+												return i18n._(value);
+											}else{
+												return "0";
+											}
+										}
+									}
+								}
+		            	       
+            		],
+            		bbar: Ext.create('Ext.toolbar.Paging', {
+            	          store:userIndustryStore,
+            	          displayInfo: true,
+            	          beforePageText:i18n._('beforePageText'),//"第"
+            	          firstText: i18n._('firstText'),//"第一页"
+            	          prevText: i18n._('prevText'),//"上一页"
+            	          nextText: i18n._('nextText'),//"下一页"
+            	          lastText: i18n._('lastText'),//"最后页"
+            	          refreshText: i18n._('refreshText')//"刷新"
+            	    }),           	
+            	    viewConfig: {
+            	    	stripeRows: true
+            	    },            		
+            		dockedItems:[
+            		{
+            			xtype:'toolbar',
+            			cls: 'toolbarCSS',
+            			dock: 'top',			
+            			items:[			
+		            			{xtype:'tbfill'},
+		            			{
+									xtype:'displayfield',
+									hideLabel:true,
+									value:'<span style="bottom:3px;position:relative;"><font color="white">'+"年份"+':'+'</font></span>'
+								},
+		            			{ 
+		            				xtype:'combobox',                    
+		            				name:'searchAppyear', 
+		            				id:'searchAppyear',
+		            				store: yearStore,         //       这里的store为combox的数据源                   
+		            				queryMode: 'local',                    
+		            				displayField: 'year',   // 显示在前台的名字                    
+		            				valueField: 'id',                // 具体的值                   
+		            				emptyText:nowYear,                //为空的状态下显示的内容                    
+		            				fieldLabel:'年份',
+		            				hideLabel:true,
+		            			},
+		            			imgb
+            				]
+            		}]
+            	});
+            
+            	function vd(text){
+            	    if(ltrim(rtrim(text)) == '') {
+            	        return i18n._('cannotBeNull');
+            	    } else {
+            	        return true;
+            	    }
+            	}
+            	
+            	Ext.create('Ext.Viewport',{//Ext.Viewport
+                    layout:'border',
+                    width:'100%',                   
+                    items:[
+                        {
+                            region:'center',
+                            xtype:'panel',
+                            id:'panel_one',
+                            title:i18n._('reportManagement')+'&nbsp;&nbsp;>&nbsp;&nbsp;'+i18n._('userStatistics')+'&nbsp;&nbsp;>&nbsp;&nbsp;'+i18n._('userIndustryStatistics'),
+                            width:'60%',
+                            layout:'fit',
+                            autoScroll:true,
+                            items:[
+                                {
+                                    xtype:'panel',
+                                    layout:'fit',
+                                    autoScroll:true,
+                                    items:workOrderGrid
+                                }
+                            ]
+                        }
+                    ]//panel
+                });         
+                
+            }
+        };
+    })();
+
+    MultiLang.init();
+});
+ function getCookie(name){
+         var arr = document.cookie.match(new RegExp("(^| )"+name+"=([^;]*)(;|$)"));
+         if(arr != null) return unescape(arr[2]);
+         return null;
+ };
+ 
+</script>
+</head>
+<body>
+</body>
+</html>

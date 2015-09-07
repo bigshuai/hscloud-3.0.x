@@ -1,0 +1,317 @@
+<html>
+<head>
+<title>hc_issue_application_list.html</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel='stylesheet' type='text/css' href='../../extjs-4.1.0/resources/css/ext-all-gray.css' />
+<!-- <script type='text/javascript' src='../../extjs-4.1.0/ext-all.js'></script> -->
+<script type="text/javascript">
+	
+</script>
+<script type='text/javascript' src='../../extjs-4.1.0/ext-all-debug.js'></script>
+<script type="text/javascript" src="../../js/head.js"></script>
+<script type="text/javascript" src="../../js/ux/data/PagingMemoryProxy.js"></script>
+<script type="text/javascript" src="../../js/ux/form/SearchField.js"></script>
+<script src="../../js/jquery-1.7.2.min.js" type="text/javascript"></script>
+<script type="text/javascript" charset="utf-8" src="../../js/i18n.js"></script>
+<script type="text/javascript" src="../systemmanagement/common.js"></script>
+<script>
+	Ext.Loader.setConfig({
+		enabled : true
+	});
+	Ext.require([ 'Ext.data.*', 'Ext.form.*', 'Ext.panel.Panel', 'Ext.view.View', 'Ext.layout.container.Fit', 'Ext.toolbar.Paging',
+			'Ext.selection.CheckboxModel', 'Ext.tip.*', 'Ext.ux.data.PagingMemoryProxy', 'Ext.ux.form.SearchField' ]);
+	Ext.onReady(function() {
+		Ext.QuickTips.init();
+		MultiLang = (function() {
+			return {
+				init : function() {
+					params = getCookie("lang");
+					i18n.set({
+						lang : params,
+						path : '../../resources'
+					});
+					if (params) {
+						var url = Ext.util.Format.format('../../extjs-4.1.0/locale/ext-lang-{0}.js', params);
+						Ext.Ajax.request({
+							url : url,
+							success : this.onLoadExtLocaleSuccess,
+							failure : this.onLoadExtLocaleFailure,
+							scope : this
+						});
+					} else {
+						this.setup();
+					}
+				},
+				onLoadExtLocaleSuccess : function(response) {
+					try {
+						eval(response.responseText);
+					} catch (e) {
+
+					}
+					this.setup();
+				},
+				onLoadExtLocaleFailure : function() {
+					this.setup();
+				},
+				setup : function() {
+					var yearStore = new Ext.data.JsonStore({
+						fields : [ 'id', 'name' ],
+						data : [ {
+							id : '2015',
+							name : '2015'
+						}, {
+							id : '2014',
+							name : '2014'
+						}, {
+							id : '2013',
+							name : '2013'
+						}, {
+							id : '2012',
+							name : '2012'
+						}, {
+							id : '2011',
+							name : '2011'
+						}, {
+							id : '2010',
+							name : '2010'
+						}, {
+							id : '2009',
+							name : '2009'
+						}, {
+							id : '2008',
+							name : '2008'
+						}, {
+							id : '2007',
+							name : '2007'
+						}, {
+							id : '2006',
+							name : '2006'
+						} ]
+					});
+					var monthStore = new Ext.data.JsonStore({
+						fields : [ 'id', 'name' ],
+						data : [ {
+							id : '1',
+							name : '1'
+						}, {
+							id : '2',
+							name : '2'
+						}, {
+							id : '3',
+							name : '3'
+						}, {
+							id : '4',
+							name : '4'
+						}, {
+							id : '5',
+							name : '5'
+						}, {
+							id : '6',
+							name : '6'
+						}, {
+							id : '7',
+							name : '7'
+						}, {
+							id : '8',
+							name : '8'
+						}, {
+							id : '9',
+							name : '9'
+						}, {
+							id : '10',
+							name : '10'
+						}, {
+							id : '11',
+							name : '11'
+						}, {
+							id : '12',
+							name : '12'
+						} ]
+					});
+					var uasgeStore = new Ext.data.JsonStore({
+						fields : [ 'id', 'name' ],
+						data : [ {
+							id : 'vmResourceUsage',
+							name : '云主机_企业云主机使用情况'
+						}, {
+							id : 'otherResourceUsage',
+							name : '云主机_其他资源使用情况'
+						}, {
+							id : 'insertResourceDeploymentSituation',
+							name : '云应用_云应用部署情况统计'
+						}, {
+							id : 'vmResourceUsageMySQL',
+							name : '云应用_云应用按照资源统计(数据库)'
+						}, {
+							id : 'insertUtilizationStatisticsList',
+							name : '云应用_利用率统计'
+						}, {
+							id : 'insertVMUseSituation',
+							name : '云虚机-资源使用情况统计'
+						} ]
+					});
+					var imgb = new Ext.Button({
+						text : '保存',
+						id : 'buildAppInfoBtn',
+						handler : function() {
+							if (hcResourceUsageForm.form.isValid()) {
+								var fileName = Ext.getCmp('file').getValue();
+								var uploadFileType = Ext.getCmp('uploadFileType').getValue();
+								console.log(fileName);
+								console.log(uploadFileType);
+								if ("" != fileName && null != fileName) {
+									var index = fileName.lastIndexOf(".");
+									if (index < 0) {
+										Ext.Msg.alert('Error', '上传的文件格式不正确，请选择2007Excel文件(*.xlsx)！');
+									} else {
+										var ext = fileName.substring(index + 1, fileName.length);
+										if (ext != "xlsx") {
+											Ext.Msg.alert('Error', '上传的文件格式不正确，请选择2007Excel文件(*.xlsx)！');
+										} else {
+											hcResourceUsageForm.getForm().submit({
+												url : path + '/../report_mgmt/hcResourceUsageAjax!' + uploadFileType + '.action',
+												method : "POST",
+												success : function(response) {
+													Ext.Msg.alert(i18n._('Prompt'), i18n._('上传成功!'));
+												},
+												failure : function(response) {
+													Ext.Msg.alert('Error', '上传失败!');
+												}
+											});
+										}
+									}
+								} else {
+									Ext.Msg.alert('Error', '上传的文件格式不正确，请选择2007Excel文件(*.xlsx)！');
+								}
+							}
+						}
+					});
+					var imga = new Ext.Button({
+						text : '下载文件模板',
+						id : 'downLoadBun',
+						icon : 'images/export.png',
+						handler : function() {
+							var downLoadFileType = Ext.getCmp('uploadFileType').getValue();
+							hcResourceUsageForm.getForm().submit({
+								url : '../../exceltemplete/' + downLoadFileType + '.xlsx',
+								method : 'post',
+								params : {
+
+								}
+							});
+
+						}
+					});
+
+					var hcResourceUsageForm = Ext.create('Ext.form.FormPanel', {
+						width : '540',
+						renderTo : Ext.getBody(),
+						border : false,
+						bodyStyle : 'padding:5px 5px 0',
+						autoScroll : true,
+						fieldDefaults : {
+							labelAlign : 'right',
+							labelWidth : 80,
+							anchor : '100%'
+						},
+
+						layout : 'hbox',
+						items : [ {
+							style : 'margin-left:10px;margin-right:10px',
+							fieldLabel : '年份',
+							name : 'year',
+							xtype : 'combo',
+							allowBlank : false,
+							id : 'year',
+							mode : 'local',
+							editable : false,
+							emptyText : '请选择',
+							displayField : 'name',
+							valueField : 'id',
+							queryMode : 'local',
+							store : yearStore
+						}, {
+							style : 'margin-left:10px;margin-right:10px',
+							fieldLabel : '月份',
+							name : 'month',
+							xtype : 'combo',
+							allowBlank : false,
+							id : 'month',
+							mode : 'local',
+							editable : false,
+							emptyText : '请选择',
+							displayField : 'name',
+							valueField : 'id',
+							queryMode : 'local',
+							store : monthStore
+						}, {
+							style : 'margin-left:10px;margin-right:10px',
+							fieldLabel : '文件类型',
+							name : 'uploadFileType',
+							xtype : 'combo',
+							allowBlank : false,
+							id : 'uploadFileType',
+							mode : 'local',
+							editable : false,
+							emptyText : '请选择',
+							displayField : 'name',
+							valueField : 'id',
+							queryMode : 'local',
+							store : uasgeStore
+						}, imga, {
+							xtype : 'filefield',
+							id : 'file',
+							emptyText : '选择文件',
+							allowBlank : true,
+							fieldLabel : '上传文件',
+							labelAlign : 'right',
+							name : 'file',
+							buttonText : '浏览',
+							msgTarget : 'side',
+							style : 'margin-left:10px;margin-right:10px'
+						}, imgb ]
+					});
+					var myDate = new Date();
+					var nowYear = myDate.getFullYear()
+					var nowMonth = myDate.getMonth() + 1;
+					Ext.getCmp('year').setValue(nowYear);
+					Ext.getCmp('month').setValue(nowMonth);
+
+					Ext.create('Ext.Viewport', {
+						layout : 'border',
+						width : '50%',
+						height : '50%',
+						items : [ {
+							region : 'center',
+							xtype : 'panel',
+							id : 'panel_one',
+							title : i18n._('报表管理') + '&nbsp;&nbsp;>&nbsp;&nbsp;' + i18n._('资源列表管理'),
+							width : '60%',
+							layout : 'fit',
+							autoScroll : true,
+							items : [ {
+								xtype : 'panel',
+								layout : 'fit',
+								autoScroll : true,
+								items : hcResourceUsageForm
+							} ]
+						} ]
+					});
+				}
+			};
+		})();
+
+		MultiLang.init();
+	});
+	function getCookie(name) {
+		var arr = document.cookie.match(new RegExp("(^| )" + name + "=([^;]*)(;|$)"));
+		if (arr != null)
+			return unescape(arr[2]);
+		return null;
+	};
+</script>
+
+</head>
+<body>
+</body>
+</html>

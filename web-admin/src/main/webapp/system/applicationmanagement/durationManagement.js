@@ -20,7 +20,7 @@ Ext.apply(Ext.QuickTips.getQuickTip(), {
 //价格体系列表模板
 var durationManagementModel = Ext.define('durationManagementModel', {
 	extend : 'Ext.data.Model',
-	fields : [ 'id', 'appId','duration', 'threshold'
+	fields : [ 'id', 'appId','duration', 'threshold','thresholdType'
 	],//
 	idProperty : 'id'
 });
@@ -42,10 +42,26 @@ var durationStore = new Ext.data.JsonStore( {
     }]  
 }); 
 
+
+var durationTypeStore = new Ext.data.JsonStore( {  
+    fields : [ 'id', 'name' ],  
+    data : [ {  
+        id : '0',  
+        name : '折扣'  
+    }, {  
+        id : '1',  
+        name : '固值'  
+    }]  
+}); 
+
 //价格体系列表Store
 var durationManagementStore = Ext.create('Ext.data.Store', {
 	model : 'durationManagementModel',
 	pageSize : 16,//每页显示16条数据
+	sorters : [ {
+		property : 'id',
+		direction : 'DESC'
+	} ],
 	//remoteSort : true,
 	autoLoad : true,
 	proxy : new Ext.data.proxy.Ajax({
@@ -239,20 +255,34 @@ var durationManagementGrid = Ext.create('Ext.grid.Panel',{
 		flex : 0.4,
 		hidden:true,
 		dataIndex : 'id'
-	},{
+	},
+	{
 		text : '时长',
 		flex : 0.4,
 		sortable: true,
 		dataIndex : 'duration'
-	},{
-		text :'折扣',
+	},
+	{
+		text :'优惠类型',
+		flex : 0.4,
+		sortable: true,
+		dataIndex : 'thresholdType',
+		renderer:function(value){
+			if(value== '0'){
+				return "折扣";
+			}else if(value== '1'){
+				return "固值";
+			}
+		}
+	},
+	{
+		text :'优惠值',
 		flex : 0.5,
 		sortable: true,
 		dataIndex : 'threshold'
 	}
 	]
 });// 创建grid
-
 
 //保存优惠政策
 function saveDurationManagement(){
@@ -261,57 +291,148 @@ function saveDurationManagement(){
 		 }
 	    var drationTime = Ext.getCmp('drationTime').getValue();
 	    var discountValue = Ext.getCmp('discountValue').getValue();
-	    Ext.getCmp('saveDurationBtn').setDisabled(true);
-	    var progress=Ext.Ajax.request({
-	        url:path+"/../application_mgmt/application!saveDurationManagementInfo.action",
-	        method:'POST',
-	        params:{
-	        	'priceCloudThresholdVo.appId': appId,
-	            'priceCloudThresholdVo.duration': drationTime,
-	            'priceCloudThresholdVo.threshold':discountValue
-	        },
-	        success:function(form,action){
-	        	Ext.getCmp('saveDurationBtn').setDisabled(false);
-	            var obj = Ext.decode(form.responseText);
-	                if(obj==null || obj.success==null){
-	                    Ext.MessageBox.show({
-	                       title: i18n._('errorNotice'),
-	                       msg: i18n._('returnNull'),
-	                       buttons: Ext.MessageBox.OK,
-	                       icon: Ext.MessageBox.ERROR
-	                    });
-	                    return;
-	                }
-	                if(!obj.success){
-	                    Ext.MessageBox.show({
-	                       title: i18n._('errorNotice'),
-	                       msg: obj.resultMsg,
-	                       buttons: Ext.MessageBox.OK,
-	                       icon: Ext.MessageBox.ERROR
-	                    });
-	                    return;
-	                }
-	                Ext.MessageBox.show({
-	                	title: i18n._('notice'),
-	                    msg: '保存成功！',
-	                    buttons: Ext.MessageBox.OK,
-	                    icon: Ext.MessageBox.INFO,
-	                    fn: reLoadDrationData
-	                });
-	                durationManagementStore.load();
-	                addDurationManagementForm.getForm().reset();
-	                addDurationManagementWin.hide();
-	        },   
-	        failure:function(form,action){ 
-	        	Ext.getCmp('saveDurationBtn').setDisabled(false);
-	            Ext.MessageBox.show({
-	                title: i18n._('errorNotice'),
-	                msg: i18n._('operateFail'),
-	                buttons: Ext.MessageBox.OK,
-	                icon: Ext.MessageBox.ERROR
-	            });  
-	        }
-	    });
+	    var drationType=Ext.getCmp('drationType').getValue();
+	    var type="^[1-9]([0-9])*$"; 
+	    var flag=true;
+	    var re =new RegExp(type); 
+	    if(!re.test(discountValue)){
+	    	Ext.MessageBox.show({
+            	title: i18n._('notice'),
+                msg: '只能输入正整数！',
+                buttons: Ext.MessageBox.OK,
+                icon: Ext.MessageBox.INFO,
+                fn: reLoadDrationData
+            });
+	    	return;
+	    }
+	    if(drationType==0&&discountValue>=100){
+	    	Ext.MessageBox.show({
+            	title: i18n._('notice'),
+                msg: '折扣需要小于100！',
+                buttons: Ext.MessageBox.OK,
+                icon: Ext.MessageBox.INFO,
+                fn: reLoadDrationData
+            });
+	    	return;
+	    }
+	    
+	    if(drationType==1){
+	    	Ext.Ajax.request({
+				url:path+"/../application_mgmt/application!findMinPriceByAppId.action",
+				method: 'POST',
+				async:false,
+				params:{
+					'appId':appId
+				},
+				success: function (response) {
+					var result=Ext.JSON.decode(response.responseText);
+					if(result.resultObject==null){
+						Ext.MessageBox.show({
+							title : i18n._('notice'),
+							msg : '请添加价格体系！',
+							icon : Ext.MessageBox.INFO,
+							buttons : Ext.MessageBox.OK
+						});
+						flag=false;
+					}else if(discountValue>result.resultObject){
+							Ext.MessageBox.show({
+								title : i18n._('notice'),
+								msg : '优惠值不能大于该应用的最低价'+result.resultObject+'!',
+								icon : Ext.MessageBox.INFO,
+								buttons : Ext.MessageBox.OK
+							});
+							flag=false;
+					}
+				},
+				failure:function(form,action){
+			            Ext.MessageBox.show({
+			                title: i18n._('errorNotice'),
+			                msg: i18n._('operateFail'),
+			                buttons: Ext.MessageBox.OK,
+			                icon: Ext.MessageBox.ERROR
+			            });  
+			            flag=false;
+			        }
+			});
+	    }
+	    if(flag){
+	        Ext.getCmp('saveDurationBtn').setDisabled(true);
+			Ext.Ajax.request({
+				url:path+"/../application_mgmt/application!ifDurationSystemInfo.action",
+				method: 'POST',
+				async:false,
+				params:{
+					'appId':appId,
+					'duration':drationTime
+				},
+				success: function (response) {
+					var result=Ext.JSON.decode(response.responseText);
+					if(result.resultObject){
+					    var progress=Ext.Ajax.request({
+					        url:path+"/../application_mgmt/application!saveDurationManagementInfo.action",
+					        method:'POST',
+					        async:false,
+					        params:{
+					        	'priceCloudThresholdVo.appId': appId,
+					            'priceCloudThresholdVo.duration': drationTime,
+					            'priceCloudThresholdVo.threshold':discountValue,
+					            'priceCloudThresholdVo.thresholdType':drationType
+					        },
+					        success:function(form,action){
+					        	Ext.getCmp('saveDurationBtn').setDisabled(false);
+					            var obj = Ext.decode(form.responseText);
+					                if(obj==null || obj.success==null){
+					                    Ext.MessageBox.show({
+					                       title: i18n._('errorNotice'),
+					                       msg: i18n._('returnNull'),
+					                       buttons: Ext.MessageBox.OK,
+					                       icon: Ext.MessageBox.ERROR
+					                    });
+					                    return;
+					                }
+					                if(!obj.success){
+					                    Ext.MessageBox.show({
+					                       title: i18n._('errorNotice'),
+					                       msg: obj.resultMsg,
+					                       buttons: Ext.MessageBox.OK,
+					                       icon: Ext.MessageBox.ERROR
+					                    });
+					                    return;
+					                }
+					                Ext.MessageBox.show({
+					                	title: i18n._('notice'),
+					                    msg: '保存成功！',
+					                    buttons: Ext.MessageBox.OK,
+					                    icon: Ext.MessageBox.INFO,
+					                    fn: reLoadDrationData
+					                });
+					                durationManagementStore.load();
+					                addDurationManagementForm.getForm().reset();
+					                addDurationManagementWin.hide();
+					        },   
+					        failure:function(form,action){ 
+					        	Ext.getCmp('saveDurationBtn').setDisabled(false);
+					            Ext.MessageBox.show({
+					                title: i18n._('errorNotice'),
+					                msg: i18n._('operateFail'),
+					                buttons: Ext.MessageBox.OK,
+					                icon: Ext.MessageBox.ERROR
+					            });  
+					        }
+					    });																							
+					}else{
+						Ext.MessageBox.show({
+							title : i18n._('Prompt'),
+							msg : '该应用已经存在您要添加的时长,请重新选择！',
+							icon : Ext.MessageBox.INFO,
+							buttons : Ext.MessageBox.OK
+						});
+						 Ext.getCmp('saveDurationBtn').setDisabled(false);
+						return;
+					}
+				}
+			});
+	    }
 }
 
 //删除后刷新页面
@@ -354,8 +475,23 @@ var addDurationManagementForm=Ext.create('Ext.form.FormPanel', {
 			store:durationStore
        },
        {
+            fieldLabel:'优惠类型',
+            style:'margin-left:10px;margin-right:70px',
+			name:'drationType',
+			xtype:'combo',
+			allowBlank: false,
+			id:'drationType',
+			mode: 'local',
+			editable: false,
+			emptyText:'请选择',
+			displayField: 'name',
+			valueField: 'id',
+			queryMode: 'local',
+			store:durationTypeStore
+       },
+       {
 			xtype:'textfield',
-			fieldLabel:'折扣',
+			fieldLabel:'优惠值',
 			style:'margin-left:10px;margin-right:70px',
 			name:'discountValue',
 			maxLength: 20,

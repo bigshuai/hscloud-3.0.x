@@ -87,6 +87,7 @@
 	        		var st = '';
 	        		var et = '';
 	        		var fuzzy = '';
+	        		var billType = '';
 	        		var count = 0;
 	        	    var platformid='';	 
                 	Ext.define('ApplicationTranscationLogVO',{
@@ -100,9 +101,13 @@
                 		        {name:'appPrice',type:'double'},
                 		        {name:'totalPrice',type:'double'},
                 		        {name:'appName',type:'string'},
-                		        {name:'supplier',type:'int'},
+                		        {name:'supplierName',type:'string'},
                 		        {name:'type',type:'int'},
-                		        {name:'remark',type:'string'}
+                		        {name:'remark',type:'string'},
+                		        {name:'proportion',type:'float'},
+                		        {name:'supplierGainPrice',type:'double'},
+                		        {name:'wgGainPrice',type:'double'},
+                		        {name:'billType',type:'string'}
                 		       ]
                 	});
 
@@ -125,6 +130,25 @@
      					 })
      		     }); 
         		   log.load();
+        		   
+        		   
+        		   var availableSupplierStore = Ext.create('Ext.data.Store', {
+        			    fields: ['id', 'name'],
+        			    proxy : new Ext.data.proxy.Ajax(
+        						{
+        							url:path+"/../application_mgmt/application!getAvailableSupplier.action",
+        							reader : {
+        								type : 'json',
+        								root : 'resultObject'									
+        							},
+        							listeners:{
+        								exception:function(reader, response, error, eOpts){
+        									ajaxException(reader, response, error, eOpts );										
+        								}
+        							}							
+        						})
+        			});
+        			availableSupplierStore.load();
         		    
                 	//日志列表
         			var sm = Ext.create('Ext.selection.RowModel');
@@ -205,7 +229,8 @@
                                                     	 'queryVO.fuzzy':fuzzy,
                                                     	 'queryVO.startTime':Ext.Date.format(st, 'Y-m-d H:i:s'),
                                                     	 'queryVO.endTime':Ext.Date.format(et, 'Y-m-d H:i:s'),
-                                                    	 'queryVO.transactionType':type
+                                                    	 'queryVO.transactionType':type,
+                                                    	 'queryVO.billType':billType
                                                  }
                                                  });
 											}
@@ -257,6 +282,15 @@
 		        {"id":"1","name":i18n._('afterConsume')}
 		    ]
 		});
+		
+		var billTypeStore = Ext.create('Ext.data.Store', {
+		    fields: ['id', 'name'],
+		    data : [
+                {"id":"0","name":'正常交易'},
+				{"id":"1","name":'线下交易'}
+		    ]
+		});
+		
 		var dataSearchWin =Ext.create('Ext.window.Window', {
     		title : i18n._('Query'),//查询条件
     		width : 310,
@@ -277,6 +311,21 @@
     		    	   labelWidth : 70,
     		    	   emptyText:i18n._('All'),//全部
     		    	   store:states,
+    		    	   queryMode: 'local',
+    		    	   displayField: 'name',
+    		    	   valueField: 'id'
+    		       },
+    		       
+    		       {
+    		    	   xtype:'combobox',
+    		    	   id:'billType',
+    		    	   name: 'billType',
+    		    	   fieldLabel:'账单类型',//按类型
+    		    	   labelAlign:'right',
+    		    	   width : 280,
+    		    	   labelWidth : 70,
+    		    	   emptyText:i18n._('All'),//全部
+    		    	   store:billTypeStore,
     		    	   queryMode: 'local',
     		    	   displayField: 'name',
     		    	   valueField: 'id'
@@ -323,7 +372,7 @@
     		    	   labelAlign:'right',
     		    	   width : 280,
     		    	   labelWidth : 70,
-    		    	   emptyText:i18n._('queryhint')//登录邮箱/备注
+    		    	   emptyText:'登录邮箱/备注/应用名称'//登录邮箱/备注
     		       },
     		       {
     		    	   xtype:'fieldcontainer',
@@ -362,6 +411,7 @@
     		    	        			  endTime=Ext.Date.add(t,Ext.Date.DAY, 1);
         		    	        	  }
     		    	        		  var f=Ext.getCmp('fuzzy').getValue();
+    		    	        		  var bt=Ext.getCmp('billType').getValue();
     		    	        		  dataSearchWin.destroy();
     		    	        		   fuzzy = '';
     		    	        		   fuzzy  = f;
@@ -372,11 +422,13 @@
     		    	        		   st = startTime;
     		    	        		   et = '';
     		    	        		   et = endTime;
+    		    	        		   billType=bt;
 									   var proxy = log.getProxy();
 										proxy.setExtraParam('queryVO.transactionType',transactionType) ;
 										proxy.setExtraParam('queryVO.startTime',startTime) ;
 										proxy.setExtraParam('queryVO.endTime',endTime) ;
 										proxy.setExtraParam('queryVO.fuzzy',fuzzy) ;
+										proxy.setExtraParam('queryVO.billType',billType) ;
 										proxy.extraParams.start = 0;
 										log.loadPage(1,null);
     		    	        	  }
@@ -418,6 +470,17 @@
 	        					{header: i18n._('appPrice'), dataIndex: 'appPrice',align:'right', flex: 0.25},
 	        					{header: i18n._('vmPrice'), dataIndex: 'vmPrice',align:'right', flex: 0.25},
 	        					{header: i18n._('totalPrice'), dataIndex: 'totalPrice',align:'right', flex: 0.25},
+	        					{header: '分账比例', dataIndex: 'proportion',align:'left', flex: 0.2},
+	        					{header: '供应商应得金额', dataIndex: 'supplierGainPrice',align:'left', flex: 0.2},
+	        					{header: '万国应得金额', dataIndex: 'wgGainPrice',align:'left', flex: 0.2},
+	        					{header: '账单类型', dataIndex: 'billType',align:'left', flex: 0.2,
+	        						renderer: function(value){
+		        						   if (value == '0') {
+		        							  return '正常交易';
+		        						   }else if(value=='1'){
+		        							   return '线下交易';
+		        						   }
+		        					}},
 	        					{header: i18n._('username'), dataIndex: 'userName',align:'left', flex: 0.2},
 	        					{header: i18n._('email'), dataIndex: 'userEmail',align:'left', flex: 0.35},
 	        					{header: i18n._('consumeType'),dataIndex: 'type',align:'left', flex: 0.18,			
@@ -428,7 +491,7 @@
 	        							   return i18n._('afterConsume');
 	        						   }
 	        					}},
-	        					{header: i18n._('supplier'), dataIndex: 'supplier',align:'left', flex: 0.35},
+	        					{header: i18n._('supplier'), dataIndex: 'supplierName',align:'left', flex: 0.35},
 	        					{text: i18n._("remark"),dataIndex: 'remark',flex: 0.4,
 	        						 renderer: function(value,metaData,record,colIndex,store,view) {
 	        					        	if(value!=null){
@@ -497,7 +560,7 @@
                             id:'appPrice',
                             name:'appPrice',
                             allowBlank: false,
-       						validator : vd
+       						validator :validNumber
                    	     },
                    	    {
                    	    	xtype:'textfield',
@@ -506,7 +569,7 @@
                             id:'vmPrice',
                             name:'vmPrice',
                             allowBlank: false,
-       						validator : vd
+       						validator : validNumber
                    	     },
                    	    {
                    	    	xtype:'textfield',
@@ -515,7 +578,7 @@
                             id:'totalPrice',
                             name:'totalPrice',
                             allowBlank: false,
-       						validator : vd
+       						validator :validNumber
                    	     },
                    	     {
                      	    xtype:'combo',
@@ -530,7 +593,6 @@
                             valueField: 'appId',
                             emptyText: i18n._('Please Select'),
                             store:appStore
-                    	 
                    	     },
                    	     {
                      	       xtype:'textfield',
@@ -539,18 +601,22 @@
                                id:'userEmail',
                                name:'userEmail',
                                allowBlank: false,
-         						validator : vd
-                    	 },
-                   	     {
-                     	       xtype:'textfield',
-                               fieldLabel:i18n._('supplier'),
-                               style:'margin-left:30px',
-                               id:'supplier',
-                               name:'supplier',
-							   regex:/^[1-9]+$/,
-							   regexText : i18n._('InvalidNumber'),
-                               allowBlank: false,
          					   validator : vd
+                    	 },
+                    	 {
+                    		    style:'margin-left:30px',
+                				fieldLabel:i18n._('supplier'),
+                				name:'supplier',
+                				xtype:'combo',
+                				id:'supplier',
+                				mode: 'local',
+                				editable: false,
+                				emptyText:'请选择',
+                				displayField: 'name',
+                				valueField: 'id',
+                				queryMode: 'local',
+                				allowBlank: false,
+                				store:availableSupplierStore
                     	 },
                    	     {
                      	       xtype:'combo',
@@ -604,6 +670,18 @@
                     		items : [appTransactionForm]
                     	});
                 	
+                    	function validNumber(text){
+                    	    if(ltrim(rtrim(text)) == '') {
+                    	        return i18n._('cannotBeNull');
+                    	    } else {
+                    	    	if(!isNaN(text)){
+                    	    		return true;
+                    	    	}else{
+                    	    		return '只能输入数字！';
+                    	    	}
+                    	    }
+                    	} 	
+                    	
                    	function resetMethod(){
                    		appTransactionForm.getForm().reset();
                    	}
@@ -623,6 +701,25 @@
                 	    	!Ext.getCmp('remark').isValid() || !Ext.getCmp('supplier').isValid()){
                             return;
                         }
+                	    var myreg = /^([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+@([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+\.[a-zA-Z]{2,3}$/;
+                	    if(!myreg.test(userEmail)){
+                	    	Ext.MessageBox.show({
+      	                       title: i18n._('notice'),
+      	                       msg: '用户邮箱格式不正确！',
+      	                       buttons: Ext.MessageBox.OK,
+      	                       icon: Ext.MessageBox.ERROR
+      	                    });             	    	                 
+                	    	return;
+                	    }
+                	    if(parseFloat(appPrice)+parseFloat(vmPrice)!=parseFloat(totalPrice)){
+                	    	Ext.MessageBox.show({
+     	                       title: i18n._('notice'),
+     	                       msg: '应用的价格加虚机的价格不等于总价！',
+     	                       buttons: Ext.MessageBox.OK,
+     	                       icon: Ext.MessageBox.ERROR
+     	                    });
+                	    	return;
+                	    }
                 	    Ext.Ajax.request({
                 	        url:path+'/../application_mgmt/getAppTransactionByPage!addTranLong.action',
                 	        method:'POST',
@@ -634,11 +731,12 @@
                 	            'appBill.userEmail': userEmail,
                 	            'appBill.type': consumeType,
                 	            'appBill.supplier': supplier,
-                	            'appBill.remark': remark
+                	            'appBill.remark': remark,
+                	            'appBill.billType': '1'
                 	        },
                 	        success:function(form,action){
                 	            var obj = Ext.decode(form.responseText);
-                	                if(obj==null || obj.success==null){
+                	                if(obj==null || obj.resultObject==null){
                 	                    Ext.MessageBox.show({
                 	                       title: i18n._('errorNotice'),
                 	                       msg: i18n._('returnNull'),
@@ -647,10 +745,10 @@
                 	                    });//INFO,QUESTION,WARNING,ERROR
                 	                    return;
                 	                }
-                	                if(!obj.success){
+                	                if(!obj.resultObject){
                 	                    Ext.MessageBox.show({
-                	                       title: i18n._('errorNotice'),
-                	                       msg: obj.resultMsg,
+                	                       title: i18n._('notice'),
+                	                       msg: '用户不存在！',
                 	                       buttons: Ext.MessageBox.OK,
                 	                       icon: Ext.MessageBox.ERROR
                 	                    });
@@ -963,13 +1061,6 @@
     	    	name: i18n._('Network'),
     	    	value: store1.getAt(i).get('network')+' M'
     	    	},
-//     		    	,{
-//     	    		xtype: 'displayfield',
-//     	    		style:'margin:0 0 0 30',
-//     	    	fieldLabel: i18n._('software'),
-//     	    	name: i18n._('software'),
-//     	    	value: store1.getAt(i).get('software')
-//     	    	},
 				{
 				xtype: 'displayfield',
 			    style:'margin:10 0 0 30',

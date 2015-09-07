@@ -2852,7 +2852,7 @@ public interface Facade {
 	 * 获取工单类型
 	 * @return
 	 */
-	public List<AppWorkOrderType> getWorkOrderTpye();
+	public List<AppWorkOrderType> getWorkOrderTpye(Map<String,String> paramMap);
 	/**
 	 * 查询账单日志
 	 * @param sorts 排序

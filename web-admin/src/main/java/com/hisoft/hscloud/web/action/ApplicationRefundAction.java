@@ -40,10 +40,15 @@ import com.hisoft.hscloud.common.util.PropertiesUtils;
 import com.hisoft.hscloud.crm.usermanager.entity.Admin;
 import com.hisoft.hscloud.crm.usermanager.entity.User;
 import com.hisoft.hscloud.crm.usermanager.service.UserService;
-import com.ibm.icu.text.SimpleDateFormat;
+
+import java.text.SimpleDateFormat;
+
+import com.hisoft.hscloud.message.util.Constant;
 import com.hisoft.hscloud.vpdc.ops.service.Operation;
 import com.hisoft.hscloud.web.facade.Facade;
 import com.wgdawn.common.SystemParameters;
+import com.wgdawn.constants.CommonStatusEnum.HCMessage;
+import com.wgdawn.persist.mapper.HcMessageMapper;
 import com.wgdawn.persist.model.AppBill;
 import com.wgdawn.persist.model.AppCouponPolicy;
 import com.wgdawn.persist.model.AppOrder;
@@ -53,6 +58,7 @@ import com.wgdawn.persist.model.AppUploadMirror;
 import com.wgdawn.persist.model.Application;
 import com.wgdawn.persist.model.ApplicationCategory;
 import com.wgdawn.persist.model.ApplicationDetail;
+import com.wgdawn.persist.model.HcMessage;
 import com.wgdawn.persist.model.Material;
 import com.wgdawn.persist.model.PriceCloudThreshold;
 import com.wgdawn.persist.more.model.appDetail.MoreAppDetail;
@@ -242,7 +248,8 @@ public class ApplicationRefundAction extends HSCloudAction {
 	}
     
 
-	
+	@Autowired
+	private HcMessageMapper hcMessageMapper;
 
 	/**
 	 * <app退款> <功能详细描述>
@@ -311,14 +318,13 @@ public class ApplicationRefundAction extends HSCloudAction {
 			appBill.setType(3 + "");
 			appBill.setUserName(account1.getUser().getName());
 			appBill.setUserEmail(account1.getUser().getEmail());
-			String strReason="云应用["+app.getName()+"]，在"+dateformat+"，执行退款操作，订单号为["+appRefundVO.getOrderNo()+"]，退款全额为"+appRefundVO.getRefundtotal()+"；";
+			String strReason="云应用["+app.getName()+"]，在"+dateformat+"，执行退款操作，订单号为:"+appRefundVO.getOrderNo()+",退款全额为"+appRefundVO.getRefundtotal()+";";
 			appBill.setRemark(strReason);
 			appBill.setAppPrice(appRefundVO.getRefundappPrice());
 			appBill.setVmPrice(appRefundVO.getRefundvmPrice());
 			appBill.setTotalPrice(appRefundVO.getRefundtotal());
 			appBill.setBalanceAfter(bananceTotal);
 			appBill.setExpireDate(date);
-			
 			
 			//5、修改app_refund中status的状态位为2，与refund_amount（应退总额），refund_amount_supplier（供应商应退金额）
 			AppRefund appRefund=new AppRefund();
@@ -330,7 +336,18 @@ public class ApplicationRefundAction extends HSCloudAction {
 			appRefund.setOperator(admin.getName());
 			appRefund.setRefundDate(new Date());
 
+			
+			
 			int result5=appRefundService.getAppRefundall( appRefund, appOrder, appBill, accountqueryMap);
+			//发送消息
+			AppRefund appRefundResult = appRefundService.selectByPrimaryKey(appRefund.getId());
+			HcMessage message = new HcMessage();
+			message.setCreateTime(new Date());
+			message.setMessage("您退款操作已被管理员批准,详情:应用订单号为:"+appRefundVO.getOrderNo()+",退款金额为:"+appRefundVO.getRefundtotal()+"元。");
+			message.setStatus(Constant.MESSAGE_STATUS_UNREAD);
+			message.setUserId(Long.valueOf(String.valueOf(appRefundResult.getOwnerId())));
+			message.setMessgeType(HCMessage.REFUND_REMINDER.getValue());
+			hcMessageMapper.insertSelective(message);
 			
 			if(result5==1){
 				System.out.println("successfully");
@@ -378,6 +395,21 @@ public class ApplicationRefundAction extends HSCloudAction {
 					System.out.println("successfully");
 				}else
 					System.out.println("fail");
+				//发送消息
+				AppRefund appRefundResult = appRefundService.selectByPrimaryKey(appRefund.getId());
+				HcMessage message = new HcMessage();
+				message.setCreateTime(new Date());
+				message.setMessage("对不起，您对订单号为:"+appRefundResult.getOrderNo()+"的订单申请的退款操作已被管理员拒绝，请重新申请或联系管理员咨询详情。");
+				message.setStatus(Constant.MESSAGE_STATUS_UNREAD);
+				message.setUserId(Long.valueOf(String.valueOf(appRefundResult.getOwnerId())));
+				message.setMessgeType(HCMessage.REFUND_REMINDER.getValue());
+				int insertSelective = hcMessageMapper.insertSelective(message);
+				if(insertSelective==1){
+					logger.info("ApplicationRefundAction-RejectRefund-successfully");
+				}else{
+					logger.error("ApplicationRefundAction-RejectRefund-failed");
+				}
+				
 			}else{
 				super.fillActionResult(Constants.OPTIONS_FAILURE);
 				

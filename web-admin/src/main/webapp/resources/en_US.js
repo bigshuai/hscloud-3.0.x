@@ -1180,6 +1180,7 @@
 "Account has been actived":"Actived",
 "scanBackupPlans":"Automatic Backup",
 "expireRemind":"VM expire remind",
+"appExpireRemind":"APP expire remind",
 "Out-line":"Offline",
 "allOrder":"All Orders",
 "maturity":"maturity",
@@ -1758,8 +1759,16 @@
 "reportManagement":"reportManagement",
 "LeaderCloudVirtualMachine":"LeaderCloudVirtualMachine",
 "OrderQuantityStatistics":"OrderQuantityStatistics",
-"IndustryTypeStatistics":"IndustryTypeStatistics",
 "ShelvesOfAppliedStatistics":"ShelvesOfAppliedStatistics",
 "CloudApplicationResourceStatistics":"CloudApplicationResourceStatistics",
-"IndustryStatistics":"IndustryStatistics"
+"IndustryStatistics":"IndustryStatistics",
+"appReviewAmountStatistics":"AppReviewAmountStatistics",
+"resourceUsage":"resourceUsage",
+"utilizationStatistics":"Utilization Statistics",
+"otherBasicResourceUsage":"otherBasicResourceUsage",
+"resourceDeploymentSituation":"Resource Deployment Situation",
+"supplierAppUploadTop":"Supplier App Upload Top",
+"vmFaultStatistics":"vmFaultStatistics",
+"supplierAppUploadTop":"Supplier App Upload Top",
+"vmResourceUseSituationstatistics":"Resource Use Situation Statistics"
 }

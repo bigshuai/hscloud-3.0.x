@@ -343,7 +343,7 @@ Ext.create('Ext.Viewport',{
 		}
 	},
 	    columns: [
-	    {xtype: 'rownumberer',dataIndex:'item',align:'left',flex:.5},
+	    {xtype: 'rownumberer',dataIndex:'item',align:'left',flex:.2},
         {header: i18n._('username'),  dataIndex: 'user', editor: 'textfield',sortable:true,flex:1,
 	    	renderer: function(value){
             	return value.name;
@@ -2149,7 +2149,7 @@ Ext.create('Ext.Viewport',{
 					handler:function(){
 						viewDetail();
 					
-					}},'-',
+					}},/* '-',
 					{//账户关联
 						icon: '../../images/relevance.png', 
 						text:'<font id="relevanceId" color="white" >' + i18n._('relevance') + '</font>',
@@ -2304,7 +2304,7 @@ Ext.create('Ext.Viewport',{
 							                     ]
 							}).show();						
 				        }
-					},
+					}, */
 					{xtype:'tbfill'},
 		{
         xtype:'splitbutton',

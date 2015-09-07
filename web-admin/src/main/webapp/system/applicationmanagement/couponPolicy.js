@@ -30,6 +30,10 @@ var couponPolicyModel = Ext.define('couponPolicyVo', {
 var couponPolicyStore = Ext.create('Ext.data.Store', {
 	model : 'couponPolicyVo',
 	pageSize : 16,//每页显示16条数据
+	sorters : [ {
+		property : 'id',
+		direction : 'DESC'
+	} ],
 	autoLoad : true,
 	proxy : new Ext.data.proxy.Ajax({
 		url : path + '/../application_mgmt/application!findAppCouponPolicyPage.action',
@@ -278,59 +282,133 @@ function saveCouponPolicy(){
 	    var endTime = Ext.getCmp('endTime').getValue();
 	    var couponType = Ext.getCmp('couponType').getValue();
 	    var couponValue = Ext.getCmp('couponValue').getValue();
-	    Ext.getCmp('addCouponPolicyBtn').setDisabled(true);
-	    var progress=Ext.Ajax.request({
-	        url:path+"/../application_mgmt/application!saveCouponPolicyinfo.action",
-	        method:'POST',
-	        params:{
-	        	'appCouponPolicyVo.appId': appId,
-	            'appCouponPolicyVo.startTime': startTime,
-	            'appCouponPolicyVo.endTime':endTime,
-	            'appCouponPolicyVo.couponType':couponType,
-	            'appCouponPolicyVo.couponValue':couponValue
-	        },
-	        success:function(form,action){
-	        	Ext.getCmp('addCouponPolicyBtn').setDisabled(false);
-	            var obj = Ext.decode(form.responseText);
-	                if(obj==null || obj.success==null){
-	                    Ext.MessageBox.show({
-	                       title: i18n._('errorNotice'),
-	                       msg: i18n._('returnNull'),
-	                       buttons: Ext.MessageBox.OK,
-	                       icon: Ext.MessageBox.ERROR
-	                    });
-	                    return;
-	                }
-	                if(!obj.success){
-	                    Ext.MessageBox.show({
-	                       title: i18n._('errorNotice'),
-	                       msg: obj.resultMsg,
-	                       buttons: Ext.MessageBox.OK,
-	                       icon: Ext.MessageBox.ERROR
-	                    });
-	                    return;
-	                }
-	                Ext.MessageBox.show({
-	                	title: i18n._('notice'),
-	                    msg: '保存成功！',
-	                    buttons: Ext.MessageBox.OK,
-	                    icon: Ext.MessageBox.INFO,
-	                    fn: reLoadCouponPolicyData
-	                });
-	               // couponPolicyStore.load();
-	                addCouponPolicyForm.getForm().reset();
-	                addCouponPolicyWin.hide();
-	        },   
-	        failure:function(form,action){
-	        	Ext.getCmp('addCouponPolicyBtn').setDisabled(false);
-	            Ext.MessageBox.show({
-	                title: i18n._('errorNotice'),
-	                msg: i18n._('operateFail'),
-	                buttons: Ext.MessageBox.OK,
-	                icon: Ext.MessageBox.ERROR
-	            });  
-	        }
-	    });
+	    var flag=true;
+	    if(startTime>endTime){
+	    	Ext.MessageBox.show({
+            	title: i18n._('notice'),
+                msg: '开始时间不能大于结束时间！',
+                buttons: Ext.MessageBox.OK,
+                icon: Ext.MessageBox.INFO,
+                fn: reLoadDrationData
+            });
+	    	return;
+	    }
+	    var type="^[1-9]([0-9])*$"; 
+	    var re =new RegExp(type); 
+	    if(!re.test(couponValue)){
+	    	Ext.MessageBox.show({
+            	title: i18n._('notice'),
+                msg: '只能输入正整数！',
+                buttons: Ext.MessageBox.OK,
+                icon: Ext.MessageBox.INFO,
+                fn: reLoadDrationData
+            });
+	    	return;
+	    }
+	    if(couponType==0&&couponValue>=100){
+	    	Ext.MessageBox.show({
+            	title: i18n._('notice'),
+                msg: '折扣需要小于100！',
+                buttons: Ext.MessageBox.OK,
+                icon: Ext.MessageBox.INFO,
+                fn: reLoadDrationData
+            });
+	    	return;
+	    }
+	    if(couponType==1){
+	    	Ext.Ajax.request({
+				url:path+"/../application_mgmt/application!findMinPriceByAppId.action",
+				method: 'POST',
+				async:false,
+				params:{
+					'appId':appId
+				},
+				success: function (response) {
+					var result=Ext.JSON.decode(response.responseText);
+					if(result.resultObject==null){
+						Ext.MessageBox.show({
+							title : i18n._('notice'),
+							msg : '请添加价格体系！',
+							icon : Ext.MessageBox.INFO,
+							buttons : Ext.MessageBox.OK
+						});
+						flag=false;
+					}else if(couponValue>result.resultObject){
+							Ext.MessageBox.show({
+								title : i18n._('notice'),
+								msg : '优惠值不能大于该应用的最低价'+result.resultObject+'!',
+								icon : Ext.MessageBox.INFO,
+								buttons : Ext.MessageBox.OK
+							});
+							flag=false;
+					}
+				},
+				failure:function(form,action){
+			            Ext.MessageBox.show({
+			                title: i18n._('errorNotice'),
+			                msg: i18n._('operateFail'),
+			                buttons: Ext.MessageBox.OK,
+			                icon: Ext.MessageBox.ERROR
+			            });  
+			            flag=false;
+			        }
+			});
+	    }
+	    if(flag){
+	    	 Ext.getCmp('addCouponPolicyBtn').setDisabled(true);
+	 	    var progress=Ext.Ajax.request({
+	 	        url:path+"/../application_mgmt/application!saveCouponPolicyinfo.action",
+	 	        method:'POST',
+	 	        async:false,
+	 	        params:{
+	 	        	'appCouponPolicyVo.appId': appId,
+	 	            'appCouponPolicyVo.startTime': startTime,
+	 	            'appCouponPolicyVo.endTime':endTime,
+	 	            'appCouponPolicyVo.couponType':couponType,
+	 	            'appCouponPolicyVo.couponValue':couponValue
+	 	        },
+	 	        success:function(form,action){
+	 	        	Ext.getCmp('addCouponPolicyBtn').setDisabled(false);
+	 	            var obj = Ext.decode(form.responseText);
+	 	                if(obj==null || obj.success==null){
+	 	                    Ext.MessageBox.show({
+	 	                       title: i18n._('errorNotice'),
+	 	                       msg: i18n._('returnNull'),
+	 	                       buttons: Ext.MessageBox.OK,
+	 	                       icon: Ext.MessageBox.ERROR
+	 	                    });
+	 	                    return;
+	 	                }
+	 	                if(!obj.success){
+	 	                    Ext.MessageBox.show({
+	 	                       title: i18n._('errorNotice'),
+	 	                       msg: obj.resultMsg,
+	 	                       buttons: Ext.MessageBox.OK,
+	 	                       icon: Ext.MessageBox.ERROR
+	 	                    });
+	 	                    return;
+	 	                }
+	 	                Ext.MessageBox.show({
+	 	                	title: i18n._('notice'),
+	 	                    msg: '保存成功！',
+	 	                    buttons: Ext.MessageBox.OK,
+	 	                    icon: Ext.MessageBox.INFO,
+	 	                    fn: reLoadCouponPolicyData
+	 	                });
+	 	                addCouponPolicyForm.getForm().reset();
+	 	                addCouponPolicyWin.hide();
+	 	        },   
+	 	        failure:function(form,action){
+	 	        	Ext.getCmp('addCouponPolicyBtn').setDisabled(false);
+	 	            Ext.MessageBox.show({
+	 	                title: i18n._('errorNotice'),
+	 	                msg: i18n._('operateFail'),
+	 	                buttons: Ext.MessageBox.OK,
+	 	                icon: Ext.MessageBox.ERROR
+	 	            });  
+	 	        }
+	 	    });
+	    }
 }
 
 

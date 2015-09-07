@@ -1,6 +1,6 @@
 <html>
 <head>
-<title>新增产品总量统计</title>
+<title>供应商数量统计</title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <link rel='stylesheet' type='text/css' href='../../extjs-4.1.0/resources/css/ext-all-gray.css' />
 <script type='text/javascript' src='../../extjs-4.1.0/ext-all.js'></script>
@@ -28,7 +28,6 @@ Ext.require([
 ]);
 
 Ext.onReady(function () {
-
 var appyearStore = new Ext.data.JsonStore( {  
         fields : [ 'id', 'name' ],  
         data : [ {  
@@ -54,34 +53,54 @@ var appyearStore = new Ext.data.JsonStore( {
 var appReportModel = Ext.define('appReportModel', {
 		extend : 'Ext.data.Model',
 		fields : [
-		          'id','appSum','appYear','appMonth','deal_date'
+		          'id','unOrderNum','appYear','appMonth','orderNum'
 		          ]
-	})
+	});
 
-   var store = Ext.create('Ext.data.JsonStore', {
-        fields: ['year', 'comedy', 'action'],
+ var store = Ext.create('Ext.data.JsonStore', {
+        fields: ['appMonth', 'orderNum', 'unOrderNum'],
         data: [
-                {year: 1, comedy: 340, action: 238},
-                {year: 2, comedy: 567, action: 389},
-                {year: 3, comedy: 421, action: 504},
-				{year: 4, comedy: 421, action: 304},
-				{year: 5, comedy: 424, action: 203},
-				{year: 6, comedy: 425, action: 304},
-				{year: 7, comedy: 424, action: 104},
-				{year: 8, comedy: 427, action: 204},
-				{year: 9, comedy: 421, action: 303},
-				{year: 10, comedy: 421, action: 404},
-				{year: 11, comedy: 429, action: 204},
-                {year: 12, comedy: 389, action: 360}
+                {appMonth: 1, orderNum: 340, unOrderNum: 238},
+                {appMonth: 2, orderNum: 567, unOrderNum: 389},
+                {appMonth: 3, orderNum: 421, unOrderNum: 504},
+				{appMonth: 4, orderNum: 421, unOrderNum: 304},
+				{appMonth: 5, orderNum: 424, unOrderNum: 203},
+				{appMonth: 6, orderNum: 425, unOrderNum: 304},
+				{appMonth: 7, orderNum: 424, unOrderNum: 104},
+				{appMonth: 8, orderNum: 427, unOrderNum: 204},
+				{appMonth: 9, orderNum: 421, unOrderNum: 303},
+				{appMonth: 10, orderNum: 421, unOrderNum: 404},
+				{appMonth: 11, orderNum: 429, unOrderNum: 204},
+                {appMonth: 12, orderNum: 389, unOrderNum: 360}
               ]
     });
 
+var yearStore = Ext.create('Ext.data.Store', {
+	    fields: ['id', 'year'],
+	    proxy : new Ext.data.proxy.Ajax(
+				{
+					url:path + '/../report_mgmt/userReport!findReoprtYear.action',
+					reader : {
+						type : 'json',
+						root : 'resultObject'									
+					},
+					listeners:{
+						exception:function(reader, response, error, eOpts){
+							v_mask.hide();
+							ajaxException(reader, response, error, eOpts );										
+						}
+					}							
+				})
+	    
+	    
+	});
+	yearStore.load();
 
 	var appReportStore = Ext.create('Ext.data.Store', {
 		model : 'appReportModel',
 		autoLoad : true,
 		proxy : new Ext.data.proxy.Ajax({
-			url : path + '/../report_mgmt/cloudApplicationReport!getMonthlyIncomeReport.action',
+			url : path + '/../report_mgmt/cloudApplicationReport!getAdditionTotalReport.action',
 			 reader : {
 				type : 'json',
 				root : 'resultObject'
@@ -114,10 +133,11 @@ var appReportModel = Ext.define('appReportModel', {
     		        	var searchAppyear = Ext.getCmp('searchAppyear').getValue();
 						proxy.setExtraParam('searchAppyear',searchAppyear);
 						proxy.extraParams.start = 0;
-						applicationEvaluateStore.loadPage(1,null);
+						appReportStore.loadPage(1,null);
     	            }
     		    }); 
 
+ 
 var grid = Ext.create('Ext.panel.Panel', {
     id:'button-grid',
     //store: appyearStore,
@@ -137,9 +157,10 @@ var grid = Ext.create('Ext.panel.Panel', {
     }
 });
 
+
 Ext.create('Ext.form.Panel', {
     width: 400,
-	margin:'10px 0 30px 320px',
+	margin:'10px 0 20px 320px',
     bodyPadding: 10,
     renderTo: Ext.getBody(),
     layout: {
@@ -150,75 +171,98 @@ Ext.create('Ext.form.Panel', {
         xtype: 'label',
         forId: 'myFieldId',
         text: '年份',
-        margins: '0 10px 0 50px'
+        margins: '0 10px 0 10px'
     },{
-       xtype:'combobox',
-	   margins: '0 10px 0 0 ',
-		name:'searchAppyear', 
-		id:'searchAppyear', 
-		store: appyearStore,         //       这里的store为combox的数据源                   
-		queryMode: 'local',                    
-		displayField: 'appSum',   // 显示在前台的名字                    
-		valueField: 'id',                // 具体的值                   
-		emptyText:'全部',                //为空的状态下显示的内容                    
-		hideLabel:true
-    },imgb]
+        xtype:'combobox',
+ 	    margins: '0 10px 0 0 ',
+ 		name:'searchAppyear', 
+ 		id:'searchAppyear', 
+ 		store:yearStore,         //       这里的store为combox的数据源                   
+ 		queryMode: 'local',                    
+ 		displayField: 'year',   // 显示在前台的名字                    
+ 		valueField: 'id',                // 具体的值                   
+ 		emptyText:'全部',                //为空的状态下显示的内容                    
+ 		hideLabel:true
+     },imgb]
 });
 
+var myDate = new Date();
+var nowYear=myDate.getFullYear()
+Ext.getCmp('searchAppyear').setValue(nowYear);
 
 
- var panel1 = Ext.create('widget.panel', {
-        width: 800,
-		margin:'10px 0 30px 200px',
-        height: 400,
-        title: '新增产品总量统计',
-        renderTo: Ext.getBody(),
-        layout: 'fit',
-        items: {
-            xtype: 'chart',
-            animate: true,
-            shadow: true,
-            store: store,
-            legend: {
-                position: 'bottom'
-            },
+appReportStore.load({
+	
+	callback :function(r, options, success) {
+		if (success == false) {
+		
+			} else {
+				 
+	
+			
+			Ext.create('Ext.chart.Chart', {
+				    renderTo: Ext.getBody(),
+					margin:'30px 0 0 200px',
+					title: '新增产品总量统计',
+				    width: 600,
+				    height: 400,
+				    animate: true,
+					shadow: true,
+					mask: 'horizontal',
+			store: appReportStore,
             axes: [{
                 type: 'Numeric',
                 position: 'bottom',
-                fields: ['comedy', 'action'],
+                fields: ['orderNum', 'unOrderNum'],
                 title: '新增产品数量（单位：个）',
                 grid: true,
-                label: {
-                    renderer: function(v) {
-                        return String(v).replace(/0$/, 'M');
+               	label: {
+                values: [],
+                renderer: function(value) {
+                    var temValue = Math.round(value);
+                    if (temValue >= value) {
+                        if ((temValue - value) > 0.00001) {
+                            return "";
+                        } else {
+                            return temValue;
+                        }
+                    } else {
+                        return "";
                     }
-                },
+                }
+            	},
                 roundToDecimal: false
             }, {
                 type: 'Category',
                 position: 'left',
-                fields: ['year'],
+                fields: ['appMonth'],
                    title: '月份（单位：月）'
             }],
             series: [{
                 type: 'bar',
                 axis: 'bottom',
                 gutter: 80,
-                xField: 'year',
-                yField: ['comedy', 'action'],
+                xField: 'appMonth',
+                yField: ['orderNum', 'unOrderNum'],
+				title:['被订购数量','未订购数量'],
                 stacked: true,
                 tips: {
                     trackMouse: true,
-                    width: 65,
-                    height: 28,
+                    width: 120,
+                    height: 80,
                     renderer: function(storeItem, item) {
-                        this.setTitle(String(item.value[1] / 10) + 'M');
+                         this.setTitle(storeItem.get('appMonth') + ' 月<br/>' +'被订购数量: '+ storeItem.get('orderNum') + ' 个'+ ' <br/>' +'未订购数量: '+ storeItem.get('unOrderNum') + ' 个');
                     }
                 }
             }]
-        }
+        
     });
+	
+			}
+		  }
+});
 
+	
    
 });
 </script>

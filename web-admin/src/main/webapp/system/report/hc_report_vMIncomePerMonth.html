@@ -1,0 +1,218 @@
+<html>
+<head>
+<title>月收入统计</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel='stylesheet' type='text/css' href='../../extjs-4.1.0/resources/css/ext-all-gray.css' />
+<script type='text/javascript' src='../../extjs-4.1.0/ext-all.js'></script>
+<script type="text/javascript" src="../../js/head.js"></script>
+<script type="text/javascript" src="../../js/ux/data/PagingMemoryProxy.js"></script>
+<script type="text/javascript" src="../../js/ux/form/SearchField.js"></script>
+<script src="../../js/jquery-1.7.2.min.js" type="text/javascript"></script>
+<script type="text/javascript" charset="utf-8" src="../../js/i18n.js"></script>
+<script type="text/javascript" src="../systemmanagement/common.js"></script>
+
+<script>
+Ext.require('Ext.chart.*');
+Ext.require([
+	'Ext.form.field.ComboBox',
+    'Ext.form.FieldSet',
+	'Ext.Window', 
+    'Ext.data.*',
+    'Ext.panel.Panel',
+    'Ext.layout.container.Fit',
+    'Ext.ux.form.SearchField',
+	'Ext.fx.target.Sprite',
+	'Ext.ux.data.PagingMemoryProxy'
+]);
+
+Ext.onReady(function () {
+var appReportModel = Ext.define('appReportModel', {
+		extend : 'Ext.data.Model',
+		fields : [
+		          'month','income'
+		          ]
+	});
+var yearStore = Ext.create('Ext.data.Store', {
+	    fields: ['id', 'year'],
+	    proxy : new Ext.data.proxy.Ajax(
+				{
+					url:path + '/../report_mgmt/userReport!findReoprtYear.action',
+					reader : {
+						type : 'json',
+						root : 'resultObject'									
+					},
+					listeners:{
+						exception:function(reader, response, error, eOpts){
+							v_mask.hide();
+							ajaxException(reader, response, error, eOpts );										
+						}
+					}							
+				})
+	    
+	    
+	});
+	yearStore.load();
+
+	var appReportStore = Ext.create('Ext.data.JsonStore', {
+		model : 'appReportModel',
+		//autoLoad : true,
+		proxy : new Ext.data.proxy.Ajax({
+			url : path + '/../report_mgmt/cloudApplicationReport!getVMIncomePerMonth.action',
+			 reader : {
+				type : 'json',
+				root : 'resultObject'
+			},
+			listeners:{
+				exception:function(reader, response, error, eOpts){
+					ajaxException(reader, response, error, eOpts );
+				}
+			}
+		}),	
+		listeners : {
+			beforeload : function(store,operation, eOpts ){	
+				v_mask = new Ext.LoadMask(Ext.getBody(), {
+					msg : i18n._('please wait'),
+					removeMask : true			
+				});
+				v_mask.show();
+			},
+			load : function(store, records, successful, eOpts ){
+				v_mask.hide();
+			}
+		}
+	});	
+	
+	var imgb = new Ext.Button({  
+    		        text: '<font color="#ee7700">'+i18n._('Search')+'</font>',
+    		        icon: "images/search.png",
+    		        handler :function(btn) { 
+    		        	var proxy = appReportStore.getProxy();
+    		        	var searchAppyear = Ext.getCmp('searchAppyear').getValue();
+						proxy.setExtraParam('searchAppyear',searchAppyear);
+						proxy.extraParams.start = 0;
+						appReportStore.loadPage(1,null);
+    	            }
+    		    }); 
+
+ 
+var grid = Ext.create('Ext.panel.Panel', {
+    id:'button-grid',
+    //store: appyearStore,
+    title:i18n._('报表管理')+'&nbsp;&nbsp;>&nbsp;&nbsp;'+i18n._('云主机')+'&nbsp;&nbsp;>&nbsp;&nbsp;'+i18n._('月收入统计'),
+	layout:'fit',
+    width:'100%',
+	height:'100%',
+    frame: true,
+	border:false,
+	simpleSelect :true,
+    iconCls: 'icon-grid',
+	renderTo: Ext.getBody(),
+	//自适应
+    viewConfig: {
+        stripeRows: true,
+		forceFit: true
+    }
+});
+
+
+Ext.create('Ext.form.Panel', {
+    width: 400,
+	margin:'10px 0 20px 320px',
+    bodyPadding: 10,
+    renderTo: Ext.getBody(),
+    layout: {
+        type: 'hbox',
+        align: 'middle'
+    },
+    items: [{
+        xtype: 'label',
+        forId: 'myFieldId',
+        text: '年份',
+        margins: '0 10px 0 10px'
+    },{
+        xtype:'combobox',
+ 	    margins: '0 10px 0 0 ',
+ 		name:'searchAppyear', 
+ 		id:'searchAppyear', 
+ 		store:yearStore,         //       这里的store为combox的数据源                   
+ 		queryMode: 'local',                    
+ 		displayField: 'year',   // 显示在前台的名字                    
+ 		valueField: 'id',                // 具体的值                   
+ 		emptyText:'全部',                //为空的状态下显示的内容                    
+ 		hideLabel:true
+     },imgb]
+});
+
+var myDate = new Date();
+var nowYear=myDate.getFullYear()
+Ext.getCmp('searchAppyear').setValue(nowYear);
+
+
+appReportStore.load({
+	
+	callback :function(r, options, success) {
+		if (success == false) {
+			 
+			} else {
+				 
+				Ext.create('Ext.chart.Chart', {
+				    renderTo: Ext.getBody(),
+					margin:'30px 0 0 200px',
+				    width: 600,
+				    height: 400,
+				    animate: true,
+					shadow: true,
+					mask: 'horizontal',
+				    store: appReportStore,
+				    axes: [{
+				            type: 'Numeric',
+				            position: 'left',
+				            fields: ['income'],
+				            label: {
+				                renderer: Ext.util.Format.numberRenderer('0,0.00')
+				            },
+				          	title: '收入金额（单位：元）',
+				            grid: true,
+				            minimum: 0
+				        }, {
+				            type: 'Category',
+				            position: 'bottom',
+				            fields: ['month'],
+				           	title: '月份（单位：月）'
+				        }],
+				        series: [{
+				            type: 'column',
+				            axis: 'left',
+				            highlight: true,
+				            tips: {
+				              trackMouse: true,
+				              width: 140,
+				              height: 28,
+				              renderer: function(storeItem, item) {
+				                this.setTitle(storeItem.get('month') + ': ' + ' ￥ '+ storeItem.get('income') );
+				              }
+				            },
+				            label: {
+				              display: 'insideEnd',
+				              'text-anchor': 'middle',
+				                field: 'income',
+				                renderer: Ext.util.Format.numberRenderer('0.00'),
+				                orientation: 'vertical',
+				                color: '#333'
+				            },
+				            xField: 'month',
+				            yField: 'income'
+				        }]
+				});
+			}
+		  }
+});
+
+	
+   
+});
+</script>
+</head>
+<body>
+</body>
+</html>

@@ -500,9 +500,13 @@ Ext.onReady(function() {
             	function saveAppEvaluateReply() {
             	    var replycontent = Ext.getCmp('replycontent').getValue();
             	    var id = Ext.getCmp('reviewId').getValue();
-            	    if(!Ext.getCmp('replycontent').isValid()){
+            	   /*  if(!Ext.getCmp('replycontent').isValid()){
                         return;
-                    }
+                    } */
+            	    if(!appEvaluateReplyForm.form.isValid()){
+             	    	return;
+             	    }
+                    
             	    var progress=Ext.Ajax.request({
             	        url:path + '/../application_mgmt/applicationEvaluate!replyAppEvaluate.action',
             	        method:'POST',
@@ -571,7 +575,7 @@ Ext.onReady(function() {
             	        width:400,
             	        height:150,
             	        xtype:"textarea",
-            	        maxLength:300,
+            	        maxLength:120,
             	        allowBlank: false,
             	        enforceMaxLength:true
             	       },

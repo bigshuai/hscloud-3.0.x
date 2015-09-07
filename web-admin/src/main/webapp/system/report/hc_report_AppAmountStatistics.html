@@ -1,0 +1,292 @@
+<html>
+<head>
+<title>应用点评数量统计</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel='stylesheet' type='text/css'
+	href='../../extjs-4.1.0/resources/css/ext-all-gray.css' />
+<script type='text/javascript' src='../../extjs-4.1.0/ext-all.js'></script>
+<script type="text/javascript" src="../../js/head.js"></script>
+<script type="text/javascript"
+	src="../../js/ux/data/PagingMemoryProxy.js"></script>
+<script type="text/javascript" src="../../js/ux/form/SearchField.js"></script>
+<script src="../../js/jquery-1.7.2.min.js" type="text/javascript"></script>
+<script type="text/javascript" charset="utf-8" src="../../js/i18n.js"></script>
+<script type="text/javascript" src="../systemmanagement/common.js"></script>
+
+<script>
+Ext.require('Ext.chart.*');
+Ext.require([
+	'Ext.form.field.ComboBox',
+    'Ext.form.FieldSet',
+	'Ext.Window', 
+    'Ext.data.*',
+    'Ext.panel.Panel',
+    'Ext.layout.container.Fit',
+    'Ext.ux.form.SearchField',
+	'Ext.fx.target.Sprite',
+	'Ext.ux.data.PagingMemoryProxy'
+]);
+
+Ext.onReady(function () {
+
+
+
+
+var appReportModel = Ext.define('appReportModel', {
+		extend : 'Ext.data.Model',
+		fields : [
+		          'appId','appName','avgScore'
+		          ]
+	});
+
+
+var yearStore = Ext.create('Ext.data.Store', {
+	    fields: ['id', 'year'],
+	    proxy : new Ext.data.proxy.Ajax(
+				{								
+					url:path + '/../report_mgmt/userReport!findReoprtYear.action',
+					reader : {
+						type : 'json',
+						root : 'resultObject'									
+					},
+					listeners:{
+						exception:function(reader, response, error, eOpts){
+							v_mask.hide();
+							ajaxException(reader, response, error, eOpts );										
+						}
+					}							
+				})
+	    
+	    
+	});
+	yearStore.load();
+var monthStore = Ext.create('Ext.data.Store', {
+	    fields: ['id','month'],
+		data:[{'id':'1','month':'1'},
+		      {'id':'2','month':'2'},
+		      {'id':'3','month':'3'},
+		      {'id':'4','month':'4'},
+		      {'id':'5','month':'5'},
+		      {'id':'6','month':'6'},
+		      {'id':'7','month':'7'},
+		      {'id':'8','month':'8'},
+		      {'id':'9','month':'9'},
+		      {'id':'10','month':'10'},
+		      {'id':'11','month':'11'},
+		      {'id':'12','month':'12'}
+		      ]
+	    
+	});
+monthStore.load();
+var sortStore = Ext.create('Ext.data.Store', {
+	    fields: ['sort','description'],
+		data:[{'description':'前10名','sort':'desc'},
+		      {'description':'后10名','sort':'asc'}
+		      ]
+	    
+	});
+sortStore.load();
+
+	var appReportStore = Ext.create('Ext.data.Store', {
+		model : 'appReportModel',
+		autoLoad : true,
+		proxy : new Ext.data.proxy.Ajax({//report!getAppReviewAmountStatisticsList.action	
+			url : path + '/../report_mgmt/report!getAppReviewAmountStatisticsList.action',
+			 reader : {
+				type : 'json',
+				root : 'resultObject'
+			},
+			listeners:{
+				exception:function(reader, response, error, eOpts){
+					ajaxException(reader, response, error, eOpts );
+				}
+			}
+		}),	
+		listeners : {
+			beforeload : function(store,operation, eOpts ){	
+				v_mask = new Ext.LoadMask(Ext.getBody(), {
+					msg : i18n._('please wait'),
+					removeMask : true			
+				});
+				v_mask.show();
+			},
+			load : function(store, records, successful, eOpts ){
+				v_mask.hide();
+			}
+		}
+	});	
+	appReportStore.load();
+	var imgb = new Ext.Button({  
+    		        text: '<font color="#ee7700">'+i18n._('Search')+'</font>',
+    		        icon: "images/search.png",
+    		        handler :function(btn) { 
+    		        	var proxy = appReportStore.getProxy();
+    		        	var searchAppyear = Ext.getCmp('searchAppyear').getValue();
+    		        	var searchAppmonth = Ext.getCmp('searchAppmonth').getValue();
+    		        	var searchAppsort = Ext.getCmp('searchAppsort').getValue();
+						proxy.setExtraParam('searchAppyear',searchAppyear);
+						proxy.setExtraParam('searchAppsort',searchAppsort);
+						proxy.setExtraParam('searchAppmonth',searchAppmonth);
+						proxy.extraParams.start = 0;
+						appReportStore.loadPage(1,null);
+    	            }
+    		    }); 
+
+ 
+var grid = Ext.create('Ext.panel.Panel', {
+    id:'button-grid',
+    title:i18n._('报表管理')+'&nbsp;&nbsp;>&nbsp;&nbsp;'+i18n._('云应用')+'&nbsp;&nbsp;>&nbsp;&nbsp;'+i18n._('应用点评数量统计'),
+	layout:'fit',
+    width:'100%',
+	height:'100%',
+    frame: true,
+	border:false,
+	simpleSelect :true,
+    iconCls: 'icon-grid',
+	renderTo: Ext.getBody(),
+	//自适应
+    viewConfig: {
+        stripeRows: true,
+		forceFit: true
+    }
+});
+
+
+Ext.create('Ext.form.Panel', {
+    width: 750,
+	margin:'10px 0 20px 200px',
+    bodyPadding: 10,
+    renderTo: Ext.getBody(),
+    layout: {
+        type: 'hbox',
+        align: 'middle'
+    },
+    items: [{
+        xtype: 'label',
+        forId: 'myFieldId',
+        text: '年份',
+        margins: '0 10px 0 10px'
+    },{
+        xtype:'combobox',
+ 	    margins: '0 10px 0 0 ',
+ 		name:'searchAppyear', 
+ 		id:'searchAppyear', 
+ 		store:yearStore,         //       这里的store为combox的数据源                   
+ 		queryMode: 'local',                    
+ 		displayField: 'year',   // 显示在前台的名字                    
+ 		valueField: 'id',                // 具体的值                   
+ 		emptyText:'全部',                //为空的状态下显示的内容                    
+ 		hideLabel:true
+     },{
+         xtype: 'label',
+         forId: 'myFieldId',
+         text: '月份',
+         margins: '0 10px 0 10px'
+     },{
+         xtype:'combobox',
+  	    margins: '0 10px 0 0 ',
+  		name:'searchAppmonth', 
+  		id:'searchAppmonth', 
+  		store:monthStore,         //       这里的store为combox的数据源                   
+  		queryMode: 'local',                    
+  		displayField: 'month',   // 显示在前台的名字                    
+  		valueField: 'month',                // 具体的值                   
+  		emptyText:'全部',                //为空的状态下显示的内容                    
+  		hideLabel:true
+      },{
+          xtype: 'label',
+          forId: 'myFieldId',
+          text: '顺序',
+          margins: '0 10px 0 10px'
+      },{
+          xtype:'combobox',
+   	    margins: '0 10px 0 0 ',
+   		name:'searchAppsort', 
+   		id:'searchAppsort', 
+   		store:sortStore,         //       这里的store为combox的数据源                   
+   		queryMode: 'local',                    
+   		displayField: 'description',   // 显示在前台的名字                    
+   		valueField: 'sort',                // 具体的值                   
+   		emptyText:'前十名',                //为空的状态下显示的内容                    
+   		hideLabel:true
+       },imgb]
+});
+
+var myDate = new Date();
+var nowYear=myDate.getFullYear()
+var nowMonth = myDate.getMonth()+1;
+Ext.getCmp('searchAppyear').setValue(2015);
+Ext.getCmp('searchAppmonth').setValue(nowMonth);
+Ext.getCmp('searchAppsort').setValue('desc');
+
+
+
+appReportStore.load({
+	
+	callback :function(r, options, success) {
+		if (success == false) {
+		
+			} else {
+				 
+				Ext.create('Ext.chart.Chart', {
+				    renderTo: Ext.getBody(),
+					margin:'30px 0 0 100px',
+				    width: 1000,
+				    height: 400,
+				    //animate: true,
+				    store: appReportStore,
+				    axes: [{
+				            type: 'Numeric',
+				            position: 'left',
+							margin:'10px 0 0 0',
+				            fields: ['avgScore'],
+				            label: {
+				                renderer: Ext.util.Format.numberRenderer('0.0')
+				            },
+				          	title: '评价分数(单位:分)',
+				            grid: true,
+				            minimum: 0,
+				            maximum: 5
+				        }, {
+				            type: 'Category',
+				            position: 'bottom',
+				            fields: ['appName'],
+				           	title: '应用名称',
+				           	label:{
+				           		rotate: { degrees: 45}
+				           	}
+				        }],
+				        series: [{
+				            type: 'column',
+				            axis: 'left',
+				            highlight: true,
+				            tips: {
+				              trackMouse: true,
+				              width: 250,
+				              height: 50,
+				              renderer: function(storeItem, item) {
+				                this.setTitle(storeItem.get('appName') + ': ' + storeItem.get('avgScore').toFixed(1) + ' 分');
+				              }
+				            },
+				            label: {
+				              display: 'insideEnd',
+				              'text-anchor': 'middle',
+				                field: 'avgScore',
+				                renderer: Ext.util.Format.numberRenderer('0.0'),
+				                orientation: 'vertical',
+				                color: '#333'
+				            },
+				            xField: 'appName',
+				            yField: 'avgScore'
+				        }]
+				});
+			}
+		  }
+});
+   
+});
+</script>
+</head>
+<body>
+</body>
+</html>
